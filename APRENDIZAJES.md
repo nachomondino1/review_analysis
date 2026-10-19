@@ -81,6 +81,31 @@ resumen como si fuera una categoría real.
 
 ---
 
+### 2026-10-19 — `min_topic_size` fijo rompe el modelado en empresas chicas
+
+**Qué pasó:** probando con Beelup (74 reseñas con texto, bastante menos que
+Ripio o Spotify), BERTopic con `min_topic_size=20` (fijo) no pudo formar
+**ningún** tópico real: las 74 reseñas cayeron todas en el outlier `-1`. El
+dashboard hubiera mostrado "0 hallazgos" para una empresa que en realidad
+tenía quejas bien claras y repetidas (la app es un simple link a una web que
+además anda mal).
+
+**Cómo lo resolvimos:** `min_topic_size` ahora se calcula con
+`min_topic_size_for(n_docs)` en `03_modeling/model.py` — escala con el
+tamaño del corpus (`n_docs // 10`), con un piso de 5 para no generar tópicos
+de 2-3 reseñas sin sentido. Con ese cambio, Beelup formó 2 tópicos reales
+sobre 70 de las 74 reseñas.
+
+**Lección generalizable:** cualquier hiperparámetro de modelado calibrado
+"a ojo" contra el primer dataset que se prueba (acá, Spotify con miles de
+reseñas) hay que revisarlo contra el caso chico antes de asumir que
+generaliza — un pipeline que corre sin error pero devuelve "sin resultados"
+para un dataset chico es un bug silencioso, no una empresa sin problemas
+que reportar. Probar siempre con al menos un caso grande y uno chico antes
+de dar una fase por terminada.
+
+---
+
 ## 04 — Evaluation
 
 ### 2026-10-19 — Nombrar tópicos con LLM sin tener una API key de Anthropic

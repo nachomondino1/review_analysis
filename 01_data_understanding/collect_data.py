@@ -10,6 +10,7 @@ from google_play_scraper import Sort, app as gp_app, reviews
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
+import companies  # noqa: E402
 
 
 def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:
@@ -51,7 +52,7 @@ def fetch_android(pkg: str, country="ar", lang="es", count=5000) -> pd.DataFrame
     })
 
 
-def fetch_store_ratings(app_ios: int, pkg: str, country="ar", lang="es") -> dict:
+def fetch_store_ratings(app_ios: int | None, pkg: str | None, country="ar", lang="es") -> dict:
     """
     Rating/conteo oficial agregado de cada tienda, calculado sobre TODAS las
     calificaciones (toquen estrellas o escriban texto). Separado de las reseñas
@@ -61,25 +62,24 @@ def fetch_store_ratings(app_ios: int, pkg: str, country="ar", lang="es") -> dict
     el % de negativas de la muestra como si fuera el rating real del público
     general es engañoso.
     """
-    ios = requests.get(f"https://itunes.apple.com/lookup?id={app_ios}&country={country}", timeout=15).json()
-    ios_result = (ios.get("results") or [{}])[0]
+    ios_stats = {"score": None, "ratings_count": None}
+    if app_ios:
+        ios = requests.get(f"https://itunes.apple.com/lookup?id={app_ios}&country={country}", timeout=15).json()
+        ios_result = (ios.get("results") or [{}])[0]
+        ios_stats = {"score": ios_result.get("averageUserRating"), "ratings_count": ios_result.get("userRatingCount")}
 
-    android = gp_app(pkg, lang=lang, country=country)
+    android_stats = {"score": None, "ratings_count": None}
+    if pkg:
+        android = gp_app(pkg, lang=lang, country=country)
+        android_stats = {"score": android.get("score"), "ratings_count": android.get("ratings")}
 
-    return {
-        "ios": {
-            "score": ios_result.get("averageUserRating"),
-            "ratings_count": ios_result.get("userRatingCount"),
-        },
-        "android": {
-            "score": android.get("score"),
-            "ratings_count": android.get("ratings"),
-        },
-    }
+    return {"ios": ios_stats, "android": android_stats}
 
 
-def update(paths: Paths, app_ios: int, pkg: str) -> pd.DataFrame:
-    new = pd.concat([fetch_ios(app_ios), fetch_android(pkg)], ignore_index=True)
+def update(paths: Paths, app_ios: int | None, pkg: str | None) -> pd.DataFrame:
+    parts = [df for df in (fetch_ios(app_ios) if app_ios else None,
+                            fetch_android(pkg) if pkg else None) if df is not None]
+    new = pd.concat(parts, ignore_index=True)
     new["date"] = pd.to_datetime(new["date"], utc=True)
     paths.ensure_dirs()
     if paths.reviews.exists():
@@ -90,21 +90,42 @@ def update(paths: Paths, app_ios: int, pkg: str) -> pd.DataFrame:
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Descarga reseñas de App Store + Google Play para una empresa.")
+    p = argparse.ArgumentParser(
+        description="Descarga reseñas de App Store + Google Play para una empresa. "
+                     "Los ids se guardan/leen de common/companies.csv: si ya se corrió antes para "
+                     "esta empresa, no hace falta pasarlos de nuevo."
+    )
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (define la carpeta data/<name>/)")
-    p.add_argument("--app-ios", type=int, required=True, help="id numérico de la app en App Store")
-    p.add_argument("--pkg", required=True, help="package name de la app en Google Play")
+    p.add_argument("--app-ios", type=int, default=None, help="id numérico de la app en App Store (omitir si no tiene)")
+    p.add_argument("--pkg", default=None, help="package name de la app en Google Play (omitir si no tiene)")
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
+
+    app_ios, pkg = args.app_ios, args.pkg
+    if app_ios is None and pkg is None:
+        known = companies.lookup(args.name)
+        if known is None:
+            raise SystemExit(
+                f"No conozco a '{args.name}' en common/companies.csv. "
+                "Pasá al menos --app-ios o --pkg la primera vez."
+            )
+        app_ios, pkg = known["app_ios"], known["pkg"]
+        print(f"Usando ids guardados para '{args.name}': app_ios={app_ios}, pkg={pkg}")
+    else:
+        companies.upsert(args.name, app_ios, pkg)
+
+    if app_ios is None and pkg is None:
+        raise SystemExit(f"'{args.name}' no tiene ni --app-ios ni --pkg: no hay nada para descargar.")
+
     paths = Paths(args.name)
-    df = update(paths, app_ios=args.app_ios, pkg=args.pkg)
+    df = update(paths, app_ios=app_ios, pkg=pkg)
     print(df.groupby("store").size())
     print(f"Guardado en {paths.reviews.resolve()}")
 
-    ratings = fetch_store_ratings(args.app_ios, args.pkg)
+    ratings = fetch_store_ratings(app_ios, pkg)
     paths.store_ratings_json.write_text(json.dumps(ratings, indent=2))
     print(ratings)
     print(f"Guardado en {paths.store_ratings_json.resolve()}")

@@ -6,7 +6,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 
 ## Qué hace
 
-1. **Recolección** (`01_data_understanding/collect_data.py`): descarga reseñas de App Store (vía RSS feed de iTunes) y Google Play (vía `google-play-scraper`) para una app dada, las deduplica contra lo ya guardado y las acumula en `data/<empresa>/01_data_understanding/reviews.parquet`. También guarda el **rating oficial agregado** de cada tienda (`store_ratings.json`) — ver nota de metodología más abajo, es importante.
+1. **Recolección** (`01_data_understanding/collect_data.py`): descarga reseñas de App Store (vía RSS feed de iTunes) y Google Play (vía `google-play-scraper`) para una app dada, las deduplica contra lo ya guardado y las acumula en `data/<empresa>/01_data_understanding/reviews.parquet`. También guarda el **rating oficial agregado** de cada tienda (`store_ratings.json`) — ver nota de metodología más abajo, es importante. Los ids de App Store/Google Play se guardan en `common/companies.csv`: una empresa que ya se corrió antes no necesita pasarlos de nuevo, y una empresa sin presencia en una de las dos tiendas (ej. solo Android) funciona sin problema con el `--app-ios` o `--pkg` que falte.
 2. **Limpieza** (`02_data_preparation/clean_reviews.py`): filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 3. **Análisis** (`03_modeling/model.py`):
    - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
@@ -24,6 +24,8 @@ Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identi
 ```
 common/
   config.py          # paths por empresa (data/<empresa>/<fase>/...), importado por todas las fases
+  companies.py        # registro de empresas ya analizadas (lookup/upsert de companies.csv)
+  companies.csv        # nombre, app_ios, pkg por empresa — versionado, se edita solo o vía collect_data.py
   check_env.py        # sanity check de que HF_TOKEN está cargado
 01_data_understanding/
   collect_data.py     # scraping de App Store + Google Play
@@ -72,11 +74,13 @@ cp .env.example .env   # y completar HF_TOKEN
 
 ## Uso
 
-1. Correr la recolección, indicando el id de App Store y el package de Google Play de la app:
+1. Correr la recolección, indicando el id de App Store y/o el package de Google Play de la app (alguno de los dos puede faltar si la app no está en esa tienda):
 
    ```bash
    python 01_data_understanding/collect_data.py --name spotify --app-ios 324684580 --pkg com.spotify.music
    ```
+
+   La primera vez, los ids quedan guardados en `common/companies.csv`; una corrida posterior solo necesita `--name spotify`, sin repetir los ids.
 
 2. Limpiar las reseñas sin señal real:
 

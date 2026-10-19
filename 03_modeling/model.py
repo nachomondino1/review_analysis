@@ -14,6 +14,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 OUTLIER_TOPIC = -1  # BERTopic: reseñas sin patrón claro, no es un tópico real
+MIN_TOPIC_SIZE_DEFAULT = 20
+MIN_TOPIC_SIZE_FLOOR = 5
+
+
+def min_topic_size_for(n_docs: int) -> int:
+    """
+    min_topic_size=20 fijo no forma ningún tópico real en datasets chicos (ej.
+    74 reseñas): todo cae en el outlier -1. Lo escala con el tamaño del corpus,
+    con un piso para no generar tópicos de 2-3 reseñas sin sentido.
+    """
+    return max(MIN_TOPIC_SIZE_FLOOR, min(MIN_TOPIC_SIZE_DEFAULT, n_docs // 10))
 
 
 def parse_args():
@@ -29,7 +40,7 @@ def run(paths: Paths):
     df["sentiment"] = [p.output for p in sent.predict(df["text"].tolist())]
 
     emb = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-    topic_model = BERTopic(language="multilingual", min_topic_size=20)
+    topic_model = BERTopic(language="multilingual", min_topic_size=min_topic_size_for(len(df)))
     df["topic"], _ = topic_model.fit_transform(
         df["text"].tolist(), emb.encode(df["text"].tolist(), show_progress_bar=True)
     )
