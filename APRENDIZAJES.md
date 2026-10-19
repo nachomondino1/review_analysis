@@ -7,11 +7,17 @@ de [PLAN.md](PLAN.md) (qué falta hacer) y de los commits (qué cambió), esto e
 mismo problema en el futuro o en otro proyecto similar.
 
 Se agrega una entrada nueva cada vez que algo nos sorprende o nos hace
-corregir un supuesto, no cada vez que se agrega una feature.
+corregir un supuesto, no cada vez que se agrega una feature. Organizado por
+fase de CRISP-DM (misma estructura de carpetas que el resto del repo), porque
+el tipo de sorpresa que aparece suele ser propio de esa etapa: en recolección
+son sesgos de la fuente, en modelado son particularidades del algoritmo, en
+deployment son bugs de la capa de presentación.
 
 ---
 
-## 2026-10-19 — Las reseñas con texto son una muestra sesgada hacia las quejas
+## 01 — Data Understanding
+
+### 2026-10-19 — Las reseñas con texto son una muestra sesgada hacia las quejas
 
 **Qué pasó:** corriendo el análisis completo con Ripio (datos reales), el
 dashboard mostraba 2.25★ de rating promedio y 70% de reseñas negativas. El
@@ -53,7 +59,9 @@ NPS, lo que exista) y mostrarlo al lado, no en su reemplazo.
 
 ---
 
-## 2026-10-19 — El tópico `-1` de BERTopic no es un tema, es "no encajó en ninguno"
+## 03 — Modeling
+
+### 2026-10-19 — El tópico `-1` de BERTopic no es un tema, es "no encajó en ninguno"
 
 **Qué pasó:** el resumen por tópico (`topics_summary.csv`) mezclaba el
 tópico `-1` (que BERTopic usa para reseñas que no agrupó en ningún cluster)
@@ -73,30 +81,9 @@ resumen como si fuera una categoría real.
 
 ---
 
-## 2026-10-19 — `minmax(Npx, 1fr)` en una grilla CSS no encoge por debajo de `Npx`
+## 04 — Evaluation
 
-**Qué pasó:** probando el dashboard en un viewport muy angosto, las cards de
-hallazgos y de stats desbordaban la página (`scrollWidth > innerWidth`)
-aunque el CSS parecía "responsive" con `grid-template-columns: repeat(auto-fit,
-minmax(280px, 1fr))`.
-
-**Por qué pasa:** `minmax(280px, 1fr)` le pone un piso de 280px a cada
-columna sin importar cuánto espacio real haya — por debajo de ese ancho, la
-grilla fuerza overflow en vez de encoger.
-
-**Cómo lo resolvimos:** `minmax(min(280px, 100%), 1fr)` — el `min()` hace
-que el piso de la columna sea 280px o el 100% del contenedor, lo que sea
-menor, así nunca fuerza más ancho del que hay disponible.
-
-**Lección generalizable:** cualquier `minmax(Npx, 1fr)` en un layout que
-tiene que andar en mobile necesita el wrapper `min(Npx, 100%)`, no solo
-`auto-fit`/`auto-fill`. Verificar overflow con `scrollWidth`/`innerWidth`
-por script, no solo mirando un screenshot a un ancho fijo — a 320-375px a
-veces no se nota, pero en viewports más angostos (o con texto más largo) sí.
-
----
-
-## 2026-10-19 — Nombrar tópicos con LLM sin tener una API key de Anthropic
+### 2026-10-19 — Nombrar tópicos con LLM sin tener una API key de Anthropic
 
 **Qué pasó:** la idea original era llamar a la API de Claude para nombrar
 los tópicos de BERTopic automáticamente. El usuario no tiene una
@@ -117,3 +104,28 @@ trabajando con un asistente en una sesión interactiva, partir el paso en
 export/import deterministas permite que el asistente haga el trabajo de
 lenguaje natural sin pasar por una API externa. Vale la pena ofrecer esto
 como alternativa antes de asumir que hace falta una key.
+
+---
+
+## 05 — Deployment
+
+### 2026-10-19 — `minmax(Npx, 1fr)` en una grilla CSS no encoge por debajo de `Npx`
+
+**Qué pasó:** probando el dashboard en un viewport muy angosto, las cards de
+hallazgos y de stats desbordaban la página (`scrollWidth > innerWidth`)
+aunque el CSS parecía "responsive" con `grid-template-columns: repeat(auto-fit,
+minmax(280px, 1fr))`.
+
+**Por qué pasa:** `minmax(280px, 1fr)` le pone un piso de 280px a cada
+columna sin importar cuánto espacio real haya — por debajo de ese ancho, la
+grilla fuerza overflow en vez de encoger.
+
+**Cómo lo resolvimos:** `minmax(min(280px, 100%), 1fr)` — el `min()` hace
+que el piso de la columna sea 280px o el 100% del contenedor, lo que sea
+menor, así nunca fuerza más ancho del que hay disponible.
+
+**Lección generalizable:** cualquier `minmax(Npx, 1fr)` en un layout que
+tiene que andar en mobile necesita el wrapper `min(Npx, 100%)`, no solo
+`auto-fit`/`auto-fill`. Verificar overflow con `scrollWidth`/`innerWidth`
+por script, no solo mirando un screenshot a un ancho fijo — a 320-375px a
+veces no se nota, pero en viewports más angostos (o con texto más largo) sí.
