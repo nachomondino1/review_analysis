@@ -1,0 +1,7 @@
+pandas==3.0.6
+requests==2.34.2
+google-play-scraper==1.2.7
+python-dotenv==1.2.4
+pysentimiento==0.7.3
+bertopic==0.17.4
+sentence-transformers==6.1.0

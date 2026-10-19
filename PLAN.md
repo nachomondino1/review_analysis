@@ -1,0 +1,69 @@
+# Plan: de script a entregable para una empresa
+
+Objetivo del hito: dado el nombre/ids de una app, generar un **análisis accionable de sus reseñas** y una **web compartible** (link, no un CSV) para mandarle a un CEO. El fin último es conseguir trabajo mostrando trabajo real, así que lo que importa priorizar es: **que el output se vea profesional y diga algo accionable**, antes que robustecer el pipeline interno.
+
+Arquitectura de referencia: Arquetipo B del `DATA_FLOW_PLAYBOOK_unificado.md` (fuente → enriquecimiento con caché → modelo → `dashboard.py` → un solo HTML autocontenido, `make publish`). Para el diseño del HTML, `DESIGN_PLAYBOOK_unificado.md` (tokens, tipografía, componentes — ya pensado para "producto personal cuidado", que es exactamente el tono que querés para este caso).
+
+Prioridad: **tiempo primero**. Cada fase asume que la anterior ya te sirve para mostrarle algo a alguien. No hace falta terminar una fase entera para arrancar la siguiente si lo que falta no bloquea una demo.
+
+---
+
+## Fase 0 — Dejar lo que ya existe usable (horas, no días)
+
+Lo mínimo para poder correr el flujo de punta a punta sin tocar código a mano cada vez.
+
+- [ ] **Parametrizar la app por CLI**, no hardcodeada en `collect_data.py`. Algo simple: `python scripts/collect_data.py --app-ios 324684580 --pkg com.spotify.music --name "Spotify"`. Sin esto, cada empresa nueva es editar código.
+- [ ] **`requirements.txt`** (o `pyproject.toml`) con versiones fijadas. 10 minutos, evita que el entorno se rompa en el peor momento (justo cuando le estás armando el análisis a alguien).
+- [ ] **Separar carpetas de output por empresa**: `data/<empresa>/reviews.parquet`, `data/<empresa>/output/...`. Hoy todo pisa `data/reviews.parquet` sin importar qué app corriste antes — con una sola empresa a la vez no se nota, pero en cuanto quieras tener 2-3 análisis guardados para mostrar, se pisan.
+- [ ] **Filtrar el tópico `-1`** (outliers de BERTopic) del resumen, o marcarlo explícitamente como "sin patrón claro" — hoy puede aparecer mezclado con tópicos reales en el CSV.
+- [ ] Mover el `app_ios`/`pkg` hardcodeado de `model.py`/`collect_data.py` a un único `config.py` por corrida (lee de CLI o de un `empresas.yaml` chico), para no tener el nombre de la empresa duplicado en dos scripts.
+
+**Resultado de esta fase:** podés correr `python scripts/collect_data.py --app-ios X --pkg Y --name Z && python scripts/model.py --name Z` para cualquier empresa sin editar código.
+
+## Fase 1 — El análisis tiene que decir algo accionable (el corazón del valor)
+
+Esto es lo que diferencia "corrí un notebook de NLP" de "te traigo 3 cosas que podés arreglar esta semana". Es la fase de mayor impacto por hora invertida.
+
+- [ ] **Nombrar los tópicos con un LLM, no con las keywords crudas de BERTopic.** Hoy `Name` es tipo `"6_no_canciones_que_playlist"` — ilegible para un CEO. Pasarle a un LLM (podés usar la Claude API, ya tenés el contexto de Anthropic) las reseñas de muestra de cada tópico y que devuelva: nombre corto, 1-2 frases de resumen, y severidad percibida. Es la mejora de UX más barata con más impacto.
+- [ ] **Agregar una recomendación por tópico negativo**, no solo el diagnóstico. El mismo paso de LLM puede devolver "qué probaría primero" para los 3-5 tópicos con peor `pct_neg` y mayor `n` (volumen × negatividad, no solo % para no priorizar un tópico de 5 reseñas).
+- [ ] **Serie temporal simple**: ¿el sentimiento negativo empeoró o mejoró en los últimos N meses? ¿coincide con alguna versión (`version` ya está en los datos)? Esto te da el gancho de "esto se rompió en la v4.2" que es mucho más persuasivo que un promedio estático.
+- [ ] **Comparar rating de Play Store vs App Store** si difieren mucho — a veces una plataforma tiene un problema que la otra no.
+- [ ] Dejar **afuera por ahora** (no vale el tiempo para la v1): entrenar un clasificador propio de sentimiento, multi-idioma más allá de es/en, dashboards interactivos con filtros complejos, comparación contra competidores.
+
+**Resultado de esta fase:** `topics_summary` deja de ser un CSV técnico y pasa a ser 5-8 hallazgos con nombre, severidad y una sugerencia concreta — el insumo real de la web.
+
+## Fase 2 — La web para compartir (Arquetipo B: `dashboard.py` → 1 HTML)
+
+No hace falta hosting, backend, ni build step. Un solo HTML autocontenido con los datos embebidos, que se sube a cualquier lado (GitHub Pages, o directo como adjunto/link de Drive) y se ve bien en el celular del CEO.
+
+- [ ] **`scripts/dashboard.py`**: lee `reviews_enriched.parquet` + el resumen de tópicos (ya con nombres/recomendaciones de la Fase 1) y genera `site/<empresa>/index.html` con los datos embebidos como JSON inline (sin fetch, sin modo de falla de red — ver Design Playbook §10).
+- [ ] **Contenido del HTML**, en orden de lo que un CEO mira primero:
+  1. Resumen ejecutivo: rating promedio, volumen de reseñas, % negativas, tendencia (mejor/peor que hace 3 meses).
+  2. Los 3-5 hallazgos principales con nombre, severidad (chip de color) y recomendación — la micro-visualización, no la tabla completa.
+  3. Gráfico de tendencia temporal (sentimiento por mes, marcar versiones si hay un salto).
+  4. Tabla completa de tópicos como detalle opcional (`<details>`), no lo primero que se ve.
+  5. 2-3 reseñas textuales de ejemplo por hallazgo principal (da credibilidad — "no es un número, mirá lo que dice la gente").
+- [ ] **Diseño**: aplicar el Design Playbook tal cual (tokens de color, Inter, cards, un acento propio — no reusar el de otro proyecto tuyo). Esto es lo que hace que se vea "producto cuidado" y no "script con output en pantalla".
+- [ ] Probar en mobile (375px) antes de mandarlo — es altamente probable que el CEO lo abra primero desde el celular.
+
+**Resultado de esta fase:** un link (o archivo HTML) que le mandás a alguien y entiende en 30 segundos qué está pasando con las reseñas de su app, sin que vos estés al lado explicando.
+
+## Fase 3 — Pulido para el pitch (si da el tiempo antes de mandarlo)
+
+- [ ] Branding mínimo: tu nombre/firma al pie ("Análisis armado por [vos] — [contacto]"), para que quede claro quién lo hizo.
+- [ ] Un PDF/export o captura, por si el canal de contacto no permite mandar un link a HTML.
+- [ ] `Makefile` con `make run EMPRESA=spotify` que encadene collect → model → dashboard, para que la próxima empresa sea un solo comando (ver Fase 0).
+- [ ] Caché de reseñas ya scrapeadas por empresa (ya lo tenés parcialmente en `collect_data.py` vía dedupe) para no re-scrapear si volvés a correr el análisis con ajustes del LLM.
+
+**Explícitamente fuera de la v1** (no vale el tiempo hasta tener 1-2 casos reales mostrados): multi-tenant con login, actualización automática/cron, comparación histórica entre empresas, API propia, tests exhaustivos más allá de un smoke test manual del flujo completo.
+
+---
+
+## Orden recomendado de ejecución
+
+1. Fase 0 completa (es rápida y desbloquea todo lo demás).
+2. Fase 1 completa — es donde está el valor real para la empresa.
+3. Fase 2 hasta tener algo mostrable, aunque sea con diseño default sin pulir.
+4. Volver y pulir diseño (Fase 2 cola + Fase 3) **recién con una empresa real de prueba**, para no pulir sobre datos ficticios.
+
+**Criterio de "listo para mandar a un CEO":** corriste el flujo completo con una app real (puede ser una empresa cualquiera para probar, no necesita ser el target), el HTML abre bien en mobile y desktop, los 3-5 hallazgos principales tienen nombre y recomendación legible (no jerga de BERTopic), y no hay ningún dato roto o `NaN` visible en la página.

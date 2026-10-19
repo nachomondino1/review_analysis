@@ -1,8 +1,12 @@
-import time, requests, pandas as pd
-from pathlib import Path
-from google_play_scraper import reviews, Sort
+import argparse
+import time
 
-OUT = Path("data/reviews.parquet")
+import pandas as pd
+import requests
+from google_play_scraper import Sort, reviews
+
+from config import Paths
+
 
 def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:
     rows = []
@@ -29,6 +33,7 @@ def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:
         time.sleep(1)
     return pd.DataFrame(rows)
 
+
 def fetch_android(pkg: str, country="ar", lang="es", count=5000) -> pd.DataFrame:
     revs, _ = reviews(pkg, lang=lang, country=country,
                       sort=Sort.NEWEST, count=count)
@@ -41,17 +46,29 @@ def fetch_android(pkg: str, country="ar", lang="es", count=5000) -> pd.DataFrame
         "version": [r["reviewCreatedVersion"] for r in revs],
     })
 
-def update(app_ios: int, pkg: str) -> pd.DataFrame:
+
+def update(paths: Paths, app_ios: int, pkg: str) -> pd.DataFrame:
     new = pd.concat([fetch_ios(app_ios), fetch_android(pkg)], ignore_index=True)
     new["date"] = pd.to_datetime(new["date"], utc=True)
-    if OUT.exists():
-        new = pd.concat([pd.read_parquet(OUT), new])
+    paths.ensure_dirs()
+    if paths.reviews.exists():
+        new = pd.concat([pd.read_parquet(paths.reviews), new])
     df = new.drop_duplicates("review_id").sort_values("date")
-    df.to_parquet(OUT)
+    df.to_parquet(paths.reviews)
     return df
 
 
+def parse_args():
+    p = argparse.ArgumentParser(description="Descarga reseñas de App Store + Google Play para una empresa.")
+    p.add_argument("--name", required=True, help="Nombre de la empresa/app (define la carpeta data/<name>/)")
+    p.add_argument("--app-ios", type=int, required=True, help="id numérico de la app en App Store")
+    p.add_argument("--pkg", required=True, help="package name de la app en Google Play")
+    return p.parse_args()
+
+
 if __name__ == "__main__":
-    df = update(app_ios=324684580, pkg="com.spotify.music")  # reemplazá por tu app
+    args = parse_args()
+    paths = Paths(args.name)
+    df = update(paths, app_ios=args.app_ios, pkg=args.pkg)
     print(df.groupby("store").size())
-    print(f"Guardado en {OUT.resolve()}")
+    print(f"Guardado en {paths.reviews.resolve()}")
