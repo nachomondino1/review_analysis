@@ -1,5 +1,5 @@
 /venv
 /data
-/site
+/05_deployment/site
 .env
 prueba.py

@@ -15,15 +15,15 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 4. **Evaluación / hallazgos** (`04_evaluation/`):
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play, para detectar si algo empeoró con una versión o si una plataforma tiene peor experiencia que la otra.
-5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>/index.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step.
+5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`05_deployment/site/<empresa>/index.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step.
 
-Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts.
+Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
 ## Estructura
 
 ```
 common/
-  config.py          # paths por empresa (data/<empresa>/...), importado por todas las fases
+  config.py          # paths por empresa (data/<empresa>/<fase>/...), importado por todas las fases
   check_env.py        # sanity check de que HF_TOKEN está cargado
 01_data_understanding/
   collect_data.py     # scraping de App Store + Google Play
@@ -35,25 +35,28 @@ common/
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
 05_deployment/
-  dashboard.py        # genera site/<empresa>/index.html
+  dashboard.py        # genera 05_deployment/site/<empresa>/index.html
+  site/
+    <empresa>/
+      index.html       # web autocontenida para compartir (no versionada)
 data/
   <empresa>/
-    reviews.parquet           # reseñas crudas acumuladas (no versionado)
-    reviews_clean.parquet     # reseñas filtradas, insumo del modelado
-    output/
+    01_data_understanding/
+      reviews.parquet           # reseñas crudas acumuladas
+    02_data_preparation/
+      reviews_clean.parquet     # reseñas filtradas, insumo del modelado
+    03_modeling/
       reviews_enriched.parquet  # reseñas + sentimiento + tópico
       reviews_enriched.csv      # idem, para abrir en Excel
-      topics_summary.csv        # resumen por tópico, con name/summary/severity/recommendation
+      topics_summary.csv        # resumen por tópico; 04_evaluation le agrega name/summary/severity/recommendation
+    04_evaluation/
       topic_samples.json        # keywords + muestras por tópico, insumo para el nombrado
       topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
       sentiment_by_month.csv    # tendencia mensual de sentimiento por store
       store_comparison.csv      # comparación agregada iOS vs Android
-site/
-  <empresa>/
-    index.html               # web autocontenida para compartir (no versionada)
 ```
 
-`data/`, `site/` y `.env` están en `.gitignore`: los datos, el output generado y las credenciales no se versionan.
+`data/`, `05_deployment/site/` y `.env` están en `.gitignore`: los datos, el output generado y las credenciales no se versionan.
 
 ## Setup
 
@@ -92,7 +95,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 04_evaluation/topics_enrich.py export --name spotify
    ```
 
-   Esto genera `data/spotify/output/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/output/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
+   Esto genera `data/spotify/04_evaluation/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/04_evaluation/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
 
 5. Mergear esos nombres al resumen:
 
@@ -106,7 +109,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 04_evaluation/trends.py --name spotify
    ```
 
-7. Revisar `data/spotify/output/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
+7. Revisar `data/spotify/03_modeling/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
 
 8. Generar la web para compartir:
 
@@ -114,7 +117,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 05_deployment/dashboard.py --name spotify --display-name "Spotify"
    ```
 
-   Esto genera `site/spotify/index.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, un gráfico de tendencia mensual y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
+   Esto genera `05_deployment/site/spotify/index.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, un gráfico de tendencia mensual y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
 
 ## Pendientes conocidos
 

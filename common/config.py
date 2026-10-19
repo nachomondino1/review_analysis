@@ -12,24 +12,38 @@ def slugify(name: str) -> str:
 
 
 class Paths:
+    """
+    Paths de una empresa, en espejo de las fases del repo (CRISP-DM):
+    data/<empresa>/<fase>/archivo — cada fase agrega sus propios archivos a su
+    propia carpeta, nunca a una carpeta "output" compartida que crece sin límite
+    a medida que se suman fases o empresas.
+    """
+
     def __init__(self, empresa: str):
         self.slug = slugify(empresa)
         self.base = ROOT / "data" / self.slug
-        self.reviews = self.base / "reviews.parquet"
-        self.reviews_clean = self.base / "reviews_clean.parquet"
-        self.output_dir = self.base / "output"
-        self.reviews_enriched_parquet = self.output_dir / "reviews_enriched.parquet"
-        self.reviews_enriched_csv = self.output_dir / "reviews_enriched.csv"
-        self.topics_summary_csv = self.output_dir / "topics_summary.csv"
-        self.topic_samples_json = self.output_dir / "topic_samples.json"
-        self.topics_named_json = self.output_dir / "topics_named.json"
-        self.sentiment_by_month_csv = self.output_dir / "sentiment_by_month.csv"
-        self.store_comparison_csv = self.output_dir / "store_comparison.csv"
-        self.site_dir = ROOT / "site" / self.slug
+
+        self.understanding_dir = self.base / "01_data_understanding"
+        self.preparation_dir = self.base / "02_data_preparation"
+        self.modeling_dir = self.base / "03_modeling"
+        self.evaluation_dir = self.base / "04_evaluation"
+
+        self.reviews = self.understanding_dir / "reviews.parquet"
+        self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"
+        self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
+        self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
+        self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
+        self.topic_samples_json = self.evaluation_dir / "topic_samples.json"
+        self.topics_named_json = self.evaluation_dir / "topics_named.json"
+        self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
+        self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
+
+        self.site_dir = ROOT / "05_deployment" / "site" / self.slug
         self.site_html = self.site_dir / "index.html"
 
     def ensure_dirs(self):
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir, self.evaluation_dir):
+            d.mkdir(parents=True, exist_ok=True)
 
     def ensure_site_dir(self):
         self.site_dir.mkdir(parents=True, exist_ok=True)
