@@ -25,20 +25,19 @@ def run(paths: Paths):
                      avg_rating=("rating", "mean"),
                      pct_neg=("sentiment", lambda s: (s == "NEG").mean()))
                 .round(3).reset_index())
-    by_month_path = paths.output_dir / "sentiment_by_month.csv"
-    by_month.to_csv(by_month_path, index=False, encoding="utf-8-sig")
+    paths.ensure_dirs()
+    by_month.to_csv(paths.sentiment_by_month_csv, index=False, encoding="utf-8-sig")
 
     by_store = (df.groupby("store")
                 .agg(n=("text", "size"),
                      avg_rating=("rating", "mean"),
                      pct_neg=("sentiment", lambda s: (s == "NEG").mean()))
                 .round(3).reset_index())
-    by_store_path = paths.output_dir / "store_comparison.csv"
-    by_store.to_csv(by_store_path, index=False, encoding="utf-8-sig")
+    by_store.to_csv(paths.store_comparison_csv, index=False, encoding="utf-8-sig")
 
     print(by_month.tail(12))
     print(by_store)
-    print(f"Guardado en {by_month_path.resolve()} y {by_store_path.resolve()}")
+    print(f"Guardado en {paths.sentiment_by_month_csv.resolve()} y {paths.store_comparison_csv.resolve()}")
 
 
 def parse_args():

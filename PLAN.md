@@ -36,15 +36,15 @@ Esto es lo que diferencia "corrí un notebook de NLP" de "te traigo 3 cosas que 
 
 No hace falta hosting, backend, ni build step. Un solo HTML autocontenido con los datos embebidos, que se sube a cualquier lado (GitHub Pages, o directo como adjunto/link de Drive) y se ve bien en el celular del CEO.
 
-- [ ] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet` + el resumen de tópicos (ya con nombres/recomendaciones de la Fase 1) y genera `site/<empresa>/index.html` con los datos embebidos como JSON inline (sin fetch, sin modo de falla de red — ver Design Playbook §10).
-- [ ] **Contenido del HTML**, en orden de lo que un CEO mira primero:
-  1. Resumen ejecutivo: rating promedio, volumen de reseñas, % negativas, tendencia (mejor/peor que hace 3 meses).
-  2. Los 3-5 hallazgos principales con nombre, severidad (chip de color) y recomendación — la micro-visualización, no la tabla completa.
-  3. Gráfico de tendencia temporal (sentimiento por mes, marcar versiones si hay un salto).
-  4. Tabla completa de tópicos como detalle opcional (`<details>`), no lo primero que se ve.
-  5. 2-3 reseñas textuales de ejemplo por hallazgo principal (da credibilidad — "no es un número, mirá lo que dice la gente").
-- [ ] **Diseño**: aplicar el Design Playbook tal cual (tokens de color, Inter, cards, un acento propio — no reusar el de otro proyecto tuyo). Esto es lo que hace que se vea "producto cuidado" y no "script con output en pantalla".
-- [ ] Probar en mobile (375px) antes de mandarlo — es altamente probable que el CEO lo abra primero desde el celular.
+- [x] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet`, `topics_summary.csv` (ya con nombres/recomendaciones de la Fase 1) y `sentiment_by_month.csv`, y genera `site/<empresa>/index.html` con los datos embebidos directo en el HTML (sin fetch, sin modo de falla de red).
+- [x] **Contenido del HTML**:
+  1. Resumen ejecutivo: N° de reseñas, rating promedio, % negativas, cantidad de hallazgos a atender.
+  2. Hasta 6 hallazgos principales (severidad alta/media) con nombre, chip de severidad, resumen, recomendación y 2 reseñas textuales de ejemplo — ordenados por severidad real (volumen × % negativas).
+  3. Gráfico de tendencia mensual de % negativas por store (SVG generado server-side, sin librería de charts).
+  4. Tabla completa de tópicos en `<details>`, colapsada por default.
+  - **Pendiente para una v2** (no bloqueante): marcar en el gráfico si una versión específica coincide con un salto de negatividad; por ahora el dato de `version` está pero no se cruza visualmente.
+- [x] **Diseño**: tokens del Design Playbook (colores, Inter, cards, dark mode automático), acento propio (verde azulado, no reusado de otro proyecto).
+- [x] **Probado en 320px/375px y sin viewport** (ver `read_page`/`javascript_tool` del navegador): sin overflow de página; encontramos y arreglamos un bug real (`minmax(280px,...)` en los grids no encogía por debajo de 280px) y envolvimos la tabla de detalle en su propio scroll-container en vez de dejarla empujar la página.
 
 **Resultado de esta fase:** un link (o archivo HTML) que le mandás a alguien y entiende en 30 segundos qué está pasando con las reseñas de su app, sin que vos estés al lado explicando.
 

@@ -1,4 +1,5 @@
 /venv
 /data
+/site
 .env
 prueba.py

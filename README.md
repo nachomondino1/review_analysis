@@ -15,7 +15,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 4. **Evaluación / hallazgos** (`04_evaluation/`):
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play, para detectar si algo empeoró con una versión o si una plataforma tiene peor experiencia que la otra.
-5. **Deployment** (`05_deployment/`): todavía vacío — ver [PLAN.md](PLAN.md) Fase 2 para el `dashboard.py` que generará la web para compartir.
+5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>/index.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts.
 
@@ -35,7 +35,7 @@ common/
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
 05_deployment/
-  (pendiente: dashboard.py, ver PLAN.md Fase 2)
+  dashboard.py        # genera site/<empresa>/index.html
 data/
   <empresa>/
     reviews.parquet           # reseñas crudas acumuladas (no versionado)
@@ -48,9 +48,12 @@ data/
       topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
       sentiment_by_month.csv    # tendencia mensual de sentimiento por store
       store_comparison.csv      # comparación agregada iOS vs Android
+site/
+  <empresa>/
+    index.html               # web autocontenida para compartir (no versionada)
 ```
 
-`data/` y `.env` están en `.gitignore`: los datos y credenciales no se versionan.
+`data/`, `site/` y `.env` están en `.gitignore`: los datos, el output generado y las credenciales no se versionan.
 
 ## Setup
 
@@ -105,9 +108,17 @@ cp .env.example .env   # y completar HF_TOKEN
 
 7. Revisar `data/spotify/output/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
 
+8. Generar la web para compartir:
+
+   ```bash
+   python 05_deployment/dashboard.py --name spotify --display-name "Spotify"
+   ```
+
+   Esto genera `site/spotify/index.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, un gráfico de tendencia mensual y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
+
 ## Pendientes conocidos
 
-Ver [PLAN.md](PLAN.md) para el detalle completo. Resumen de lo que falta para el entregable compartible:
+Ver [PLAN.md](PLAN.md) para el detalle completo. Resumen de lo que falta:
 
 - Automatizar el nombrado de tópicos con la API de Anthropic cuando haya una API key disponible (hoy es un paso manual vía Claude Code).
-- `dashboard.py` en `05_deployment/` que genere un HTML autocontenido para compartir (hoy el output son CSVs/JSON).
+- Marcar en el gráfico de tendencia si una versión específica coincide con un salto de negatividad (el dato de `version` existe pero no se cruza visualmente todavía).

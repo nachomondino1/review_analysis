@@ -55,20 +55,18 @@ def export_samples(paths: Paths):
             "sample_reviews": sample_texts,
         })
 
-    out_path = paths.output_dir / "topic_samples.json"
-    out_path.write_text(json.dumps(topics, ensure_ascii=False, indent=2))
-    print(f"Guardado en {out_path.resolve()}")
+    paths.topic_samples_json.write_text(json.dumps(topics, ensure_ascii=False, indent=2))
+    print(f"Guardado en {paths.topic_samples_json.resolve()}")
     print("Pedile a Claude que lea ese archivo y escriba "
-          f"{paths.output_dir / 'topics_named.json'} con name/summary/severity/recommendation "
+          f"{paths.topics_named_json} con name/summary/severity/recommendation "
           "por cada tópico no outlier.")
 
 
 def merge_names(paths: Paths):
-    named_path = paths.output_dir / "topics_named.json"
-    if not named_path.exists():
-        raise SystemExit(f"No existe {named_path}. Corré primero 'export' y pedile a Claude que lo genere.")
+    if not paths.topics_named_json.exists():
+        raise SystemExit(f"No existe {paths.topics_named_json}. Corré primero 'export' y pedile a Claude que lo genere.")
 
-    named = {str(t["topic"]): t for t in json.loads(named_path.read_text())}
+    named = {str(t["topic"]): t for t in json.loads(paths.topics_named_json.read_text())}
     summary = pd.read_csv(paths.topics_summary_csv)
 
     for col in ["name", "summary", "severity", "recommendation"]:
