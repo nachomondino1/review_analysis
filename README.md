@@ -1,6 +1,6 @@
 # Review Analysis
 
-Pipeline para extraer reseñas de apps en Google Play y App Store, analizarlas (sentimiento + tópicos) y obtener hallazgos accionables sobre qué se queja o valora la gente. Ver [PLAN.md](PLAN.md) para la hoja de ruta hacia un entregable compartible (web con el análisis de una empresa).
+Pipeline para extraer reseñas de apps en Google Play y App Store, analizarlas (sentimiento + tópicos) y obtener hallazgos accionables sobre qué se queja o valora la gente. Ver [PLAN.md](PLAN.md) para la hoja de ruta hacia un entregable compartible (web con el análisis de una empresa) y [APRENDIZAJES.md](APRENDIZAJES.md) para bugs/sesgos no obvios que ya encontramos y por qué.
 
 Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, con sus propios scripts.
 
@@ -127,6 +127,8 @@ El scraping (`collect_data.py`) solo puede leer reseñas que tienen **texto escr
 Por eso el dashboard separa explícitamente:
 - **Rating oficial**: viene de `store_ratings.json` (API de iTunes + `google-play-scraper.app()`), cubre todas las calificaciones de la tienda. Es el número que hay que mostrarle a un CEO como "satisfacción general".
 - **% negativas / tópicos / hallazgos**: vienen de la muestra de reseñas con texto. Son el insumo correcto para entender **qué** se queja la gente y priorizar qué arreglar — pero no se deben presentar como si midieran la satisfacción general, porque sobre-representan el descontento.
+
+Historia completa de cómo se encontró este sesgo en [APRENDIZAJES.md](APRENDIZAJES.md#2026-10-19--las-reseñas-con-texto-son-una-muestra-sesgada-hacia-las-quejas).
 
 ## Pendientes conocidos
 
