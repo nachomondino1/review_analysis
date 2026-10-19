@@ -1,11 +1,14 @@
 import argparse
+import sys
 import time
+from pathlib import Path
 
 import pandas as pd
 import requests
 from google_play_scraper import Sort, reviews
 
-from config import Paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+from config import Paths  # noqa: E402
 
 
 def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:

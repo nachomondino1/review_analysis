@@ -1,4 +1,6 @@
 import argparse
+import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 load_dotenv()  # va primero, antes de los imports de HF
@@ -8,7 +10,8 @@ from pysentimiento import create_analyzer
 from bertopic import BERTopic
 from sentence_transformers import SentenceTransformer
 
-from config import Paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+from config import Paths  # noqa: E402
 
 OUTLIER_TOPIC = -1  # BERTopic: reseñas sin patrón claro, no es un tópico real
 
@@ -20,8 +23,7 @@ def parse_args():
 
 
 def run(paths: Paths):
-    df = pd.read_parquet(paths.reviews)
-    df = df[df["text"].str.len() > 15].copy()  # filtrar ruido ("buena app")
+    df = pd.read_parquet(paths.reviews_clean)  # ya filtrado en 02_data_preparation
 
     sent = create_analyzer(task="sentiment", lang="es")
     df["sentiment"] = [p.output for p in sent.predict(df["text"].tolist())]

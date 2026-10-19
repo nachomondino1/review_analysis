@@ -5,7 +5,7 @@ en la sesión que te está ayudando (no hay API key de Anthropic disponible),
 a partir de las muestras que exporta este script.
 
 Uso:
-  1) python scripts/topics_enrich.py export --name <empresa>
+  1) python 04_evaluation/topics_enrich.py export --name <empresa>
      -> genera data/<empresa>/output/topic_samples.json con keywords +
         reseñas de muestra por tópico, priorizado por severidad
         (volumen * % negativas). El tópico -1 (outlier) se incluye al final,
@@ -15,16 +15,19 @@ Uso:
      data/<empresa>/output/topics_named.json con, por cada "topic" no
      outlier: name, summary, severity ("alta"/"media"/"baja"), recommendation.
 
-  3) python scripts/topics_enrich.py merge --name <empresa>
+  3) python 04_evaluation/topics_enrich.py merge --name <empresa>
      -> vuelca esas columnas a topics_summary.csv (sobrescribe el archivo,
         agregando name/summary/severity/recommendation).
 """
 import argparse
 import json
+import sys
+from pathlib import Path
 
 import pandas as pd
 
-from config import Paths
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+from config import Paths  # noqa: E402
 
 SAMPLES_PER_TOPIC = 5
 

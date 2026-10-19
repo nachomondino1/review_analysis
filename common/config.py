@@ -16,6 +16,7 @@ class Paths:
         self.slug = slugify(empresa)
         self.base = ROOT / "data" / self.slug
         self.reviews = self.base / "reviews.parquet"
+        self.reviews_clean = self.base / "reviews_clean.parquet"
         self.output_dir = self.base / "output"
         self.reviews_enriched_parquet = self.output_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.output_dir / "reviews_enriched.csv"
