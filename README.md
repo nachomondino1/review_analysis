@@ -40,7 +40,7 @@ common/
   dashboard.py        # genera 05_deployment/site/<empresa>/index.html
   site/
     <empresa>/
-      index.html       # web autocontenida para compartir (no versionada)
+      index.html       # web autocontenida para compartir (SÍ versionada — ver "Publicar")
 data/
   <empresa>/
     01_data_understanding/
@@ -59,7 +59,27 @@ data/
       store_comparison.csv      # comparación agregada iOS vs Android
 ```
 
-`data/`, `05_deployment/site/` y `.env` están en `.gitignore`: los datos, el output generado y las credenciales no se versionan.
+`data/` y `.env` están en `.gitignore`: los datos crudos/procesados y las credenciales no se versionan. `05_deployment/site/` **sí** se versiona (ver "Publicar" más abajo).
+
+## Publicar (GitHub Pages)
+
+El repo es **público** y tiene GitHub Pages activado sirviendo `main` desde la raíz. Al versionar `05_deployment/site/<empresa>/index.html`, cada dashboard queda accesible en:
+
+```
+https://nachomondino1.github.io/review_analysis/05_deployment/site/<empresa>/
+```
+
+No hay una página índice que liste las empresas analizadas (decisión deliberada), pero al ser un repo público cualquiera puede encontrar los archivos navegando el código — no depende solo de tener el link. Si en algún momento esto deja de ser aceptable para alguna empresa puntual, la alternativa es no commitear ese `index.html` y mandarlo directo como archivo adjunto (ya lo hacíamos así antes de activar Pages).
+
+Para publicar un dashboard nuevo:
+
+```bash
+git add 05_deployment/site/<empresa>
+git commit -m "Agregar dashboard de <empresa>"
+git push
+```
+
+GitHub Pages lo sirve automáticamente unos minutos después del push, sin ningún paso de build.
 
 ## Setup
 

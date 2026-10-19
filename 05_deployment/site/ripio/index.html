@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas — Ripio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #fafaf8;
+  --bg-subtle: #f2f1ed;
+  --surface: #ffffff;
+  --text: #1a1a17;
+  --muted: #6f6d67;
+  --muted-soft: #a19e96;
+  --border: #e4e2dc;
+  --border-soft: #ecebe6;
+  --accent: #2f6f62;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-contrast: #ffffff;
+  --good: #16a34a; --warn: #d97706; --bad: #dc2626;
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
+  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
+    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
+    --border: #2a3342; --border-soft: #212836;
+    --accent: #4f9686;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
+    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }
+@media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
+header.page-head {
+  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
+  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+}
+@media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
+header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
+h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px;
+}
+.stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+.finding-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px;
+}
+.finding-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.finding-head h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+.finding-meta { color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }
+.recommendation { background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+.samples { list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }
+.samples li { padding: 6px 0; border-top: 1px dashed var(--border-soft); }
+.chip {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
+.sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.trend-chart { width: 100%; height: auto; margin-top: 8px; }
+.chart-grid { stroke: var(--border-soft); stroke-width: 1; }
+.chart-label { fill: var(--muted-soft); font-size: 10px; }
+.legend { display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+details.detail-table { margin-top: 8px; }
+details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.table-scroll { overflow-x: auto; margin-top: 8px; }
+table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }
+th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
+td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>📊 Ripio</h1>
+    <div class="sub">Análisis de reseñas de usuarios · generado 2026-10-19</div>
+  </div>
+</header>
+<div class="container">
+
+  <section>
+    <h2>Resumen ejecutivo</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial (62.767 calificaciones)</div></div>
+      <div class="stat-card"><div class="value">4565</div><div class="label">Reseñas con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">70.3%</div><div class="label">Negativas en la muestra</div></div>
+      <div class="stat-card"><div class="value">31</div><div class="label">Hallazgos a atender</div></div>
+    </div>
+    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+  </section>
+
+  <section>
+    <h2>Principales hallazgos</h2>
+    <div class="findings-grid">
+      
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>La app no abre o queda colgada en el login</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">245 reseñas · 92.7% negativas</p>
+          <p>La app se queda cargando en blanco o no responde al intentar iniciar sesión; varios usuarios tienen que desinstalar y reinstalar para poder entrar.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Tratar como incidente de estabilidad de producción, no como feedback de UX: es el problema de mayor volumen de todo el dataset y bloquea el uso básico de la app.</p>
+          <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“El servicio que se brinda es dentro de todo bueno pero la app anda muy mal, el login es muy muy malo, no envía los sms para autenticarte, cuando pone el código a veces no lo toma y tenes que desinstalar la app para volver a usarla. En las inversiones no podes cancelar las inversiones si se están por renovar en menos de 24hs, muy mala. Usen otra app.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Cuenta bloqueada con dinero adentro</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">227 reseñas · 94.7% negativas</p>
+          <p>Usuarios que no pueden ingresar a su cuenta después de una actualización o cambio de dispositivo, con fondos depositados y sin respuesta del soporte durante semanas.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Priorizar como riesgo de confianza/reputacional, no solo técnico: un usuario con dinero atrapado y sin respuesta es el peor escenario posible para una fintech.</p>
+          <ul class='samples'><li>“Me descargue la app a mi celular y no me deja abrir mi cuenta. Le doy ingreso y me direccional al mail para abrir desde allí, cuando sigo los pasos me queda colgado y nunca me abre la app. Es un asco !! Hice dos transferencias por el mismo importe y sólo se acreditó una sola, aún sigo esperando por la otra !! Son un desastre”</li><li>“Hice una inversión de 50usd coin, al cancelarla por que debo utilizar el dinero la app me informa que se reembolsaran en 72hs, ya ha pasado el tiempo y no he recibido nada, estoy preocupado y no recibo respuesta, espero tener una, gracias.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Transferencias y depósitos no acreditados</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">231 reseñas · 90.9% negativas</p>
+          <p>Transferencias bancarias o cargas de dinero que no se reflejan en el saldo, con reclamos repetidos sin resolución.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Auditar el pipeline de conciliación de depósitos (tiempos de acreditación, casos perdidos) y dar visibilidad de estado al usuario en vez de dejarlo sin información.</p>
+          <ul class='samples'><li>“La primera vez que compré me cobraron la comisión y 8 mil pesos de más , mandé una consulta y todavía no me contestaron”</li><li>“Pesimo todo. 0 soporte. 
+Me robaron mi dinero.
+NO USAR !!!”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Operaciones de compra/venta de cripto rechazadas con dinero retenido</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">122 reseñas · 87.7% negativas</p>
+          <p>Depósitos para comprar criptomonedas que se rechazan o no se concretan, con el dinero aparentemente retenido y sin devolución.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de compra de cripto end-to-end: si una operación falla, el dinero tiene que volver automáticamente, no vía reclamo manual.</p>
+          <ul class='samples'><li>“La verdad que un desastre! Hice una transferencia (se acreditó) para realizar compra de cripto y por alguna razón me la rechazaron y se comieron la plata! Hace semanas estoy haciendo el reclamo y nadie responde! No lo recomiendo para nada.”</li><li>“Deposité $2800 tengo mi 2FA activado y todo, asi que no hay excusas. Y... me cagaron.. no me dejó comprar criptos la plataforma hasta que me cansé y quise retirar mis fondos de vuelta a mercadopago y.... me estafaron, hace como que te pagan y nunca llega el dinero a tu cuenta.. Reclamé y se hacen los tontos, alegan que pagaron con numeros de tx falsos de 15 dígitos. Confirmado por mercadolibre. Actualmente estoy en proceso judicial, primero con Coprec.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Comisiones percibidas como abusivas</h3>
+            <span class="chip sev-media">Media</span>
+          </div>
+          <p class="finding-meta">97 reseñas · 77.3% negativas</p>
+          <p>Quejas sobre el costo total de operar (comisión + spread compra-venta), comparado desfavorablemente con otros exchanges.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Evaluar competitividad real de comisiones vs. otros exchanges locales (se menciona Bitso); si el costo total no es comunicado claramente, el problema puede ser más de percepción que de precio real.</p>
+          <ul class='samples'><li>“Nunca se puede entrar, se traba todo el tiempo. Las comisiones son caras. No la bajen! Busquen cualquier otra aplicación que seguro es mejor”</li><li>“ESTAFA TOTAL, INGRESE DINERO “XX.XXX” COMPRE A -32.5% UNA CRIPTOMONEDA QUE SUBIÓ A UN -2,56% y no me genero ninguna ganancia es más de sacaron dinero. Es una rotunda estafa”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Login bloqueado por intentos fallidos / 2FA</h3>
+            <span class="chip sev-media">Media</span>
+          </div>
+          <p class="finding-meta">72 reseñas · 91.7% negativas</p>
+          <p>La cuenta se bloquea tras intentos fallidos de inicio de sesión y el 2FA genera fricción adicional para reingresar.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el umbral de bloqueo por intentos fallidos y ofrecer un camino de autodesbloqueo (no solo soporte manual).</p>
+          <ul class='samples'><li>“Hace días q intento iniciar sesión en ripio, cuando lo logre por primera vez habilite el 2fa y después tuve mil problemas para iniciar sesión y al día de hoy no puedo, se traba la cuenta por intentos fallidos y no puedo hacer nada, copien el login de Brubank q anda lindo”</li><li>“Estimados que pasa que quiero ingresar a mi cuenta. Me llevo a resetear las contraseñas y no puedo ingresad”</li></ul>
+        </article>
+        
+    </div>
+  </section>
+
+  <section><h2>Tendencia mensual (% negativas en la muestra)</h2>
+    <svg viewBox="0 0 640 220" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
+      <line x1="32" y1="188.0" x2="608" y2="188.0" class="chart-grid" /><line x1="32" y1="149.0" x2="608" y2="149.0" class="chart-grid" /><line x1="32" y1="110.0" x2="608" y2="110.0" class="chart-grid" /><line x1="32" y1="71.0" x2="608" y2="71.0" class="chart-grid" /><line x1="32" y1="32.0" x2="608" y2="32.0" class="chart-grid" />
+      <polyline points="115.5,64.1 123.8,75.2 132.2,74.9 140.5,86.8 148.9,80.2 157.2,91.6 165.6,76.9 173.9,83.9 182.3,98.5 190.6,81.9 199.0,78.8 207.3,75.1 215.7,74.6 224.0,71.0 232.3,82.4 240.7,60.4 249.0,83.9 257.4,67.4 265.7,65.9 274.1,54.3 282.4,94.4 290.8,79.3 299.1,80.0 307.5,62.6 315.8,58.7 324.2,63.2 332.5,69.1 340.9,94.4 349.2,63.7 357.6,85.8 365.9,77.6 374.3,66.3 382.6,73.0 391.0,85.2 399.3,66.6 407.7,60.4 416.0,81.3 424.3,117.5 432.7,69.6 441.0,58.8 449.4,80.7 457.7,110.0 466.1,94.4 474.4,73.7 482.8,79.3 491.1,71.9 499.5,83.9 507.8,85.4 516.2,133.7 524.5,126.8 532.9,112.2 541.2,112.2 549.6,105.2 557.9,146.7 566.3,107.3 574.6,118.0 583.0,108.1 591.3,95.8 599.7,91.0 608.0,110.0" fill="none" stroke="#2f6f62" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="115.5" cy="64.1" r="2.5" fill="#2f6f62" /><circle cx="123.8" cy="75.2" r="2.5" fill="#2f6f62" /><circle cx="132.2" cy="74.9" r="2.5" fill="#2f6f62" /><circle cx="140.5" cy="86.8" r="2.5" fill="#2f6f62" /><circle cx="148.9" cy="80.2" r="2.5" fill="#2f6f62" /><circle cx="157.2" cy="91.6" r="2.5" fill="#2f6f62" /><circle cx="165.6" cy="76.9" r="2.5" fill="#2f6f62" /><circle cx="173.9" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="182.3" cy="98.5" r="2.5" fill="#2f6f62" /><circle cx="190.6" cy="81.9" r="2.5" fill="#2f6f62" /><circle cx="199.0" cy="78.8" r="2.5" fill="#2f6f62" /><circle cx="207.3" cy="75.1" r="2.5" fill="#2f6f62" /><circle cx="215.7" cy="74.6" r="2.5" fill="#2f6f62" /><circle cx="224.0" cy="71.0" r="2.5" fill="#2f6f62" /><circle cx="232.3" cy="82.4" r="2.5" fill="#2f6f62" /><circle cx="240.7" cy="60.4" r="2.5" fill="#2f6f62" /><circle cx="249.0" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="257.4" cy="67.4" r="2.5" fill="#2f6f62" /><circle cx="265.7" cy="65.9" r="2.5" fill="#2f6f62" /><circle cx="274.1" cy="54.3" r="2.5" fill="#2f6f62" /><circle cx="282.4" cy="94.4" r="2.5" fill="#2f6f62" /><circle cx="290.8" cy="79.3" r="2.5" fill="#2f6f62" /><circle cx="299.1" cy="80.0" r="2.5" fill="#2f6f62" /><circle cx="307.5" cy="62.6" r="2.5" fill="#2f6f62" /><circle cx="315.8" cy="58.7" r="2.5" fill="#2f6f62" /><circle cx="324.2" cy="63.2" r="2.5" fill="#2f6f62" /><circle cx="332.5" cy="69.1" r="2.5" fill="#2f6f62" /><circle cx="340.9" cy="94.4" r="2.5" fill="#2f6f62" /><circle cx="349.2" cy="63.7" r="2.5" fill="#2f6f62" /><circle cx="357.6" cy="85.8" r="2.5" fill="#2f6f62" /><circle cx="365.9" cy="77.6" r="2.5" fill="#2f6f62" /><circle cx="374.3" cy="66.3" r="2.5" fill="#2f6f62" /><circle cx="382.6" cy="73.0" r="2.5" fill="#2f6f62" /><circle cx="391.0" cy="85.2" r="2.5" fill="#2f6f62" /><circle cx="399.3" cy="66.6" r="2.5" fill="#2f6f62" /><circle cx="407.7" cy="60.4" r="2.5" fill="#2f6f62" /><circle cx="416.0" cy="81.3" r="2.5" fill="#2f6f62" /><circle cx="424.3" cy="117.5" r="2.5" fill="#2f6f62" /><circle cx="432.7" cy="69.6" r="2.5" fill="#2f6f62" /><circle cx="441.0" cy="58.8" r="2.5" fill="#2f6f62" /><circle cx="449.4" cy="80.7" r="2.5" fill="#2f6f62" /><circle cx="457.7" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="466.1" cy="94.4" r="2.5" fill="#2f6f62" /><circle cx="474.4" cy="73.7" r="2.5" fill="#2f6f62" /><circle cx="482.8" cy="79.3" r="2.5" fill="#2f6f62" /><circle cx="491.1" cy="71.9" r="2.5" fill="#2f6f62" /><circle cx="499.5" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="507.8" cy="85.4" r="2.5" fill="#2f6f62" /><circle cx="516.2" cy="133.7" r="2.5" fill="#2f6f62" /><circle cx="524.5" cy="126.8" r="2.5" fill="#2f6f62" /><circle cx="532.9" cy="112.2" r="2.5" fill="#2f6f62" /><circle cx="541.2" cy="112.2" r="2.5" fill="#2f6f62" /><circle cx="549.6" cy="105.2" r="2.5" fill="#2f6f62" /><circle cx="557.9" cy="146.7" r="2.5" fill="#2f6f62" /><circle cx="566.3" cy="107.3" r="2.5" fill="#2f6f62" /><circle cx="574.6" cy="118.0" r="2.5" fill="#2f6f62" /><circle cx="583.0" cy="108.1" r="2.5" fill="#2f6f62" /><circle cx="591.3" cy="95.8" r="2.5" fill="#2f6f62" /><circle cx="599.7" cy="91.0" r="2.5" fill="#2f6f62" /><circle cx="608.0" cy="110.0" r="2.5" fill="#2f6f62" /><polyline points="32.0,44.6 40.3,49.8 48.7,46.8 57.0,42.8 65.4,67.4 73.7,71.0 82.1,51.5 90.4,58.1 98.8,83.9 107.1,50.4 115.5,47.9 123.8,38.6 132.2,41.7 140.5,83.9 148.9,78.8 157.2,60.4 165.6,32.0 173.9,32.0 182.3,83.9 207.3,32.0 215.7,32.0 224.0,32.0 232.3,71.0 240.7,83.9 249.0,32.0 257.4,32.0 265.7,32.0 274.1,83.9 290.8,83.9 299.1,32.0 307.5,32.0 315.8,32.0 324.2,188.0 340.9,32.0 349.2,188.0 365.9,110.0 374.3,188.0 391.0,188.0 407.7,188.0 416.0,188.0 424.3,71.0 432.7,94.4 441.0,110.0 449.4,110.0 457.7,32.0 466.1,32.0 474.4,188.0 482.8,188.0 491.1,188.0 499.5,32.0 507.8,32.0 516.2,83.9 524.5,32.0 541.2,110.0 549.6,83.9 557.9,32.0 566.3,63.2 574.6,125.6 591.3,32.0 599.7,94.4 608.0,32.0" fill="none" stroke="#8a8f98" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="32.0" cy="44.6" r="2.5" fill="#8a8f98" /><circle cx="40.3" cy="49.8" r="2.5" fill="#8a8f98" /><circle cx="48.7" cy="46.8" r="2.5" fill="#8a8f98" /><circle cx="57.0" cy="42.8" r="2.5" fill="#8a8f98" /><circle cx="65.4" cy="67.4" r="2.5" fill="#8a8f98" /><circle cx="73.7" cy="71.0" r="2.5" fill="#8a8f98" /><circle cx="82.1" cy="51.5" r="2.5" fill="#8a8f98" /><circle cx="90.4" cy="58.1" r="2.5" fill="#8a8f98" /><circle cx="98.8" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="107.1" cy="50.4" r="2.5" fill="#8a8f98" /><circle cx="115.5" cy="47.9" r="2.5" fill="#8a8f98" /><circle cx="123.8" cy="38.6" r="2.5" fill="#8a8f98" /><circle cx="132.2" cy="41.7" r="2.5" fill="#8a8f98" /><circle cx="140.5" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="148.9" cy="78.8" r="2.5" fill="#8a8f98" /><circle cx="157.2" cy="60.4" r="2.5" fill="#8a8f98" /><circle cx="165.6" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="173.9" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="182.3" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="207.3" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="215.7" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="224.0" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="232.3" cy="71.0" r="2.5" fill="#8a8f98" /><circle cx="240.7" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="249.0" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="257.4" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="265.7" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="274.1" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="290.8" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="299.1" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="307.5" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="315.8" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="324.2" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="340.9" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="349.2" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="365.9" cy="110.0" r="2.5" fill="#8a8f98" /><circle cx="374.3" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="391.0" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="407.7" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="416.0" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="424.3" cy="71.0" r="2.5" fill="#8a8f98" /><circle cx="432.7" cy="94.4" r="2.5" fill="#8a8f98" /><circle cx="441.0" cy="110.0" r="2.5" fill="#8a8f98" /><circle cx="449.4" cy="110.0" r="2.5" fill="#8a8f98" /><circle cx="457.7" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="466.1" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="474.4" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="482.8" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="491.1" cy="188.0" r="2.5" fill="#8a8f98" /><circle cx="499.5" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="507.8" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="516.2" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="524.5" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="541.2" cy="110.0" r="2.5" fill="#8a8f98" /><circle cx="549.6" cy="83.9" r="2.5" fill="#8a8f98" /><circle cx="557.9" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="566.3" cy="63.2" r="2.5" fill="#8a8f98" /><circle cx="574.6" cy="125.6" r="2.5" fill="#8a8f98" /><circle cx="591.3" cy="32.0" r="2.5" fill="#8a8f98" /><circle cx="599.7" cy="94.4" r="2.5" fill="#8a8f98" /><circle cx="608.0" cy="32.0" r="2.5" fill="#8a8f98" />
+      <text x="32.0" y="212" class="chart-label" text-anchor="middle">21-01</text><text x="40.3" y="212" class="chart-label" text-anchor="middle">21-02</text><text x="48.7" y="212" class="chart-label" text-anchor="middle">21-03</text><text x="57.0" y="212" class="chart-label" text-anchor="middle">21-04</text><text x="65.4" y="212" class="chart-label" text-anchor="middle">21-05</text><text x="73.7" y="212" class="chart-label" text-anchor="middle">21-06</text><text x="82.1" y="212" class="chart-label" text-anchor="middle">21-07</text><text x="90.4" y="212" class="chart-label" text-anchor="middle">21-08</text><text x="98.8" y="212" class="chart-label" text-anchor="middle">21-09</text><text x="107.1" y="212" class="chart-label" text-anchor="middle">21-10</text><text x="115.5" y="212" class="chart-label" text-anchor="middle">21-11</text><text x="123.8" y="212" class="chart-label" text-anchor="middle">21-12</text><text x="132.2" y="212" class="chart-label" text-anchor="middle">22-01</text><text x="140.5" y="212" class="chart-label" text-anchor="middle">22-02</text><text x="148.9" y="212" class="chart-label" text-anchor="middle">22-03</text><text x="157.2" y="212" class="chart-label" text-anchor="middle">22-04</text><text x="165.6" y="212" class="chart-label" text-anchor="middle">22-05</text><text x="173.9" y="212" class="chart-label" text-anchor="middle">22-06</text><text x="182.3" y="212" class="chart-label" text-anchor="middle">22-07</text><text x="190.6" y="212" class="chart-label" text-anchor="middle">22-08</text><text x="199.0" y="212" class="chart-label" text-anchor="middle">22-09</text><text x="207.3" y="212" class="chart-label" text-anchor="middle">22-10</text><text x="215.7" y="212" class="chart-label" text-anchor="middle">22-11</text><text x="224.0" y="212" class="chart-label" text-anchor="middle">22-12</text><text x="232.3" y="212" class="chart-label" text-anchor="middle">23-01</text><text x="240.7" y="212" class="chart-label" text-anchor="middle">23-02</text><text x="249.0" y="212" class="chart-label" text-anchor="middle">23-03</text><text x="257.4" y="212" class="chart-label" text-anchor="middle">23-04</text><text x="265.7" y="212" class="chart-label" text-anchor="middle">23-05</text><text x="274.1" y="212" class="chart-label" text-anchor="middle">23-06</text><text x="282.4" y="212" class="chart-label" text-anchor="middle">23-07</text><text x="290.8" y="212" class="chart-label" text-anchor="middle">23-08</text><text x="299.1" y="212" class="chart-label" text-anchor="middle">23-09</text><text x="307.5" y="212" class="chart-label" text-anchor="middle">23-10</text><text x="315.8" y="212" class="chart-label" text-anchor="middle">23-11</text><text x="324.2" y="212" class="chart-label" text-anchor="middle">23-12</text><text x="332.5" y="212" class="chart-label" text-anchor="middle">24-01</text><text x="340.9" y="212" class="chart-label" text-anchor="middle">24-02</text><text x="349.2" y="212" class="chart-label" text-anchor="middle">24-03</text><text x="357.6" y="212" class="chart-label" text-anchor="middle">24-04</text><text x="365.9" y="212" class="chart-label" text-anchor="middle">24-05</text><text x="374.3" y="212" class="chart-label" text-anchor="middle">24-06</text><text x="382.6" y="212" class="chart-label" text-anchor="middle">24-07</text><text x="391.0" y="212" class="chart-label" text-anchor="middle">24-08</text><text x="399.3" y="212" class="chart-label" text-anchor="middle">24-09</text><text x="407.7" y="212" class="chart-label" text-anchor="middle">24-10</text><text x="416.0" y="212" class="chart-label" text-anchor="middle">24-11</text><text x="424.3" y="212" class="chart-label" text-anchor="middle">24-12</text><text x="432.7" y="212" class="chart-label" text-anchor="middle">25-01</text><text x="441.0" y="212" class="chart-label" text-anchor="middle">25-02</text><text x="449.4" y="212" class="chart-label" text-anchor="middle">25-03</text><text x="457.7" y="212" class="chart-label" text-anchor="middle">25-04</text><text x="466.1" y="212" class="chart-label" text-anchor="middle">25-05</text><text x="474.4" y="212" class="chart-label" text-anchor="middle">25-06</text><text x="482.8" y="212" class="chart-label" text-anchor="middle">25-07</text><text x="491.1" y="212" class="chart-label" text-anchor="middle">25-08</text><text x="499.5" y="212" class="chart-label" text-anchor="middle">25-09</text><text x="507.8" y="212" class="chart-label" text-anchor="middle">25-10</text><text x="516.2" y="212" class="chart-label" text-anchor="middle">25-11</text><text x="524.5" y="212" class="chart-label" text-anchor="middle">25-12</text><text x="532.9" y="212" class="chart-label" text-anchor="middle">26-01</text><text x="541.2" y="212" class="chart-label" text-anchor="middle">26-02</text><text x="549.6" y="212" class="chart-label" text-anchor="middle">26-03</text><text x="557.9" y="212" class="chart-label" text-anchor="middle">26-04</text><text x="566.3" y="212" class="chart-label" text-anchor="middle">26-05</text><text x="574.6" y="212" class="chart-label" text-anchor="middle">26-06</text><text x="583.0" y="212" class="chart-label" text-anchor="middle">26-07</text><text x="591.3" y="212" class="chart-label" text-anchor="middle">26-08</text><text x="599.7" y="212" class="chart-label" text-anchor="middle">26-09</text><text x="608.0" y="212" class="chart-label" text-anchor="middle">26-10</text>
+    </svg>
+    <div class="legend"><span class="legend-item"><span class="legend-dot" style="background:#2f6f62"></span>Google Play</span><span class="legend-item"><span class="legend-dot" style="background:#8a8f98"></span>App Store</span></div>
+    </section>
+
+  <section>
+    <h2>Detalle completo por tópico</h2>
+    <details class="detail-table">
+      <summary>Ver los 37 tópicos detectados</summary>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+          <tbody><tr><td>Código de verificación (SMS/2FA) inválido o no llega</td><td class='num'>42</td><td class='num'>1.52</td><td class='num'>100.0%</td><td>media</td></tr><tr><td>Rechazo total (&#x27;la peor app&#x27;)</td><td class='num'>22</td><td class='num'>1.18</td><td class='num'>100.0%</td><td>media</td></tr><tr><td>Confirmación por email no completa el login</td><td class='num'>34</td><td class='num'>1.74</td><td class='num'>97.1%</td><td>media</td></tr><tr><td>No puede crear la cuenta</td><td class='num'>31</td><td class='num'>1.23</td><td class='num'>96.8%</td><td>media</td></tr><tr><td>App lenta / se traba</td><td class='num'>29</td><td class='num'>1.86</td><td class='num'>96.6%</td><td>media</td></tr><tr><td>No puede recuperar el 2FA con video de verificación</td><td class='num'>21</td><td class='num'>1.86</td><td class='num'>95.2%</td><td>media</td></tr><tr><td>Cuenta bloqueada con dinero adentro</td><td class='num'>227</td><td class='num'>1.36</td><td class='num'>94.7%</td><td>alta</td></tr><tr><td>Verificación facial/selfie no funciona</td><td class='num'>53</td><td class='num'>1.62</td><td class='num'>94.3%</td><td>media</td></tr><tr><td>Retención de fondos al retirar</td><td class='num'>45</td><td class='num'>1.02</td><td class='num'>93.3%</td><td>alta</td></tr><tr><td>La app no abre o queda colgada en el login</td><td class='num'>245</td><td class='num'>1.7</td><td class='num'>92.7%</td><td>alta</td></tr><tr><td>No puede iniciar sesión (variante general)</td><td class='num'>51</td><td class='num'>1.33</td><td class='num'>92.2%</td><td>media</td></tr><tr><td>Login bloqueado por intentos fallidos / 2FA</td><td class='num'>72</td><td class='num'>1.74</td><td class='num'>91.7%</td><td>media</td></tr><tr><td>Publicidad agresiva de la propia app</td><td class='num'>47</td><td class='num'>1.15</td><td class='num'>91.5%</td><td>media</td></tr><tr><td>SMS de verificación no llega</td><td class='num'>35</td><td class='num'>1.63</td><td class='num'>91.4%</td><td>media</td></tr><tr><td>Transferencias y depósitos no acreditados</td><td class='num'>231</td><td class='num'>1.4</td><td class='num'>90.9%</td><td>alta</td></tr><tr><td>Desconfianza en el precio de cotización de criptomonedas</td><td class='num'>70</td><td class='num'>1.61</td><td class='num'>90.0%</td><td>media</td></tr><tr><td>La app se cierra al tomar foto del DNI</td><td class='num'>29</td><td class='num'>1.97</td><td class='num'>89.7%</td><td>media</td></tr><tr><td>Fricción al forzar actualizaciones</td><td class='num'>38</td><td class='num'>2.05</td><td class='num'>89.5%</td><td>media</td></tr><tr><td>Operaciones de compra/venta de cripto rechazadas con dinero retenido</td><td class='num'>122</td><td class='num'>1.53</td><td class='num'>87.7%</td><td>alta</td></tr><tr><td>Demoras largas en validación de cuenta (KYC)</td><td class='num'>47</td><td class='num'>1.62</td><td class='num'>87.2%</td><td>media</td></tr><tr><td>No puede recuperar la cuenta al cambiar de celular</td><td class='num'>41</td><td class='num'>2.34</td><td class='num'>85.4%</td><td>media</td></tr><tr><td>No puede activar o desbloquear la cuenta</td><td class='num'>38</td><td class='num'>2.0</td><td class='num'>84.2%</td><td>media</td></tr><tr><td>Precio de Bitcoin no coincide con el mercado</td><td class='num'>25</td><td class='num'>1.8</td><td class='num'>84.0%</td><td>media</td></tr><tr><td>Lentitud en transacciones y soporte</td><td class='num'>24</td><td class='num'>2.04</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Rechazo genérico / no recomendable</td><td class='num'>54</td><td class='num'>1.81</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Depósito que nunca se refleja en la cuenta</td><td class='num'>39</td><td class='num'>1.77</td><td class='num'>82.1%</td><td>alta</td></tr><tr><td>Soporte no resuelve (tickets sin respuesta)</td><td class='num'>50</td><td class='num'>1.1</td><td class='num'>82.0%</td><td>alta</td></tr><tr><td>Código de verificación nunca llega (variante)</td><td class='num'>33</td><td class='num'>1.45</td><td class='num'>81.8%</td><td>media</td></tr><tr><td>Comisiones percibidas como abusivas</td><td class='num'>97</td><td class='num'>1.76</td><td class='num'>77.3%</td><td>media</td></tr><tr><td>Reclamos de dinero retenido (en mayúsculas, alta frustración)</td><td class='num'>46</td><td class='num'>2.22</td><td class='num'>69.6%</td><td>media</td></tr><tr><td>Cuentas demoradas en habilitarse (con frustración)</td><td class='num'>33</td><td class='num'>2.39</td><td class='num'>42.4%</td><td>media</td></tr><tr><td>Opiniones mixtas sobre el exchange para Argentina</td><td class='num'>45</td><td class='num'>2.6</td><td class='num'>42.2%</td><td>baja</td></tr><tr><td>Satisfacción general con la app (cuando funciona)</td><td class='num'>270</td><td class='num'>4.57</td><td class='num'>7.0%</td><td>baja</td></tr><tr><td>Fácil de usar (elogio con matices)</td><td class='num'>552</td><td class='num'>4.42</td><td class='num'>6.3%</td><td>baja</td></tr><tr><td>Satisfacción con la oferta de criptomonedas</td><td class='num'>118</td><td class='num'>4.34</td><td class='num'>5.1%</td><td>baja</td></tr><tr><td>Satisfacción con la billetera para invertir</td><td class='num'>46</td><td class='num'>4.3</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td class='num'>1563</td><td class='num'>1.66</td><td class='num'>88.0%</td><td>-</td></tr></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+</body>
+</html>

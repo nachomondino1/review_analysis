@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas — Beelup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #fafaf8;
+  --bg-subtle: #f2f1ed;
+  --surface: #ffffff;
+  --text: #1a1a17;
+  --muted: #6f6d67;
+  --muted-soft: #a19e96;
+  --border: #e4e2dc;
+  --border-soft: #ecebe6;
+  --accent: #2f6f62;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-contrast: #ffffff;
+  --good: #16a34a; --warn: #d97706; --bad: #dc2626;
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
+  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
+    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
+    --border: #2a3342; --border-soft: #212836;
+    --accent: #4f9686;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
+    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }
+@media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
+header.page-head {
+  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
+  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+}
+@media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
+header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
+h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px;
+}
+.stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+.finding-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px;
+}
+.finding-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.finding-head h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+.finding-meta { color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }
+.recommendation { background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+.samples { list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }
+.samples li { padding: 6px 0; border-top: 1px dashed var(--border-soft); }
+.chip {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
+.sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.trend-chart { width: 100%; height: auto; margin-top: 8px; }
+.chart-grid { stroke: var(--border-soft); stroke-width: 1; }
+.chart-label { fill: var(--muted-soft); font-size: 10px; }
+.legend { display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+details.detail-table { margin-top: 8px; }
+details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.table-scroll { overflow-x: auto; margin-top: 8px; }
+table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }
+th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
+td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>📊 Beelup</h1>
+    <div class="sub">Análisis de reseñas de usuarios · generado 2026-10-19</div>
+  </div>
+</header>
+<div class="container">
+
+  <section>
+    <h2>Resumen ejecutivo</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial (169 calificaciones)</div></div>
+      <div class="stat-card"><div class="value">74</div><div class="label">Reseñas con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas en la muestra</div></div>
+      <div class="stat-card"><div class="value">2</div><div class="label">Hallazgos a atender</div></div>
+    </div>
+    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+  </section>
+
+  <section>
+    <h2>Principales hallazgos</h2>
+    <div class="findings-grid">
+      
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>La app es solo un wrapper del sitio web, con errores</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">47 reseñas · 74.5% negativas</p>
+          <p>Usuarios perciben que la app no hace más que redirigir al sitio web (en vez de ser una app nativa), con errores frecuentes y lentitud al cargar contenido.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Evaluar si vale la pena mantener una app nativa real (con reproductor propio, no un simple link) o directamente no ofrecer app y dirigir al sitio web — hoy la app está generando una percepción peor que no tener app.</p>
+          <ul class='samples'><li>“Anda cuando quiere. Tarda mucho y tiene muchísimos errores. Sin contar que la aplicación simplemente tiene el link de la página, lo cual ya de por sí es una gastada.”</li><li>“muy al pedo la creación de esta app, antes podías ver los partidos desde Google y era más práctico. 👎🏼”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Redirige a la web y esa web también funciona mal</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">23 reseñas · 60.9% negativas</p>
+          <p>Mismo problema que el tópico 0, enfatizando que además la página web a la que redirige es lenta o se traba.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Mismo frente que el tópico 0: si se decide seguir con el modelo de redirección, el problema de fondo a resolver es la performance de la web, no la app en sí.</p>
+          <ul class='samples'><li>“Al pedo te manda a la pagina y la pagina anda re mal”</li><li>“te envia al link pesimo”</li></ul>
+        </article>
+        
+    </div>
+  </section>
+
+  <section><h2>Tendencia mensual (% negativas en la muestra)</h2>
+    <svg viewBox="0 0 640 220" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
+      <line x1="32" y1="188.0" x2="608" y2="188.0" class="chart-grid" /><line x1="32" y1="149.0" x2="608" y2="149.0" class="chart-grid" /><line x1="32" y1="110.0" x2="608" y2="110.0" class="chart-grid" /><line x1="32" y1="71.0" x2="608" y2="71.0" class="chart-grid" /><line x1="32" y1="32.0" x2="608" y2="32.0" class="chart-grid" />
+      <polyline points="32.0,188.0 46.8,32.0 61.5,83.9 76.3,32.0 91.1,188.0 105.8,32.0 120.6,32.0 135.4,32.0 150.2,136.1 164.9,110.0 179.7,32.0 194.5,32.0 209.2,188.0 224.0,32.0 238.8,32.0 253.5,110.0 268.3,188.0 283.1,32.0 297.8,110.0 312.6,32.0 327.4,110.0 342.2,58.1 356.9,83.9 371.7,32.0 386.5,110.0 401.2,110.0 416.0,32.0 430.8,32.0 445.5,32.0 460.3,188.0 475.1,32.0 489.8,83.9 504.6,32.0 519.4,32.0 534.2,32.0 548.9,32.0 563.7,32.0 578.5,188.0 593.2,32.0 608.0,110.0" fill="none" stroke="#2f6f62" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="32.0" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="46.8" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="61.5" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="76.3" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="91.1" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="105.8" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="120.6" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="135.4" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="150.2" cy="136.1" r="2.5" fill="#2f6f62" /><circle cx="164.9" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="179.7" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="194.5" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="209.2" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="224.0" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="238.8" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="253.5" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="268.3" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="283.1" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="297.8" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="312.6" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="327.4" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="342.2" cy="58.1" r="2.5" fill="#2f6f62" /><circle cx="356.9" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="371.7" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="386.5" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="401.2" cy="110.0" r="2.5" fill="#2f6f62" /><circle cx="416.0" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="430.8" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="445.5" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="460.3" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="475.1" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="489.8" cy="83.9" r="2.5" fill="#2f6f62" /><circle cx="504.6" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="519.4" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="534.2" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="548.9" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="563.7" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="578.5" cy="188.0" r="2.5" fill="#2f6f62" /><circle cx="593.2" cy="32.0" r="2.5" fill="#2f6f62" /><circle cx="608.0" cy="110.0" r="2.5" fill="#2f6f62" />
+      <text x="32.0" y="212" class="chart-label" text-anchor="middle">22-04</text><text x="46.8" y="212" class="chart-label" text-anchor="middle">22-06</text><text x="61.5" y="212" class="chart-label" text-anchor="middle">22-07</text><text x="76.3" y="212" class="chart-label" text-anchor="middle">22-08</text><text x="91.1" y="212" class="chart-label" text-anchor="middle">22-09</text><text x="105.8" y="212" class="chart-label" text-anchor="middle">22-11</text><text x="120.6" y="212" class="chart-label" text-anchor="middle">22-12</text><text x="135.4" y="212" class="chart-label" text-anchor="middle">23-01</text><text x="150.2" y="212" class="chart-label" text-anchor="middle">23-03</text><text x="164.9" y="212" class="chart-label" text-anchor="middle">23-04</text><text x="179.7" y="212" class="chart-label" text-anchor="middle">23-05</text><text x="194.5" y="212" class="chart-label" text-anchor="middle">23-06</text><text x="209.2" y="212" class="chart-label" text-anchor="middle">23-07</text><text x="224.0" y="212" class="chart-label" text-anchor="middle">23-08</text><text x="238.8" y="212" class="chart-label" text-anchor="middle">23-09</text><text x="253.5" y="212" class="chart-label" text-anchor="middle">23-11</text><text x="268.3" y="212" class="chart-label" text-anchor="middle">23-12</text><text x="283.1" y="212" class="chart-label" text-anchor="middle">24-01</text><text x="297.8" y="212" class="chart-label" text-anchor="middle">24-02</text><text x="312.6" y="212" class="chart-label" text-anchor="middle">24-03</text><text x="327.4" y="212" class="chart-label" text-anchor="middle">24-04</text><text x="342.2" y="212" class="chart-label" text-anchor="middle">24-05</text><text x="356.9" y="212" class="chart-label" text-anchor="middle">24-06</text><text x="371.7" y="212" class="chart-label" text-anchor="middle">24-07</text><text x="386.5" y="212" class="chart-label" text-anchor="middle">24-08</text><text x="401.2" y="212" class="chart-label" text-anchor="middle">24-09</text><text x="416.0" y="212" class="chart-label" text-anchor="middle">24-10</text><text x="430.8" y="212" class="chart-label" text-anchor="middle">24-12</text><text x="445.5" y="212" class="chart-label" text-anchor="middle">25-01</text><text x="460.3" y="212" class="chart-label" text-anchor="middle">25-02</text><text x="475.1" y="212" class="chart-label" text-anchor="middle">25-09</text><text x="489.8" y="212" class="chart-label" text-anchor="middle">25-11</text><text x="504.6" y="212" class="chart-label" text-anchor="middle">26-01</text><text x="519.4" y="212" class="chart-label" text-anchor="middle">26-02</text><text x="534.2" y="212" class="chart-label" text-anchor="middle">26-03</text><text x="548.9" y="212" class="chart-label" text-anchor="middle">26-05</text><text x="563.7" y="212" class="chart-label" text-anchor="middle">26-06</text><text x="578.5" y="212" class="chart-label" text-anchor="middle">26-07</text><text x="593.2" y="212" class="chart-label" text-anchor="middle">26-08</text><text x="608.0" y="212" class="chart-label" text-anchor="middle">26-09</text>
+    </svg>
+    <div class="legend"><span class="legend-item"><span class="legend-dot" style="background:#2f6f62"></span>Google Play</span></div>
+    </section>
+
+  <section>
+    <h2>Detalle completo por tópico</h2>
+    <details class="detail-table">
+      <summary>Ver los 3 tópicos detectados</summary>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+          <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>47</td><td class='num'>1.66</td><td class='num'>74.5%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>23</td><td class='num'>1.39</td><td class='num'>60.9%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>50.0%</td><td>-</td></tr></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+</body>
+</html>
