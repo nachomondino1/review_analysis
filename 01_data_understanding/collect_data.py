@@ -1,11 +1,12 @@
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import requests
-from google_play_scraper import Sort, reviews
+from google_play_scraper import Sort, app as gp_app, reviews
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
@@ -50,6 +51,33 @@ def fetch_android(pkg: str, country="ar", lang="es", count=5000) -> pd.DataFrame
     })
 
 
+def fetch_store_ratings(app_ios: int, pkg: str, country="ar", lang="es") -> dict:
+    """
+    Rating/conteo oficial agregado de cada tienda, calculado sobre TODAS las
+    calificaciones (toquen estrellas o escriban texto). Separado de las reseñas
+    scrapeadas a propósito: el scraping solo puede leer reseñas con texto,
+    ordenadas por más recientes, y esa muestra está sesgada hacia quejas (quien
+    solo puso estrellas y no escribió nunca entra al dataset de texto). Mostrar
+    el % de negativas de la muestra como si fuera el rating real del público
+    general es engañoso.
+    """
+    ios = requests.get(f"https://itunes.apple.com/lookup?id={app_ios}&country={country}", timeout=15).json()
+    ios_result = (ios.get("results") or [{}])[0]
+
+    android = gp_app(pkg, lang=lang, country=country)
+
+    return {
+        "ios": {
+            "score": ios_result.get("averageUserRating"),
+            "ratings_count": ios_result.get("userRatingCount"),
+        },
+        "android": {
+            "score": android.get("score"),
+            "ratings_count": android.get("ratings"),
+        },
+    }
+
+
 def update(paths: Paths, app_ios: int, pkg: str) -> pd.DataFrame:
     new = pd.concat([fetch_ios(app_ios), fetch_android(pkg)], ignore_index=True)
     new["date"] = pd.to_datetime(new["date"], utc=True)
@@ -75,3 +103,8 @@ if __name__ == "__main__":
     df = update(paths, app_ios=args.app_ios, pkg=args.pkg)
     print(df.groupby("store").size())
     print(f"Guardado en {paths.reviews.resolve()}")
+
+    ratings = fetch_store_ratings(args.app_ios, args.pkg)
+    paths.store_ratings_json.write_text(json.dumps(ratings, indent=2))
+    print(ratings)
+    print(f"Guardado en {paths.store_ratings_json.resolve()}")

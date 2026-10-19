@@ -6,7 +6,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 
 ## Qué hace
 
-1. **Recolección** (`01_data_understanding/collect_data.py`): descarga reseñas de App Store (vía RSS feed de iTunes) y Google Play (vía `google-play-scraper`) para una app dada, las deduplica contra lo ya guardado y las acumula en `data/<empresa>/reviews.parquet`.
+1. **Recolección** (`01_data_understanding/collect_data.py`): descarga reseñas de App Store (vía RSS feed de iTunes) y Google Play (vía `google-play-scraper`) para una app dada, las deduplica contra lo ya guardado y las acumula en `data/<empresa>/01_data_understanding/reviews.parquet`. También guarda el **rating oficial agregado** de cada tienda (`store_ratings.json`) — ver nota de metodología más abajo, es importante.
 2. **Limpieza** (`02_data_preparation/clean_reviews.py`): filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 3. **Análisis** (`03_modeling/model.py`):
    - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
@@ -43,6 +43,7 @@ data/
   <empresa>/
     01_data_understanding/
       reviews.parquet           # reseñas crudas acumuladas
+      store_ratings.json        # rating oficial agregado por tienda (score + cantidad de calificaciones)
     02_data_preparation/
       reviews_clean.parquet     # reseñas filtradas, insumo del modelado
     03_modeling/
@@ -118,6 +119,14 @@ cp .env.example .env   # y completar HF_TOKEN
    ```
 
    Esto genera `05_deployment/site/spotify/index.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, un gráfico de tendencia mensual y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
+
+## ⚠️ Metodología: la muestra de reseñas con texto está sesgada hacia quejas
+
+El scraping (`collect_data.py`) solo puede leer reseñas que tienen **texto escrito**, y las trae ordenadas por más recientes. Eso es una muestra sesgada: la inmensa mayoría de la gente que califica una app solo toca estrellas y nunca escribe nada, y quien sí escribe tiende a hacerlo cuando tiene un problema. En la prueba con Ripio, por ejemplo, el rating oficial de Google Play es 4.65★ sobre 54.268 calificaciones, pero la muestra de reseñas con texto (sort "más recientes") dio un 70% de negativas — representan públicos distintos, no el mismo dato con más o menos ruido.
+
+Por eso el dashboard separa explícitamente:
+- **Rating oficial**: viene de `store_ratings.json` (API de iTunes + `google-play-scraper.app()`), cubre todas las calificaciones de la tienda. Es el número que hay que mostrarle a un CEO como "satisfacción general".
+- **% negativas / tópicos / hallazgos**: vienen de la muestra de reseñas con texto. Son el insumo correcto para entender **qué** se queja la gente y priorizar qué arreglar — pero no se deben presentar como si midieran la satisfacción general, porque sobre-representan el descontento.
 
 ## Pendientes conocidos
 

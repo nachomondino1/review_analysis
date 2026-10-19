@@ -7,6 +7,7 @@ Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>/index.htm
 """
 import argparse
 import html
+import json
 import sys
 from pathlib import Path
 
@@ -31,18 +32,33 @@ def load_data(paths: Paths):
     reviews = pd.read_parquet(paths.reviews_enriched_parquet)
     by_month = pd.read_csv(paths.sentiment_by_month_csv) if paths.sentiment_by_month_csv.exists() else None
     by_store = pd.read_csv(paths.store_comparison_csv) if paths.store_comparison_csv.exists() else None
-    return summary, reviews, by_month, by_store
+    store_ratings = json.loads(paths.store_ratings_json.read_text()) if paths.store_ratings_json.exists() else None
+    return summary, reviews, by_month, by_store, store_ratings
+
+
+def build_official_rating(store_ratings: dict | None) -> dict | None:
+    """
+    Rating ponderado sobre TODAS las calificaciones de las tiendas (toquen
+    estrellas o no escriban texto) — no se puede derivar de `summary`, que solo
+    cubre la muestra de reseñas con texto que el scraping puede leer.
+    """
+    if not store_ratings:
+        return None
+    rows = [r for r in store_ratings.values() if r.get("score") and r.get("ratings_count")]
+    if not rows:
+        return None
+    total = sum(r["ratings_count"] for r in rows)
+    weighted = sum(r["score"] * r["ratings_count"] for r in rows) / total
+    return {"score": round(weighted, 2), "count": total}
 
 
 def build_summary_stats(summary: pd.DataFrame) -> dict:
     real = summary[~summary["is_outlier"]]
     total_n = int(summary["n"].sum())
-    avg_rating = round(float((summary["rating"] * summary["n"]).sum() / total_n), 2)
     pct_neg = round(float((summary["pct_neg"] * summary["n"]).sum() / total_n * 100), 1)
     n_findings = int((real["severity"].isin(["alta", "media"])).sum())
     return {
         "total_n": total_n,
-        "avg_rating": avg_rating,
         "pct_neg": pct_neg,
         "n_findings": n_findings,
     }
@@ -256,6 +272,7 @@ td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
 td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
+.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }}
 </style>
 </head>
 <body>
@@ -270,11 +287,12 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
   <section>
     <h2>Resumen ejecutivo</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">{total_n}</div><div class="label">Reseñas analizadas</div></div>
-      <div class="stat-card"><div class="value">{avg_rating}★</div><div class="label">Rating promedio</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Reseñas negativas</div></div>
+      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial ({official_count})</div></div>
+      <div class="stat-card"><div class="value">{total_n}</div><div class="label">Reseñas con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra</div></div>
       <div class="stat-card"><div class="value">{n_findings}</div><div class="label">Hallazgos a atender</div></div>
     </div>
+    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
   </section>
 
   <section>
@@ -309,21 +327,23 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 
 
 def render(paths: Paths, empresa_display: str) -> str:
-    summary, reviews, by_month, by_store = load_data(paths)
+    summary, reviews, by_month, by_store, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
+    official = build_official_rating(store_ratings)
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
     chart_svg = build_chart_svg(by_month)
     trend_section = (
-        f'<section><h2>Tendencia mensual (% negativas)</h2>{chart_svg}</section>' if chart_svg else ""
+        f'<section><h2>Tendencia mensual (% negativas en la muestra)</h2>{chart_svg}</section>' if chart_svg else ""
     )
     table_rows = build_table_rows(summary)
 
     return TEMPLATE.format(
         empresa=esc(empresa_display),
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
+        official_rating=f'{official["score"]}★' if official else "N/D",
+        official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
         total_n=stats["total_n"],
-        avg_rating=stats["avg_rating"],
         pct_neg=stats["pct_neg"],
         n_findings=stats["n_findings"],
         findings_html=findings_html,

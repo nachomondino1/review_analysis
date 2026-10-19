@@ -29,6 +29,7 @@ class Paths:
         self.evaluation_dir = self.base / "04_evaluation"
 
         self.reviews = self.understanding_dir / "reviews.parquet"
+        self.store_ratings_json = self.understanding_dir / "store_ratings.json"
         self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"
         self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
