@@ -24,10 +24,10 @@ Lo mínimo para poder correr el flujo de punta a punta sin tocar código a mano 
 
 Esto es lo que diferencia "corrí un notebook de NLP" de "te traigo 3 cosas que podés arreglar esta semana". Es la fase de mayor impacto por hora invertida.
 
-- [ ] **Nombrar los tópicos con un LLM, no con las keywords crudas de BERTopic.** Hoy `Name` es tipo `"6_no_canciones_que_playlist"` — ilegible para un CEO. Pasarle a un LLM (podés usar la Claude API, ya tenés el contexto de Anthropic) las reseñas de muestra de cada tópico y que devuelva: nombre corto, 1-2 frases de resumen, y severidad percibida. Es la mejora de UX más barata con más impacto.
-- [ ] **Agregar una recomendación por tópico negativo**, no solo el diagnóstico. El mismo paso de LLM puede devolver "qué probaría primero" para los 3-5 tópicos con peor `pct_neg` y mayor `n` (volumen × negatividad, no solo % para no priorizar un tópico de 5 reseñas).
-- [ ] **Serie temporal simple**: ¿el sentimiento negativo empeoró o mejoró en los últimos N meses? ¿coincide con alguna versión (`version` ya está en los datos)? Esto te da el gancho de "esto se rompió en la v4.2" que es mucho más persuasivo que un promedio estático.
-- [ ] **Comparar rating de Play Store vs App Store** si difieren mucho — a veces una plataforma tiene un problema que la otra no.
+- [x] **Nombrar los tópicos con un LLM, no con las keywords crudas de BERTopic.** Hecho en `scripts/topics_enrich.py` (`export`/`merge`) con nombre, resumen, severidad y recomendación por tópico. **Decisión:** no hay API key de Anthropic disponible (el plan Pro de claude.ai no la incluye), así que el nombrado no quedó automatizado vía API — el script exporta las muestras y el nombrado lo hace Claude en una sesión de Claude Code, que después mergea el resultado. Si en el futuro hay una API key, se puede automatizar sin cambiar el contrato del `topics_named.json`.
+- [x] **Agregar una recomendación por tópico negativo**, no solo el diagnóstico. Incluido en el mismo paso: `topics_summary.csv` queda ordenado por severidad (`n × pct_neg`) con `recommendation` por tópico.
+- [x] **Serie temporal simple**: `scripts/trends.py` genera `sentiment_by_month.csv` (sentimiento por mes y store).
+- [x] **Comparar rating de Play Store vs App Store**: `scripts/trends.py` genera `store_comparison.csv`.
 - [ ] Dejar **afuera por ahora** (no vale el tiempo para la v1): entrenar un clasificador propio de sentimiento, multi-idioma más allá de es/en, dashboards interactivos con filtros complejos, comparación contra competidores.
 
 **Resultado de esta fase:** `topics_summary` deja de ser un CSV técnico y pasa a ser 5-8 hallazgos con nombre, severidad y una sugerencia concreta — el insumo real de la web.
