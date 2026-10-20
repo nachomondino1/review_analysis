@@ -20,8 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths, ROOT  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
-STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
-STORE_COLOR = {"ios": "#8a8f98", "android": "#2f6f62"}
 TOP_FINDINGS_MAX = 6
 SAMPLES_PER_FINDING = 2
 
@@ -33,10 +31,8 @@ def esc(s) -> str:
 def load_data(paths: Paths):
     summary = pd.read_csv(paths.topics_summary_csv)
     reviews = pd.read_parquet(paths.reviews_enriched_parquet)
-    by_month = pd.read_csv(paths.sentiment_by_month_csv) if paths.sentiment_by_month_csv.exists() else None
-    by_store = pd.read_csv(paths.store_comparison_csv) if paths.store_comparison_csv.exists() else None
     store_ratings = json.loads(paths.store_ratings_json.read_text()) if paths.store_ratings_json.exists() else None
-    return summary, reviews, by_month, by_store, store_ratings
+    return summary, reviews, store_ratings
 
 
 def build_official_rating(store_ratings: dict | None) -> dict | None:
@@ -90,78 +86,61 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
     return findings
 
 
-MAX_MONTHS_IN_CHART = 12  # más que esto se vuelve ilegible, sobre todo en mobile
+RECENT_MONTHS = 3
+MIN_SAMPLE_FOR_COMPARISON = 5  # con menos reseñas, el % no es confiable para comparar
+TREND_THRESHOLD_PTS = 3  # diferencia de puntos porcentuales para no llamarlo "estable"
 
 
-def build_chart_svg(by_month: pd.DataFrame) -> str:
-    if by_month is None or by_month.empty:
+def build_recency_comparison(reviews: pd.DataFrame) -> str:
+    """
+    Responde "¿cómo vienen las reseñas últimamente respecto de siempre?" de
+    forma directa: últimos N meses vs. histórico completo, con un chip que dice
+    explícitamente si mejoró o empeoró (en vez de un gráfico de línea donde
+    "sube" es ambiguo — ¿sube el % de negativas, que es malo, o sube el
+    rating, que es bueno? — confuso incluso con eje bien etiquetado).
+    """
+    if reviews is None or reviews.empty or "date" not in reviews.columns:
         return ""
 
-    all_months = sorted(by_month["month"].unique())
-    months = all_months[-MAX_MONTHS_IN_CHART:]  # últimos N meses: el historial completo satura el gráfico
-    if len(months) < 2:
+    dates = pd.to_datetime(reviews["date"], utc=True)
+    cutoff = dates.max() - pd.DateOffset(months=RECENT_MONTHS)
+    recent = reviews[dates >= cutoff]
+    if len(recent) < MIN_SAMPLE_FOR_COMPARISON or len(reviews) < MIN_SAMPLE_FOR_COMPARISON:
         return ""
 
-    W, H, PAD_LEFT, PAD_RIGHT, PAD_TOP, PAD_BOTTOM = 640, 220, 48, 16, 24, 40
-    x_step = (W - PAD_LEFT - PAD_RIGHT) / max(len(months) - 1, 1)
-    show_dots = len(months) <= MAX_MONTHS_IN_CHART  # siempre en este rango, pero explícito por si cambia el límite
+    def stats(df):
+        return {
+            "n": len(df),
+            "rating": round(float(df["rating"].mean()), 2),
+            "pct_neg": round(float((df["sentiment"] == "NEG").mean() * 100), 1),
+        }
 
-    def y_of(pct):
-        return PAD_TOP + (1 - pct) * (H - PAD_TOP - PAD_BOTTOM)
+    recent_s, all_s = stats(recent), stats(reviews)
+    delta = recent_s["pct_neg"] - all_s["pct_neg"]  # positivo = empeoró (más % negativas)
 
-    lines = []
-    legend = []
-    for store in sorted(by_month["store"].unique()):
-        store_df = by_month[by_month["store"] == store].set_index("month")
-        points = []
-        for i, m in enumerate(months):
-            if m in store_df.index:
-                pct = float(store_df.loc[m, "pct_neg"])
-                points.append((PAD_LEFT + i * x_step, y_of(pct)))
-        if len(points) < 2:
-            continue
-        path = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
-        color = STORE_COLOR.get(store, "#6f6d67")
-        lines.append(f'<polyline points="{path}" fill="none" stroke="{color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />')
-        if show_dots:
-            for x, y in points:
-                lines.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="{color}" />')
-        legend.append(f'<span class="legend-item"><span class="legend-dot" style="background:{color}"></span>{esc(STORE_LABEL.get(store, store))}</span>')
+    if delta <= -TREND_THRESHOLD_PTS:
+        trend_class, trend_label = "trend-good", f"Mejorando: {abs(delta):.0f} pts menos reseñas negativas que el histórico"
+    elif delta >= TREND_THRESHOLD_PTS:
+        trend_class, trend_label = "trend-bad", f"Empeorando: {delta:.0f} pts más reseñas negativas que el histórico"
+    else:
+        trend_class, trend_label = "trend-flat", "Estable respecto del histórico"
 
-    # mostrar todas las etiquetas satura en mobile; de a lo sumo 6, salteando el resto
-    label_step = max(1, -(-len(months) // 6))  # ceil(len/6)
-    month_labels = "".join(
-        f'<text x="{PAD_LEFT + i * x_step:.1f}" y="{H - PAD_BOTTOM + 18}" class="chart-label" text-anchor="middle">{esc(m[2:])}</text>'
-        for i, m in enumerate(months)
-        if i % label_step == 0 or i == len(months) - 1
-    )
-    # eje Y: líneas de grilla + el número que representan (0% arriba sería 100%, ver y_of)
-    y_ticks = (0, 0.25, 0.5, 0.75, 1.0)
-    grid = "".join(
-        f'<line x1="{PAD_LEFT}" y1="{y_of(p):.1f}" x2="{W - PAD_RIGHT}" y2="{y_of(p):.1f}" class="chart-grid" />'
-        for p in y_ticks
-    )
-    y_labels = "".join(
-        f'<text x="{PAD_LEFT - 8}" y="{y_of(p) + 4:.1f}" class="chart-label" text-anchor="end">{int(p * 100)}%</text>'
-        for p in y_ticks
-    )
-
-    note = ""
-    if len(all_months) > MAX_MONTHS_IN_CHART:
-        note = f'<p class="chart-note">Mostrando los últimos {MAX_MONTHS_IN_CHART} meses (hay datos desde {esc(all_months[0])}).</p>'
-
-    svg = f'''
-    <p class="chart-axis-label">Eje vertical: % de reseñas negativas ese mes (0% = ninguna queja, 100% = todas negativas). Eje horizontal: mes.</p>
-    <svg viewBox="0 0 {W} {H}" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
-      {grid}
-      {y_labels}
-      {"".join(lines)}
-      {month_labels}
-    </svg>
-    <div class="legend">{"".join(legend)}</div>
-    {note}
+    return f'''
+    <div class="recency-grid">
+      <div class="recency-card">
+        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
+        <div class="recency-value">{recent_s["rating"]}★</div>
+        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
+      </div>
+      <div class="recency-arrow">vs.</div>
+      <div class="recency-card">
+        <div class="recency-label">Histórico completo</div>
+        <div class="recency-value">{all_s["rating"]}★</div>
+        <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
+      </div>
+    </div>
+    <span class="chip {trend_class}">{esc(trend_label)}</span>
     '''
-    return svg
 
 
 def build_table_rows(summary: pd.DataFrame) -> str:
@@ -282,14 +261,18 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 .sev-alta {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
 .sev-media {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
 .sev-baja {{ background: var(--bg-subtle); color: var(--muted); }}
-.trend-chart {{ width: 100%; height: auto; margin-top: 8px; }}
-.chart-grid {{ stroke: var(--border-soft); stroke-width: 1; }}
-.chart-label {{ fill: var(--muted-soft); font-size: 10px; }}
-.legend {{ display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }}
-.chart-note {{ color: var(--muted-soft); font-size: 0.78rem; margin-top: 6px; }}
-.chart-axis-label {{ color: var(--muted); font-size: 0.78rem; margin: 0 0 4px; }}
-.legend-item {{ display: inline-flex; align-items: center; gap: 6px; }}
-.legend-dot {{ width: 8px; height: 8px; border-radius: 999px; display: inline-block; }}
+.recency-grid {{ display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }}
+.recency-card {{
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
+}}
+.recency-label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }}
+.recency-value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }}
+.recency-sub {{ color: var(--muted); font-size: 0.8rem; margin-top: 4px; }}
+.recency-arrow {{ color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }}
+.trend-good {{ background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); margin-top: 12px; }}
+.trend-bad {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); margin-top: 12px; }}
+.trend-flat {{ background: var(--bg-subtle); color: var(--muted); margin-top: 12px; }}
 details.detail-table {{ margin-top: 8px; }}
 details.detail-table summary {{ cursor: pointer; font-weight: 600; padding: 8px 0; }}
 .table-scroll {{ overflow-x: auto; margin-top: 8px; }}
@@ -354,14 +337,14 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 
 
 def render(paths: Paths, empresa_display: str) -> str:
-    summary, reviews, by_month, by_store, store_ratings = load_data(paths)
+    summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
-    chart_svg = build_chart_svg(by_month)
+    recency_html = build_recency_comparison(reviews)
     trend_section = (
-        f'<section><h2>Tendencia mensual (% negativas en la muestra)</h2>{chart_svg}</section>' if chart_svg else ""
+        f'<section><h2>¿Cómo vienen últimamente?</h2>{recency_html}</section>' if recency_html else ""
     )
     table_rows = build_table_rows(summary)
 

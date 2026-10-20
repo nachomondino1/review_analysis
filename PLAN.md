@@ -37,13 +37,13 @@ Esto es lo que diferencia "corrí un notebook de NLP" de "te traigo 3 cosas que 
 
 No hace falta hosting, backend, ni build step. Un solo HTML autocontenido con los datos embebidos, que se sube a cualquier lado (GitHub Pages, o directo como adjunto/link de Drive) y se ve bien en el celular del CEO.
 
-- [x] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet`, `topics_summary.csv` (ya con nombres/recomendaciones de la Fase 1) y `sentiment_by_month.csv`, y genera `site/<empresa>.html` (+ `site/index.html` con el listado) con los datos embebidos directo en el HTML (sin fetch, sin modo de falla de red).
+- [x] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet` y `topics_summary.csv` (ya con nombres/recomendaciones de la Fase 1), y genera `site/<empresa>.html` (+ `index.html` en la raíz con el listado) con los datos embebidos directo en el HTML (sin fetch, sin modo de falla de red).
 - [x] **Contenido del HTML**:
   1. Resumen ejecutivo: N° de reseñas, rating promedio, % negativas, cantidad de hallazgos a atender.
   2. Hasta 6 hallazgos principales (severidad alta/media) con nombre, chip de severidad, resumen, recomendación y 2 reseñas textuales de ejemplo — ordenados por severidad real (volumen × % negativas).
-  3. Gráfico de tendencia mensual de % negativas por store (SVG generado server-side, sin librería de charts).
+  3. Comparación "últimos 3 meses vs. histórico completo" con un chip de Mejorando/Empeorando/Estable — reemplaza al gráfico de línea mensual (ver [APRENDIZAJES.md, 2026-10-20](APRENDIZAJES.md#2026-10-20--un-gráfico-de-línea-no-responde-cómo-venimos-si-la-dirección-es-ambigua): un gráfico donde "sube" es ambiguo —¿sube el % negativas (malo) o el rating (bueno)?— no responde la pregunta real de forma directa).
   4. Tabla completa de tópicos en `<details>`, colapsada por default.
-  - **Pendiente para una v2** (no bloqueante): marcar en el gráfico si una versión específica coincide con un salto de negatividad; por ahora el dato de `version` está pero no se cruza visualmente.
+  - **Pendiente para una v2** (no bloqueante): cruzar el dato de `version` con la comparación de tendencia, para poder decir "empeoró a partir de la v4.2".
 - [x] **Diseño**: tokens del Design Playbook (colores, Inter, cards, dark mode automático), acento propio (verde azulado, no reusado de otro proyecto).
 - [x] **Probado en 320px/375px y sin viewport** (ver `read_page`/`javascript_tool` del navegador): sin overflow de página; encontramos y arreglamos un bug real (`minmax(280px,...)` en los grids no encogía por debajo de 280px) y envolvimos la tabla de detalle en su propio scroll-container en vez de dejarla empujar la página.
 - [x] **Decisión (2026-10-19):** el `site/` generado vive dentro de `05_deployment/` (no en la raíz del repo), para que quede junto al script que lo genera. **Decisión relacionada:** dentro de `data/<empresa>/` los outputs ya no van todos a una sola carpeta `output/` plana — cada fase tiene su propia subcarpeta (`01_data_understanding/`, `02_data_preparation/`, `03_modeling/`, `04_evaluation/`), igual que a nivel raíz del repo, para que agregar una fase o una empresa no infle una carpeta compartida. Ver [[feedback_crispdm_structure]] en memoria.

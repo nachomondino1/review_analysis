@@ -79,14 +79,18 @@ h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 
 .sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
 .sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
 .sev-baja { background: var(--bg-subtle); color: var(--muted); }
-.trend-chart { width: 100%; height: auto; margin-top: 8px; }
-.chart-grid { stroke: var(--border-soft); stroke-width: 1; }
-.chart-label { fill: var(--muted-soft); font-size: 10px; }
-.legend { display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
-.chart-note { color: var(--muted-soft); font-size: 0.78rem; margin-top: 6px; }
-.chart-axis-label { color: var(--muted); font-size: 0.78rem; margin: 0 0 4px; }
-.legend-item { display: inline-flex; align-items: center; gap: 6px; }
-.legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+.recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+.recency-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
+}
+.recency-label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.recency-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+.recency-sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+.recency-arrow { color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }
+.trend-good { background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); margin-top: 12px; }
+.trend-bad { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); margin-top: 12px; }
+.trend-flat { background: var(--bg-subtle); color: var(--muted); margin-top: 12px; }
 details.detail-table { margin-top: 8px; }
 details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
 .table-scroll { overflow-x: auto; margin-top: 8px; }
@@ -148,17 +152,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
   </section>
 
-  <section><h2>Tendencia mensual (% negativas en la muestra)</h2>
-    <p class="chart-axis-label">Eje vertical: % de reseñas negativas ese mes (0% = ninguna queja, 100% = todas negativas). Eje horizontal: mes.</p>
-    <svg viewBox="0 0 640 220" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
-      <line x1="48" y1="180.0" x2="624" y2="180.0" class="chart-grid" /><line x1="48" y1="141.0" x2="624" y2="141.0" class="chart-grid" /><line x1="48" y1="102.0" x2="624" y2="102.0" class="chart-grid" /><line x1="48" y1="63.0" x2="624" y2="63.0" class="chart-grid" /><line x1="48" y1="24.0" x2="624" y2="24.0" class="chart-grid" />
-      <text x="40" y="184.0" class="chart-label" text-anchor="end">0%</text><text x="40" y="145.0" class="chart-label" text-anchor="end">25%</text><text x="40" y="106.0" class="chart-label" text-anchor="end">50%</text><text x="40" y="67.0" class="chart-label" text-anchor="end">75%</text><text x="40" y="28.0" class="chart-label" text-anchor="end">100%</text>
-      <polyline points="48.0,24.0 100.4,180.0 152.7,24.0 205.1,75.9 257.5,24.0 309.8,24.0 362.2,24.0 414.5,24.0 466.9,24.0 519.3,180.0 571.6,24.0 624.0,102.0" fill="none" stroke="#2f6f62" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="48.0" cy="24.0" r="3" fill="#2f6f62" /><circle cx="100.4" cy="180.0" r="3" fill="#2f6f62" /><circle cx="152.7" cy="24.0" r="3" fill="#2f6f62" /><circle cx="205.1" cy="75.9" r="3" fill="#2f6f62" /><circle cx="257.5" cy="24.0" r="3" fill="#2f6f62" /><circle cx="309.8" cy="24.0" r="3" fill="#2f6f62" /><circle cx="362.2" cy="24.0" r="3" fill="#2f6f62" /><circle cx="414.5" cy="24.0" r="3" fill="#2f6f62" /><circle cx="466.9" cy="24.0" r="3" fill="#2f6f62" /><circle cx="519.3" cy="180.0" r="3" fill="#2f6f62" /><circle cx="571.6" cy="24.0" r="3" fill="#2f6f62" /><circle cx="624.0" cy="102.0" r="3" fill="#2f6f62" />
-      <text x="48.0" y="198" class="chart-label" text-anchor="middle">25-01</text><text x="152.7" y="198" class="chart-label" text-anchor="middle">25-09</text><text x="257.5" y="198" class="chart-label" text-anchor="middle">26-01</text><text x="362.2" y="198" class="chart-label" text-anchor="middle">26-03</text><text x="466.9" y="198" class="chart-label" text-anchor="middle">26-06</text><text x="571.6" y="198" class="chart-label" text-anchor="middle">26-08</text><text x="624.0" y="198" class="chart-label" text-anchor="middle">26-09</text>
-    </svg>
-    <div class="legend"><span class="legend-item"><span class="legend-dot" style="background:#2f6f62"></span>Google Play</span></div>
-    <p class="chart-note">Mostrando los últimos 12 meses (hay datos desde 2022-04).</p>
-    </section>
+  
 
   <section>
     <h2>Detalle completo por tópico</h2>

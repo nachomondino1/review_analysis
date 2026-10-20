@@ -209,3 +209,32 @@ una restricción externa (acá, GitHub Pages), no a la organización del
 código. Antes de agregar infraestructura nueva (un workflow de CI/CD) para
 preservar una convención de carpetas, vale la pena preguntar si mover
 solo el output es más simple — en este caso lo era.
+
+---
+
+### 2026-10-20 — Un gráfico de línea no responde "¿cómo venimos?" si la dirección es ambigua
+
+**Qué pasó:** después de arreglar el eje Y del gráfico de tendencia mensual
+(agregando los números de porcentaje), el usuario señaló que seguía sin
+servir: "si sube es malo, lo cual es contraintuitivo". El gráfico graficaba
+% de reseñas negativas por mes — una línea que sube visualmente se lee
+como "mejora" por default (intuición común: arriba = mejor), pero acá
+arriba significaba más quejas.
+
+**Cómo lo resolvimos:** se reemplazó el gráfico de línea completo por una
+comparación directa de dos números: "últimos 3 meses" vs. "histórico
+completo" (rating, % negativas, n), con un chip de texto explícito —
+"Mejorando" (verde) / "Empeorando" (rojo) / "Estable" (gris) — calculado
+sobre la diferencia real de % negativas, no inferido de la forma de una
+curva. Si la muestra reciente es muy chica (< 5 reseñas), la sección se
+omite en vez de forzar una comparación poco confiable.
+
+**Lección generalizable:** un gráfico de tendencia solo es intuitivo
+cuando "arriba/sube" coincide con "mejor" para cualquier lector a primera
+vista. Si la métrica que se grafica es "negativa por naturaleza" (quejas,
+errores, tasa de abandono), invertir el eje ayuda poco porque igual hay
+que leer la leyenda para confirmar qué significa la dirección. Cuando la
+pregunta real es "¿mejoramos o empeoramos?" (una comparación de dos
+períodos), a veces la respuesta más clara no es un gráfico en absoluto,
+sino el número y una palabra con color: "Mejorando" / "Empeorando". No
+toda serie temporal necesita visualizarse como serie temporal.

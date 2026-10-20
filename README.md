@@ -15,7 +15,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 4. **Evaluación / hallazgos** (`04_evaluation/`):
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play, para detectar si algo empeoró con una versión o si una plataforma tiene peor experiencia que la otra.
-5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual (últimos 12 meses — el historial completo lo satura) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
+5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
@@ -142,7 +142,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 05_deployment/dashboard.py --name spotify --display-name "Spotify"
    ```
 
-   Esto genera `site/spotify.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, un gráfico de tendencia mensual y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
+   Esto genera `site/spotify.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, una comparación de "últimos 3 meses vs. histórico completo" y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
 
 ## ⚠️ Metodología: la muestra de reseñas con texto está sesgada hacia quejas
 
@@ -159,4 +159,4 @@ Historia completa de cómo se encontró este sesgo en [APRENDIZAJES.md](APRENDIZ
 Ver [PLAN.md](PLAN.md) para el detalle completo. Resumen de lo que falta:
 
 - Automatizar el nombrado de tópicos con la API de Anthropic cuando haya una API key disponible (hoy es un paso manual vía Claude Code).
-- Marcar en el gráfico de tendencia si una versión específica coincide con un salto de negatividad (el dato de `version` existe pero no se cruza visualmente todavía).
+- Cruzar el dato de `version` con la comparación de tendencia, para poder decir "empeoró a partir de la v4.2" en vez de solo "empeoró en los últimos 3 meses".
