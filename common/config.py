@@ -39,7 +39,10 @@ class Paths:
         self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
         self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
 
-        self.site_dir = ROOT / "05_deployment" / "site"
+        # En la raíz del repo (no bajo 05_deployment/) porque GitHub Pages
+        # "clásico" (deploy from branch) solo sirve desde la raíz o /docs,
+        # nunca una carpeta anidada — ver DECISIONS/APRENDIZAJES.
+        self.site_dir = ROOT / "site"
         self.site_html = self.site_dir / f"{self.slug}.html"
 
     def ensure_dirs(self):

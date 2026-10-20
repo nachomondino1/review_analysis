@@ -178,3 +178,34 @@ historial completo — recortar la ventana no es "perder información", es
 priorizar qué se puede leer de un vistazo. Probar visualizaciones con el
 caso "mucho volumen de tiempo", no solo con "muchas categorías" o "mucho
 texto".
+
+---
+
+### 2026-10-20 — GitHub Pages "clásico" no sirve carpetas anidadas
+
+**Qué pasó:** `dashboard.py` escribía en `05_deployment/site/`, y las URLs
+públicas quedaban con ese prefijo completo
+(`.../05_deployment/site/ripio.html`) — incómodo para compartir.
+
+**Qué evaluamos:** GitHub Pages "deploy from branch" (el modo simple, sin
+Actions) solo puede servir desde la raíz del repo o una carpeta `/docs` en
+la raíz — nunca una carpeta anidada como `05_deployment/site/`. Para
+servir esa carpeta tal cual habría hecho falta un workflow de GitHub
+Actions (`upload-pages-artifact` + `deploy-pages`), que sí puede publicar
+cualquier carpeta como raíz del sitio.
+
+**Cómo lo resolvimos:** se evaluó explícitamente el trade-off y, con
+preferencia declarada por la simplicidad, se eligió mover la carpeta
+generada a `site/` en la raíz del repo (un solo cambio en `config.py`) en
+vez de agregar un workflow de Actions. El código del generador
+(`dashboard.py`) se queda en `05_deployment/`; solo cambia dónde aterriza
+el archivo que genera.
+
+**Lección generalizable:** separar "dónde vive el código que genera algo"
+de "dónde tiene que aterrizar lo generado" no rompe ninguna convención —
+es normal que un generador en `src/` o `05_deployment/` escriba su output
+en `docs/`, `site/` o `dist/` en la raíz, porque esa ubicación responde a
+una restricción externa (acá, GitHub Pages), no a la organización del
+código. Antes de agregar infraestructura nueva (un workflow de CI/CD) para
+preservar una convención de carpetas, vale la pena preguntar si mover
+solo el output es más simple — en este caso lo era.
