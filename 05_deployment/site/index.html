@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas — empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #fafaf8; --surface: #ffffff; --text: #1a1a17; --muted: #6f6d67;
+  --border-soft: #ecebe6; --accent: #2f6f62; --radius: 12px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1218; --surface: #181e29; --text: #e6e8ec; --muted: #9aa3b2; --border-soft: #212836; --accent: #4f9686; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.55; }
+.container { max-width: 640px; margin: 0 auto; padding: 32px 24px 64px; }
+h1 { font-size: 1.3rem; font-weight: 800; }
+ul { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }
+a.company-link {
+  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
+}
+a.company-link:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📊 Análisis de reseñas</h1>
+  <ul>
+    <li><a class="company-link" href="beelup.html">Beelup</a></li>
+    <li><a class="company-link" href="ripio.html">Ripio</a></li>
+  </ul>
+</div>
+</body>
+</html>

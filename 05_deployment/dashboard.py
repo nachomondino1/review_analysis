@@ -3,11 +3,13 @@ Genera un único HTML autocontenido con el análisis de una empresa, para
 compartir por link/archivo (sin backend, sin build step).
 
 Uso: python 05_deployment/dashboard.py --name <empresa>
-Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>/index.html.
+Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>.html
+y regenera site/index.html con el listado de empresas.
 """
 import argparse
 import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -87,19 +89,24 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
     return findings
 
 
+MAX_MONTHS_IN_CHART = 12  # más que esto se vuelve ilegible, sobre todo en mobile
+
+
 def build_chart_svg(by_month: pd.DataFrame) -> str:
     if by_month is None or by_month.empty:
         return ""
 
-    months = sorted(by_month["month"].unique())
+    all_months = sorted(by_month["month"].unique())
+    months = all_months[-MAX_MONTHS_IN_CHART:]  # últimos N meses: el historial completo satura el gráfico
     if len(months) < 2:
         return ""
 
-    W, H, PAD = 640, 220, 32
-    x_step = (W - 2 * PAD) / max(len(months) - 1, 1)
+    W, H, PAD_X, PAD_TOP, PAD_BOTTOM = 640, 220, 36, 16, 40
+    x_step = (W - 2 * PAD_X) / max(len(months) - 1, 1)
+    show_dots = len(months) <= MAX_MONTHS_IN_CHART  # siempre en este rango, pero explícito por si cambia el límite
 
     def y_of(pct):
-        return H - PAD - (pct) * (H - 2 * PAD)
+        return PAD_TOP + (1 - pct) * (H - PAD_TOP - PAD_BOTTOM)
 
     lines = []
     legend = []
@@ -109,24 +116,32 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
         for i, m in enumerate(months):
             if m in store_df.index:
                 pct = float(store_df.loc[m, "pct_neg"])
-                points.append((PAD + i * x_step, y_of(pct)))
+                points.append((PAD_X + i * x_step, y_of(pct)))
         if len(points) < 2:
             continue
         path = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
         color = STORE_COLOR.get(store, "#6f6d67")
         lines.append(f'<polyline points="{path}" fill="none" stroke="{color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />')
-        for x, y in points:
-            lines.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{color}" />')
+        if show_dots:
+            for x, y in points:
+                lines.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" fill="{color}" />')
         legend.append(f'<span class="legend-item"><span class="legend-dot" style="background:{color}"></span>{esc(STORE_LABEL.get(store, store))}</span>')
 
+    # mostrar todas las etiquetas satura en mobile; de a lo sumo 6, salteando el resto
+    label_step = max(1, -(-len(months) // 6))  # ceil(len/6)
     month_labels = "".join(
-        f'<text x="{PAD + i * x_step:.1f}" y="{H - 8}" class="chart-label" text-anchor="middle">{esc(m[2:])}</text>'
+        f'<text x="{PAD_X + i * x_step:.1f}" y="{H - PAD_BOTTOM + 18}" class="chart-label" text-anchor="middle">{esc(m[2:])}</text>'
         for i, m in enumerate(months)
+        if i % label_step == 0 or i == len(months) - 1
     )
     grid = "".join(
-        f'<line x1="{PAD}" y1="{y_of(p):.1f}" x2="{W - PAD}" y2="{y_of(p):.1f}" class="chart-grid" />'
+        f'<line x1="{PAD_X}" y1="{y_of(p):.1f}" x2="{W - PAD_X}" y2="{y_of(p):.1f}" class="chart-grid" />'
         for p in (0, 0.25, 0.5, 0.75, 1.0)
     )
+
+    note = ""
+    if len(all_months) > MAX_MONTHS_IN_CHART:
+        note = f'<p class="chart-note">Mostrando los últimos {MAX_MONTHS_IN_CHART} meses (hay datos desde {esc(all_months[0])}).</p>'
 
     svg = f'''
     <svg viewBox="0 0 {W} {H}" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
@@ -135,6 +150,7 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
       {month_labels}
     </svg>
     <div class="legend">{"".join(legend)}</div>
+    {note}
     '''
     return svg
 
@@ -261,6 +277,7 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 .chart-grid {{ stroke: var(--border-soft); stroke-width: 1; }}
 .chart-label {{ fill: var(--muted-soft); font-size: 10px; }}
 .legend {{ display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }}
+.chart-note {{ color: var(--muted-soft); font-size: 0.78rem; margin-top: 6px; }}
 .legend-item {{ display: inline-flex; align-items: center; gap: 6px; }}
 .legend-dot {{ width: 8px; height: 8px; border-radius: 999px; display: inline-block; }}
 details.detail-table {{ margin-top: 8px; }}
@@ -353,6 +370,61 @@ def render(paths: Paths, empresa_display: str) -> str:
     )
 
 
+INDEX_TEMPLATE = """<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas — empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {{
+  --bg: #fafaf8; --surface: #ffffff; --text: #1a1a17; --muted: #6f6d67;
+  --border-soft: #ecebe6; --accent: #2f6f62; --radius: 12px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+}}
+@media (prefers-color-scheme: dark) {{
+  :root {{ --bg: #0f1218; --surface: #181e29; --text: #e6e8ec; --muted: #9aa3b2; --border-soft: #212836; --accent: #4f9686; }}
+}}
+* {{ box-sizing: border-box; }}
+body {{ margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.55; }}
+.container {{ max-width: 640px; margin: 0 auto; padding: 32px 24px 64px; }}
+h1 {{ font-size: 1.3rem; font-weight: 800; }}
+ul {{ list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }}
+a.company-link {{
+  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
+}}
+a.company-link:hover {{ border-color: var(--accent); }}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📊 Análisis de reseñas</h1>
+  <ul>
+    {items}
+  </ul>
+</div>
+</body>
+</html>
+"""
+
+
+def build_index(site_dir: Path):
+    """Escanea site/*.html (menos index.html) y arma un índice con links."""
+    pages = sorted(p for p in site_dir.glob("*.html") if p.name != "index.html")
+    items = []
+    for page in pages:
+        match = re.search(r"<title>Análisis de reseñas — (.*?)</title>", page.read_text(encoding="utf-8"))
+        name = match.group(1) if match else page.stem
+        items.append(f'<li><a class="company-link" href="{page.name}">{esc(name)}</a></li>')
+    (site_dir / "index.html").write_text(
+        INDEX_TEMPLATE.format(items="\n    ".join(items)), encoding="utf-8"
+    )
+
+
 def parse_args():
     p = argparse.ArgumentParser(description="Genera el HTML autocontenido para compartir el análisis.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
@@ -367,3 +439,5 @@ if __name__ == "__main__":
     paths.ensure_site_dir()
     paths.site_html.write_text(html_out, encoding="utf-8")
     print(f"Guardado en {paths.site_html.resolve()}")
+    build_index(paths.site_dir)
+    print(f"Índice actualizado en {(paths.site_dir / 'index.html').resolve()}")

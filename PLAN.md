@@ -37,7 +37,7 @@ Esto es lo que diferencia "corrí un notebook de NLP" de "te traigo 3 cosas que 
 
 No hace falta hosting, backend, ni build step. Un solo HTML autocontenido con los datos embebidos, que se sube a cualquier lado (GitHub Pages, o directo como adjunto/link de Drive) y se ve bien en el celular del CEO.
 
-- [x] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet`, `topics_summary.csv` (ya con nombres/recomendaciones de la Fase 1) y `sentiment_by_month.csv`, y genera `05_deployment/site/<empresa>/index.html` con los datos embebidos directo en el HTML (sin fetch, sin modo de falla de red).
+- [x] **`05_deployment/dashboard.py`**: lee `reviews_enriched.parquet`, `topics_summary.csv` (ya con nombres/recomendaciones de la Fase 1) y `sentiment_by_month.csv`, y genera `05_deployment/site/<empresa>.html` (+ `site/index.html` con el listado) con los datos embebidos directo en el HTML (sin fetch, sin modo de falla de red).
 - [x] **Contenido del HTML**:
   1. Resumen ejecutivo: N° de reseñas, rating promedio, % negativas, cantidad de hallazgos a atender.
   2. Hasta 6 hallazgos principales (severidad alta/media) con nombre, chip de severidad, resumen, recomendación y 2 reseñas textuales de ejemplo — ordenados por severidad real (volumen × % negativas).

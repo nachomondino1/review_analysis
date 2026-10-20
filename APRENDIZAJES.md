@@ -154,3 +154,27 @@ tiene que andar en mobile necesita el wrapper `min(Npx, 100%)`, no solo
 `auto-fit`/`auto-fill`. Verificar overflow con `scrollWidth`/`innerWidth`
 por script, no solo mirando un screenshot a un ancho fijo — a 320-375px a
 veces no se nota, pero en viewports más angostos (o con texto más largo) sí.
+
+---
+
+### 2026-10-19 — El gráfico de tendencia se vuelve ilegible con todo el historial
+
+**Qué pasó:** en Ripio, `sentiment_by_month.csv` tenía datos desde 2021
+(121 filas, dos stores). El gráfico SVG graficaba **todos** los meses: en
+desktop se veía apretado, y en mobile quedaba un zigzag denso e ilegible
+(puntos y etiquetas de mes superpuestos), aunque los datos en sí estaban
+bien.
+
+**Cómo lo resolvimos:** `build_chart_svg` ahora corta a los últimos 12
+meses (`MAX_MONTHS_IN_CHART`) y, si hay más historial, lo aclara con una
+nota ("Mostrando los últimos 12 meses..."). También salteamos etiquetas de
+mes cuando hay muchas (máximo ~6 visibles) para que no se solapen.
+
+**Lección generalizable:** un gráfico de serie temporal diseñado y probado
+con pocos puntos de datos (semanas de prueba) no necesariamente escala bien
+cuando el dataset real tiene años de historia. Para un resumen ejecutivo,
+la tendencia reciente (semanas/meses) suele ser más accionable que el
+historial completo — recortar la ventana no es "perder información", es
+priorizar qué se puede leer de un vistazo. Probar visualizaciones con el
+caso "mucho volumen de tiempo", no solo con "muchas categorías" o "mucho
+texto".

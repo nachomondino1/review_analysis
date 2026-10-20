@@ -39,8 +39,8 @@ class Paths:
         self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
         self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
 
-        self.site_dir = ROOT / "05_deployment" / "site" / self.slug
-        self.site_html = self.site_dir / "index.html"
+        self.site_dir = ROOT / "05_deployment" / "site"
+        self.site_html = self.site_dir / f"{self.slug}.html"
 
     def ensure_dirs(self):
         for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir, self.evaluation_dir):
