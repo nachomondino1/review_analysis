@@ -119,9 +119,9 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     delta = recent_s["pct_neg"] - all_s["pct_neg"]  # positivo = empeoró (más % negativas)
 
     if delta <= -TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-good", f"Mejorando: {abs(delta):.0f} pts menos reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-good", f"Mejorando: {abs(delta):.1f} puntos porcentuales menos reseñas negativas que el histórico"
     elif delta >= TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-bad", f"Empeorando: {delta:.0f} pts más reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-bad", f"Empeorando: {delta:.1f} puntos porcentuales más reseñas negativas que el histórico"
     else:
         trend_class, trend_label = "trend-flat", "Estable respecto del histórico"
 
@@ -139,7 +139,7 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
         <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
       </div>
     </div>
-    <span class="chip {trend_class}">{esc(trend_label)}</span>
+    <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
     '''
 
 
@@ -270,9 +270,13 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 .recency-value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }}
 .recency-sub {{ color: var(--muted); font-size: 0.8rem; margin-top: 4px; }}
 .recency-arrow {{ color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }}
-.trend-good {{ background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); margin-top: 12px; }}
-.trend-bad {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); margin-top: 12px; }}
-.trend-flat {{ background: var(--bg-subtle); color: var(--muted); margin-top: 12px; }}
+.trend-banner {{
+  margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 0.85rem; white-space: normal; max-width: 100%;
+}}
+.trend-good {{ background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }}
+.trend-bad {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
+.trend-flat {{ background: var(--bg-subtle); color: var(--muted); }}
 details.detail-table {{ margin-top: 8px; }}
 details.detail-table summary {{ cursor: pointer; font-weight: 600; padding: 8px 0; }}
 .table-scroll {{ overflow-x: auto; margin-top: 8px; }}
