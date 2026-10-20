@@ -15,7 +15,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 4. **Evaluación / hallazgos** (`04_evaluation/`):
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play, para detectar si algo empeoró con una versión o si una plataforma tiene peor experiencia que la otra.
-5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual (últimos 12 meses — el historial completo lo satura) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `site/index.html`, un índice con el listado de empresas analizadas.
+5. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), un gráfico de tendencia mensual (últimos 12 meses — el historial completo lo satura) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
@@ -37,9 +37,9 @@ common/
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
 05_deployment/
-  dashboard.py        # genera site/<empresa>.html (en la raíz, no acá) y regenera site/index.html
+  dashboard.py        # genera site/<empresa>.html y regenera index.html (ambos en la raíz, no acá)
+index.html            # listado de empresas analizadas — home del dominio de GitHub Pages (se regenera solo)
 site/
-  index.html          # listado de empresas analizadas (se regenera solo)
   <empresa>.html       # web autocontenida de esa empresa para compartir (SÍ versionado — ver "Publicar")
 data/
   <empresa>/
@@ -69,7 +69,7 @@ El repo es **público** y tiene GitHub Pages activado sirviendo `main` desde la 
 https://nachomondino1.github.io/review_analysis/<empresa>.html
 ```
 
-`site/index.html` lista todas las empresas analizadas (se regenera automáticamente cada vez que corre `dashboard.py`, escaneando los `.html` existentes). Al ser un repo público, de todas formas cualquiera puede encontrar los archivos navegando el código, liste o no el índice. Si en algún momento esto deja de ser aceptable para alguna empresa puntual, la alternativa es no commitear ese `.html` y mandarlo directo como archivo adjunto (ya lo hacíamos así antes de activar Pages).
+`index.html` (en la raíz) lista todas las empresas analizadas y es lo que se ve en `https://nachomondino1.github.io/review_analysis/` — se regenera automáticamente cada vez que corre `dashboard.py`, escaneando los `.html` existentes en `site/`. Al ser un repo público, de todas formas cualquiera puede encontrar los archivos navegando el código, liste o no el índice. Si en algún momento esto deja de ser aceptable para alguna empresa puntual, la alternativa es no commitear ese `.html` y mandarlo directo como archivo adjunto (ya lo hacíamos así antes de activar Pages).
 
 Para publicar un dashboard nuevo:
 

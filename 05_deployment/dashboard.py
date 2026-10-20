@@ -4,7 +4,8 @@ compartir por link/archivo (sin backend, sin build step).
 
 Uso: python 05_deployment/dashboard.py --name <empresa>
 Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>.html
-y regenera site/index.html con el listado de empresas.
+y regenera index.html en la raíz del repo con el listado de empresas
+(para que GitHub Pages lo muestre como home del dominio).
 """
 import argparse
 import html
@@ -16,7 +17,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
-from config import Paths  # noqa: E402
+from config import Paths, ROOT  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
 STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
@@ -421,15 +422,19 @@ a.company-link:hover {{ border-color: var(--accent); }}
 """
 
 
-def build_index(site_dir: Path):
-    """Escanea site/*.html (menos index.html) y arma un índice con links."""
-    pages = sorted(p for p in site_dir.glob("*.html") if p.name != "index.html")
+def build_index(site_dir: Path, root: Path):
+    """
+    Escanea site/*.html y arma un índice con links. Se escribe en la raíz del
+    repo (no en site/) para que GitHub Pages lo muestre como home del dominio
+    (.../review_analysis/), que de otra forma da 404 al no haber nada ahí.
+    """
+    pages = sorted(site_dir.glob("*.html"))
     items = []
     for page in pages:
         match = re.search(r"<title>Análisis de reseñas — (.*?)</title>", page.read_text(encoding="utf-8"))
         name = match.group(1) if match else page.stem
-        items.append(f'<li><a class="company-link" href="{page.name}">{esc(name)}</a></li>')
-    (site_dir / "index.html").write_text(
+        items.append(f'<li><a class="company-link" href="{site_dir.name}/{page.name}">{esc(name)}</a></li>')
+    (root / "index.html").write_text(
         INDEX_TEMPLATE.format(items="\n    ".join(items)), encoding="utf-8"
     )
 
@@ -448,5 +453,5 @@ if __name__ == "__main__":
     paths.ensure_site_dir()
     paths.site_html.write_text(html_out, encoding="utf-8")
     print(f"Guardado en {paths.site_html.resolve()}")
-    build_index(paths.site_dir)
-    print(f"Índice actualizado en {(paths.site_dir / 'index.html').resolve()}")
+    build_index(paths.site_dir, ROOT)
+    print(f"Índice actualizado en {(ROOT / 'index.html').resolve()}")
