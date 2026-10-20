@@ -238,3 +238,34 @@ pregunta real es "¿mejoramos o empeoramos?" (una comparación de dos
 períodos), a veces la respuesta más clara no es un gráfico en absoluto,
 sino el número y una palabra con color: "Mejorando" / "Empeorando". No
 toda serie temporal necesita visualizarse como serie temporal.
+
+---
+
+### 2026-10-20 — Reusar un componente "pill" para una oración larga desborda la página
+
+**Qué pasó:** el chip "Mejorando/Empeorando" de la entrada anterior usaba la
+clase `.chip` (pensada para texto corto tipo "ALTA", `white-space: nowrap`
+implícito en el patrón de pill) para una oración completa ("Mejorando: 12.5
+puntos porcentuales menos reseñas negativas que el histórico"). En mobile,
+el texto no podía hacer wrap y la página desbordaba horizontalmente.
+
+**Cómo lo resolvimos:** se creó un componente nuevo (`.trend-banner`, un
+bloque normal con padding y color, no un pill) para texto largo con
+semántica de color, dejando `.chip` solo para etiquetas cortas de una
+palabra o dos.
+
+**Lección generalizable:** un componente visual "pill/badge" (`border-radius:
+999px`, una sola línea) está implícitamente pensado para texto corto y fijo
+— cuando el contenido real es una oración variable, usarlo igual (aunque
+visualmente se vea bien en el caso de prueba) es una deuda que aparece en
+el primer texto más largo de lo esperado. Elegir el componente por la forma
+del contenido (¿es una etiqueta corta y fija, o una oración que puede
+variar en longitud?), no por cuál ya existía con el color que hacía falta.
+
+De paso, en el mismo cambio: la etiqueta decía "12 pts" para una diferencia
+de puntos porcentuales (57.8% vs 70.3%), y el usuario lo leyó como si el
+valor real fuera 0.12. El cálculo era correcto, pero la abreviatura sin
+unidad explícita generaba la misma clase de ambigüedad que el eje del
+gráfico sin etiquetar (ver entrada del eje Y, arriba): cualquier número
+que mezcle escalas (fracción 0-1 vs. porcentaje 0-100 vs. "puntos") necesita
+la unidad escrita en el texto, no asumida por contexto.
