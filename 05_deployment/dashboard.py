@@ -101,8 +101,8 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
     if len(months) < 2:
         return ""
 
-    W, H, PAD_X, PAD_TOP, PAD_BOTTOM = 640, 220, 36, 16, 40
-    x_step = (W - 2 * PAD_X) / max(len(months) - 1, 1)
+    W, H, PAD_LEFT, PAD_RIGHT, PAD_TOP, PAD_BOTTOM = 640, 220, 48, 16, 24, 40
+    x_step = (W - PAD_LEFT - PAD_RIGHT) / max(len(months) - 1, 1)
     show_dots = len(months) <= MAX_MONTHS_IN_CHART  # siempre en este rango, pero explícito por si cambia el límite
 
     def y_of(pct):
@@ -116,7 +116,7 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
         for i, m in enumerate(months):
             if m in store_df.index:
                 pct = float(store_df.loc[m, "pct_neg"])
-                points.append((PAD_X + i * x_step, y_of(pct)))
+                points.append((PAD_LEFT + i * x_step, y_of(pct)))
         if len(points) < 2:
             continue
         path = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
@@ -130,13 +130,19 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
     # mostrar todas las etiquetas satura en mobile; de a lo sumo 6, salteando el resto
     label_step = max(1, -(-len(months) // 6))  # ceil(len/6)
     month_labels = "".join(
-        f'<text x="{PAD_X + i * x_step:.1f}" y="{H - PAD_BOTTOM + 18}" class="chart-label" text-anchor="middle">{esc(m[2:])}</text>'
+        f'<text x="{PAD_LEFT + i * x_step:.1f}" y="{H - PAD_BOTTOM + 18}" class="chart-label" text-anchor="middle">{esc(m[2:])}</text>'
         for i, m in enumerate(months)
         if i % label_step == 0 or i == len(months) - 1
     )
+    # eje Y: líneas de grilla + el número que representan (0% arriba sería 100%, ver y_of)
+    y_ticks = (0, 0.25, 0.5, 0.75, 1.0)
     grid = "".join(
-        f'<line x1="{PAD_X}" y1="{y_of(p):.1f}" x2="{W - PAD_X}" y2="{y_of(p):.1f}" class="chart-grid" />'
-        for p in (0, 0.25, 0.5, 0.75, 1.0)
+        f'<line x1="{PAD_LEFT}" y1="{y_of(p):.1f}" x2="{W - PAD_RIGHT}" y2="{y_of(p):.1f}" class="chart-grid" />'
+        for p in y_ticks
+    )
+    y_labels = "".join(
+        f'<text x="{PAD_LEFT - 8}" y="{y_of(p) + 4:.1f}" class="chart-label" text-anchor="end">{int(p * 100)}%</text>'
+        for p in y_ticks
     )
 
     note = ""
@@ -144,8 +150,10 @@ def build_chart_svg(by_month: pd.DataFrame) -> str:
         note = f'<p class="chart-note">Mostrando los últimos {MAX_MONTHS_IN_CHART} meses (hay datos desde {esc(all_months[0])}).</p>'
 
     svg = f'''
+    <p class="chart-axis-label">Eje vertical: % de reseñas negativas ese mes (0% = ninguna queja, 100% = todas negativas). Eje horizontal: mes.</p>
     <svg viewBox="0 0 {W} {H}" class="trend-chart" role="img" aria-label="Tendencia de % reseñas negativas por mes">
       {grid}
+      {y_labels}
       {"".join(lines)}
       {month_labels}
     </svg>
@@ -278,6 +286,7 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 .chart-label {{ fill: var(--muted-soft); font-size: 10px; }}
 .legend {{ display: flex; gap: 16px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }}
 .chart-note {{ color: var(--muted-soft); font-size: 0.78rem; margin-top: 6px; }}
+.chart-axis-label {{ color: var(--muted); font-size: 0.78rem; margin: 0 0 4px; }}
 .legend-item {{ display: inline-flex; align-items: center; gap: 6px; }}
 .legend-dot {{ width: 8px; height: 8px; border-radius: 999px; display: inline-block; }}
 details.detail-table {{ margin-top: 8px; }}
