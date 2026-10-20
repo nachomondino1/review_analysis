@@ -17,7 +17,10 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "01_data_understanding"))
 from config import Paths, ROOT  # noqa: E402
+import companies  # noqa: E402
+from collect_data import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
 TOP_FINDINGS_MAX = 6
@@ -49,6 +52,50 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     total = sum(r["ratings_count"] for r in rows)
     weighted = sum(r["score"] * r["ratings_count"] for r in rows) / total
     return {"score": round(weighted, 2), "count": total}
+
+
+def build_competitor_section(official: dict | None, empresa_display: str, competitor_name: str) -> str:
+    """
+    Compara el rating oficial de la empresa contra un competidor puntual
+    (ids ya cargados en common/companies.csv). Es trabajo específico para
+    esta empresa, no reciclable al toque para otra: justamente por eso sirve
+    como evidencia de que el análisis no es una plantilla mandada a todos.
+    """
+    if not official:
+        return ""
+    comp = companies.lookup(competitor_name)
+    if comp is None or (comp["app_ios"] is None and comp["pkg"] is None):
+        return ""
+    comp_official = build_official_rating(fetch_store_ratings(comp["app_ios"], comp["pkg"]))
+    if not comp_official:
+        return ""
+
+    diff = official["score"] - comp_official["score"]
+    competitor_display = competitor_name.title()
+    if diff >= 0.1:
+        note_class, note = "trend-good", f"{empresa_display} califica {diff:.1f} puntos mejor que {competitor_display}"
+    elif diff <= -0.1:
+        note_class, note = "trend-bad", f"{empresa_display} califica {abs(diff):.1f} puntos peor que {competitor_display}"
+    else:
+        note_class, note = "trend-flat", f"{empresa_display} y {competitor_display} califican parecido"
+
+    html_out = f'''
+    <div class="recency-grid">
+      <div class="recency-card">
+        <div class="recency-label">{esc(empresa_display)}</div>
+        <div class="recency-value">{official["score"]}★</div>
+        <div class="recency-sub">{official["count"]:,} calificaciones</div>
+      </div>
+      <div class="recency-arrow">vs.</div>
+      <div class="recency-card">
+        <div class="recency-label">{esc(competitor_display)}</div>
+        <div class="recency-value">{comp_official["score"]}★</div>
+        <div class="recency-sub">{comp_official["count"]:,} calificaciones</div>
+      </div>
+    </div>
+    <div class="trend-banner {note_class}">{esc(note)}</div>
+    '''
+    return html_out.replace(",", ".")  # miles con punto, consistente con el resto del dashboard
 
 
 def build_summary_stats(summary: pd.DataFrame) -> dict:
@@ -318,6 +365,8 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 
   {trend_section}
 
+  {competitor_section}
+
   <section>
     <h2>Detalle completo por tópico</h2>
     <details class="detail-table">
@@ -340,7 +389,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 """
 
 
-def render(paths: Paths, empresa_display: str) -> str:
+def render(paths: Paths, empresa_display: str, competitor: str | None = None) -> str:
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
@@ -352,6 +401,11 @@ def render(paths: Paths, empresa_display: str) -> str:
     )
     table_rows = build_table_rows(summary)
 
+    competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
+    competitor_section = (
+        f'<section><h2>Comparado con la competencia</h2>{competitor_html}</section>' if competitor_html else ""
+    )
+
     return TEMPLATE.format(
         empresa=esc(empresa_display),
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
@@ -362,6 +416,7 @@ def render(paths: Paths, empresa_display: str) -> str:
         n_findings=stats["n_findings"],
         findings_html=findings_html,
         trend_section=trend_section,
+        competitor_section=competitor_section,
         n_topics=len(summary),
         table_rows=table_rows,
     )
@@ -430,13 +485,14 @@ def parse_args():
     p = argparse.ArgumentParser(description="Genera el HTML autocontenido para compartir el análisis.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
     p.add_argument("--display-name", default=None, help="Nombre a mostrar en la web (default: --name tal cual)")
+    p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en common/companies.csv, para comparar rating oficial")
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     paths = Paths(args.name)
-    html_out = render(paths, args.display_name or args.name)
+    html_out = render(paths, args.display_name or args.name, competitor=args.competitor)
     paths.ensure_site_dir()
     paths.site_html.write_text(html_out, encoding="utf-8")
     print(f"Guardado en {paths.site_html.resolve()}")

@@ -144,6 +144,8 @@ cp .env.example .env   # y completar HF_TOKEN
 
    Esto genera `site/spotify.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, una comparación de "últimos 3 meses vs. histórico completo" y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
 
+   `--competitor <nombre>` (opcional) agrega una sección comparando el rating oficial contra un competidor puntual (sus ids tienen que estar ya cargados en `common/companies.csv`, aunque no se le haya corrido el pipeline completo — alcanza con `app_ios`/`pkg`). Ej.: `--competitor bitso` en el análisis de Ripio. Es trabajo específico para esa empresa (no una plantilla reciclable para cualquier otra), y sirve como evidencia de que el análisis no se hizo en automático para mandárselo a todo el mundo por igual.
+
 ## ⚠️ Metodología: la muestra de reseñas con texto está sesgada hacia quejas
 
 El scraping (`collect_data.py`) solo puede leer reseñas que tienen **texto escrito**, y las trae ordenadas por más recientes. Eso es una muestra sesgada: la inmensa mayoría de la gente que califica una app solo toca estrellas y nunca escribe nada, y quien sí escribe tiende a hacerlo cuando tiene un problema. En la prueba con Ripio, por ejemplo, el rating oficial de Google Play es 4.65★ sobre 54.268 calificaciones, pero la muestra de reseñas con texto (sort "más recientes") dio un 70% de negativas — representan públicos distintos, no el mismo dato con más o menos ruido.

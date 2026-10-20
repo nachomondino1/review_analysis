@@ -15,7 +15,7 @@ COLUMNS = ["name", "app_ios", "pkg"]
 def load() -> pd.DataFrame:
     if not COMPANIES_CSV.exists():
         return pd.DataFrame(columns=COLUMNS)
-    return pd.read_csv(COMPANIES_CSV, dtype={"name": str, "pkg": str})
+    return pd.read_csv(COMPANIES_CSV, dtype={"name": str, "pkg": str, "app_ios": "Int64"})
 
 
 def lookup(name: str) -> dict | None:
@@ -39,6 +39,7 @@ def upsert(name: str, app_ios: int | None, pkg: str | None) -> None:
         df.loc[mask, "pkg"] = pkg
     else:
         df = pd.concat([df, pd.DataFrame([{"name": name, "app_ios": app_ios, "pkg": pkg}])], ignore_index=True)
+    df["app_ios"] = df["app_ios"].astype("Int64")  # entero nullable: evita que un NaN en otra fila fuerce float (1221006761.0)
     df = df.sort_values("name")
     COMPANIES_CSV.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(COMPANIES_CSV, index=False)
