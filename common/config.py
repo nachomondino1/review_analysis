@@ -38,6 +38,7 @@ class Paths:
         self.topics_named_json = self.evaluation_dir / "topics_named.json"
         self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
         self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
+        self.version_breakout_json = self.evaluation_dir / "version_breakout.json"
 
         # En la raíz del repo (no bajo 05_deployment/) porque GitHub Pages
         # "clásico" (deploy from branch) solo sirve desde la raíz o /docs,

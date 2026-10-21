@@ -54,6 +54,33 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     return {"score": round(weighted, 2), "count": total}
 
 
+STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
+
+
+def build_version_breakout_section(paths: Paths) -> str:
+    """
+    Si 04_evaluation/version_breakout.py encontró un quiebre real (ver ese
+    script para la metodología), lo muestra como un hecho concreto y citable
+    ("se rompió en la v5.45.0, no 'empeoró este trimestre'") — más difícil de
+    replicar al toque que un resumen genérico, porque exige cruzar sentimiento
+    con la columna `version` y descartar ruido de volumen bajo.
+    """
+    if not paths.version_breakout_json.exists():
+        return ""
+    breakout = json.loads(paths.version_breakout_json.read_text())
+    if not breakout:
+        return ""
+
+    store_label = STORE_LABEL.get(breakout["store"], breakout["store"])
+    note = (
+        f"La versión {breakout['version']} de {store_label} (lanzada ~{breakout['release_approx']}) "
+        f"marca un quiebre real: pasó de {breakout['pct_neg_before']}% a {breakout['pct_neg_version']}% "
+        f"de reseñas negativas (+{breakout['delta']} puntos porcentuales), sobre {breakout['n_version']} "
+        f"reseñas de esa versión y {breakout['n_before']} previas."
+    )
+    return f'<div class="trend-banner trend-bad">{esc(note)}</div>'
+
+
 def build_competitor_section(official: dict | None, empresa_display: str, competitor_name: str) -> str:
     """
     Compara el rating oficial de la empresa contra un competidor puntual
@@ -396,8 +423,9 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
     recency_html = build_recency_comparison(reviews)
+    breakout_html = build_version_breakout_section(paths)
     trend_section = (
-        f'<section><h2>¿Cómo vienen últimamente?</h2>{recency_html}</section>' if recency_html else ""
+        f'<section><h2>¿Cómo vienen últimamente?</h2>{recency_html}{breakout_html}</section>' if (recency_html or breakout_html) else ""
     )
     table_rows = build_table_rows(summary)
 

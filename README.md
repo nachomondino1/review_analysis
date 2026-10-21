@@ -36,6 +36,7 @@ common/
 04_evaluation/
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
+  version_breakout.py  # quiebre de % negativas atado a una versión específica
 05_deployment/
   dashboard.py        # genera site/<empresa>.html y regenera index.html (ambos en la raíz, no acá)
 index.html            # listado de empresas analizadas — home del dominio de GitHub Pages (se regenera solo)
@@ -57,6 +58,7 @@ data/
       topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
       sentiment_by_month.csv    # tendencia mensual de sentimiento por store
       store_comparison.csv      # comparación agregada iOS vs Android
+      version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
 ```
 
 `data/` y `.env` están en `.gitignore`: los datos crudos/procesados y las credenciales no se versionan. `site/` **sí** se versiona (ver "Publicar" más abajo).
@@ -133,6 +135,14 @@ cp .env.example .env   # y completar HF_TOKEN
    ```bash
    python 04_evaluation/trends.py --name spotify
    ```
+
+6b. (Opcional) Buscar si hay un quiebre de % negativas atado a una versión específica (ej. "se rompió en la v5.45.0"), no solo una tendencia de calendario:
+
+   ```bash
+   python 04_evaluation/version_breakout.py --name spotify
+   ```
+
+   Compara cada versión (con suficiente volumen propio) contra el acumulado de todas las anteriores; si no hay un salto real (≥10 puntos porcentuales) o no hay suficiente historial por versión, no reporta nada — no fuerza un hallazgo donde no lo hay.
 
 7. Revisar `data/spotify/03_modeling/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
 
