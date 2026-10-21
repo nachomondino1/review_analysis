@@ -10,7 +10,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 2. **Limpieza** (`02_data_preparation/clean_reviews.py`): filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 3. **Análisis** (`03_modeling/model.py`):
    - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
-   - Agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`).
+   - Agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`), con `nr_topics="auto"` para fusionar tópicos casi idénticos (sin esto, Ripio daba 37 tópicos; con esto, 18 — varios eran variantes del mismo elogio genérico o del mismo problema de login).
    - Genera un resumen por tópico (cantidad de reseñas, rating promedio, % de negativas) ordenado por los tópicos más problemáticos primero. El tópico `-1` (outliers de BERTopic, sin patrón claro) queda marcado con `is_outlier=True` en vez de mezclarse con tópicos reales.
 4. **Evaluación / hallazgos** (`04_evaluation/`):
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).

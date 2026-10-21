@@ -304,3 +304,36 @@ alguien que lo va a cuestionar (un CEO, en este caso), el criterio de
 "¿me animo a decir esto con un número específico de 2 decimales?" tiene
 que estar respaldado por el mismo rigor que un hallazgo que se publicaría
 en cualquier otro contexto donde importa la precisión.
+
+---
+
+## 03 — Modeling (cont.)
+
+### 2026-10-21 — 37 tópicos era ruido: fusionar los parecidos con `nr_topics="auto"`
+
+**Qué pasó:** el usuario notó que 37 tópicos para Ripio era demasiado —
+varios eran variantes casi idénticas del mismo elogio genérico ("excelente
+aplicación", "buena aplicación", "muy buena aplicación"...) o del mismo
+problema de login, solo separados porque HDBSCAN los veía como clusters
+distintos en el espacio de embeddings.
+
+**Cómo lo resolvimos:** se agregó `nr_topics="auto"` a la construcción de
+`BERTopic` en `03_modeling/model.py`. Es un mecanismo nativo de la
+librería: después de clusterizar, fusiona los tópicos cuya representación
+de palabras clave (c-TF-IDF) es más parecida entre sí, de forma iterativa,
+hasta que no quede ningún par "demasiado similar". No hay que elegir un
+número fijo de tópicos a mano.
+
+Con Ripio bajó de 37 a 18 tópicos (17 reales + el outlier `-1`), y los
+hallazgos quedaron más representativos: "Reclamos de dinero/transferencias
+sin respuesta de soporte" pasó a ser un solo tópico de 952 reseñas en vez
+de estar repartido en varias variantes chicas.
+
+**Lección generalizable:** en clustering no supervisado, "cuántos grupos
+salieron" no es solo función de los datos — depende de los hiperparámetros
+del algoritmo de clustering (acá, `min_cluster_size`/`min_topic_size` de
+HDBSCAN). Cuando el resultado tiene muchos grupos casi idénticos
+semánticamente, el síntoma no es "hacen falta más reglas de negocio para
+unirlos a mano" — es que el paso de fusión posterior (que casi todas las
+librerías de topic modeling ofrecen) no se está usando. Revisar esa opción
+antes de construir lógica de deduplicación manual.

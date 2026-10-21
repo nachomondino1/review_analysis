@@ -122,7 +122,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial (62.767 calificaciones)</div></div>
       <div class="stat-card"><div class="value">4565</div><div class="label">Reseñas con texto analizadas</div></div>
       <div class="stat-card"><div class="value">70.3%</div><div class="label">Negativas en la muestra</div></div>
-      <div class="stat-card"><div class="value">31</div><div class="label">Hallazgos a atender</div></div>
+      <div class="stat-card"><div class="value">14</div><div class="label">Hallazgos a atender</div></div>
     </div>
     <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
   </section>
@@ -133,48 +133,35 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       
         <article class="finding-card">
           <div class="finding-head">
-            <h3>La app no abre o queda colgada en el login</h3>
+            <h3>Reclamos de dinero/transferencias sin respuesta de soporte</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">245 reseñas · 92.7% negativas</p>
-          <p>La app se queda cargando en blanco o no responde al intentar iniciar sesión; varios usuarios tienen que desinstalar y reinstalar para poder entrar.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Tratar como incidente de estabilidad de producción, no como feedback de UX: es el problema de mayor volumen de todo el dataset y bloquea el uso básico de la app.</p>
-          <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“El servicio que se brinda es dentro de todo bueno pero la app anda muy mal, el login es muy muy malo, no envía los sms para autenticarte, cuando pone el código a veces no lo toma y tenes que desinstalar la app para volver a usarla. En las inversiones no podes cancelar las inversiones si se están por renovar en menos de 24hs, muy mala. Usen otra app.”</li></ul>
+          <p class="finding-meta">952 reseñas · 78.9% negativas</p>
+          <p>Depósitos, transferencias o compras de cripto que no se acreditan, cuentas que tardan meses en activarse, y reclamos que nadie responde.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Es el segundo tópico más grande (952 reseñas). Auditar el pipeline de conciliación de depósitos y el SLA real de soporte — son los dos problemas que más golpean la confianza.</p>
+          <ul class='samples'><li>“No llegan los sms no puedo logearme, más allá de huella tactil, no se qué pasa”</li><li>“La primera vez que compré me cobraron la comisión y 8 mil pesos de más , mandé una consulta y todavía no me contestaron”</li></ul>
         </article>
         
         <article class="finding-card">
           <div class="finding-head">
-            <h3>Cuenta bloqueada con dinero adentro</h3>
+            <h3>La app no abre o el login falla constantemente</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">227 reseñas · 94.7% negativas</p>
-          <p>Usuarios que no pueden ingresar a su cuenta después de una actualización o cambio de dispositivo, con fondos depositados y sin respuesta del soporte durante semanas.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Priorizar como riesgo de confianza/reputacional, no solo técnico: un usuario con dinero atrapado y sin respuesta es el peor escenario posible para una fintech.</p>
-          <ul class='samples'><li>“Me descargue la app a mi celular y no me deja abrir mi cuenta. Le doy ingreso y me direccional al mail para abrir desde allí, cuando sigo los pasos me queda colgado y nunca me abre la app. Es un asco !! Hice dos transferencias por el mismo importe y sólo se acreditó una sola, aún sigo esperando por la otra !! Son un desastre”</li><li>“Hice una inversión de 50usd coin, al cancelarla por que debo utilizar el dinero la app me informa que se reembolsaran en 72hs, ya ha pasado el tiempo y no he recibido nada, estoy preocupado y no recibo respuesta, espero tener una, gracias.”</li></ul>
+          <p class="finding-meta">718 reseñas · 94.0% negativas</p>
+          <p>El problema más grande y repetido: la app queda cargando en blanco, el 2FA falla, o hay que desinstalar y reinstalar para poder entrar.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Tratar como incidente de estabilidad de producción, no como feedback de UX: es el tópico de mayor volumen de todo el dataset (718 reseñas) y bloquea el uso básico de la app.</p>
+          <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“Por favor cambien esa interfaz nefasta, la manera de entrar es malisima”</li></ul>
         </article>
         
         <article class="finding-card">
           <div class="finding-head">
-            <h3>Transferencias y depósitos no acreditados</h3>
-            <span class="chip sev-alta">Alta</span>
+            <h3>Rechazo total (&#x27;no confío en esta app&#x27;)</h3>
+            <span class="chip sev-media">Media</span>
           </div>
-          <p class="finding-meta">231 reseñas · 90.9% negativas</p>
-          <p>Transferencias bancarias o cargas de dinero que no se reflejan en el saldo, con reclamos repetidos sin resolución.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Auditar el pipeline de conciliación de depósitos (tiempos de acreditación, casos perdidos) y dar visibilidad de estado al usuario en vez de dejarlo sin información.</p>
-          <ul class='samples'><li>“La primera vez que compré me cobraron la comisión y 8 mil pesos de más , mandé una consulta y todavía no me contestaron”</li><li>“Pesimo todo. 0 soporte. 
-Me robaron mi dinero.
-NO USAR !!!”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Operaciones de compra/venta de cripto rechazadas con dinero retenido</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta">122 reseñas · 87.7% negativas</p>
-          <p>Depósitos para comprar criptomonedas que se rechazan o no se concretan, con el dinero aparentemente retenido y sin devolución.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de compra de cripto end-to-end: si una operación falla, el dinero tiene que volver automáticamente, no vía reclamo manual.</p>
-          <ul class='samples'><li>“La verdad que un desastre! Hice una transferencia (se acreditó) para realizar compra de cripto y por alguna razón me la rechazaron y se comieron la plata! Hace semanas estoy haciendo el reclamo y nadie responde! No lo recomiendo para nada.”</li><li>“Deposité $2800 tengo mi 2FA activado y todo, asi que no hay excusas. Y... me cagaron.. no me dejó comprar criptos la plataforma hasta que me cansé y quise retirar mis fondos de vuelta a mercadopago y.... me estafaron, hace como que te pagan y nunca llega el dinero a tu cuenta.. Reclamé y se hacen los tontos, alegan que pagaron con numeros de tx falsos de 15 dígitos. Confirmado por mercadolibre. Actualmente estoy en proceso judicial, primero con Coprec.”</li></ul>
+          <p class="finding-meta">98 reseñas · 86.7% negativas</p>
+          <p>Reseñas de rechazo genérico y desconfianza, sin detalle técnico específico más allá de desaconsejar la app.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Bajo valor de señal accionable por sí solo; refuerza el panorama general negativo visto en los otros hallazgos.</p>
+          <ul class='samples'><li>“No sirve si no tienes cuit”</li><li>“No descarguen ni hagan nada te están mas de lo que crees así que ni intentan nada queda en casa sino”</li></ul>
         </article>
         
         <article class="finding-card">
@@ -182,21 +169,33 @@ NO USAR !!!”</li></ul>
             <h3>Comisiones percibidas como abusivas</h3>
             <span class="chip sev-media">Media</span>
           </div>
-          <p class="finding-meta">97 reseñas · 77.3% negativas</p>
-          <p>Quejas sobre el costo total de operar (comisión + spread compra-venta), comparado desfavorablemente con otros exchanges.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Evaluar competitividad real de comisiones vs. otros exchanges locales (se menciona Bitso); si el costo total no es comunicado claramente, el problema puede ser más de percepción que de precio real.</p>
+          <p class="finding-meta">99 reseñas · 75.8% negativas</p>
+          <p>Quejas sobre el costo total de operar (comisión + spread compra-venta), comparado desfavorablemente con otros exchanges (se menciona Bitso).</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Evaluar competitividad real de comisiones vs. otros exchanges locales; si el costo total no se comunica claramente, parte del problema puede ser de percepción.</p>
           <ul class='samples'><li>“Nunca se puede entrar, se traba todo el tiempo. Las comisiones son caras. No la bajen! Busquen cualquier otra aplicación que seguro es mejor”</li><li>“ESTAFA TOTAL, INGRESE DINERO “XX.XXX” COMPRE A -32.5% UNA CRIPTOMONEDA QUE SUBIÓ A UN -2,56% y no me genero ninguna ganancia es más de sacaron dinero. Es una rotunda estafa”</li></ul>
         </article>
         
         <article class="finding-card">
           <div class="finding-head">
-            <h3>Login bloqueado por intentos fallidos / 2FA</h3>
+            <h3>Verificación facial/selfie no funciona</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta">52 reseñas · 94.2% negativas</p>
+          <p>El paso de validación de identidad con foto/selfie/video no logra capturar la imagen o se traba.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar compatibilidad de cámara en distintos dispositivos — bloquea el onboarding completo para quien lo sufre.</p>
+          <ul class='samples'><li>“Me piden un video de mi cara con mi dni y mi voz para eliminarlo y poder entrar. Están locxs
+Solucionenme el ingreso por favor.”</li><li>“No me deja tomar la foto para activar la cuenta”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Publicidad agresiva de la propia app</h3>
             <span class="chip sev-media">Media</span>
           </div>
-          <p class="finding-meta">72 reseñas · 91.7% negativas</p>
-          <p>La cuenta se bloquea tras intentos fallidos de inicio de sesión y el 2FA genera fricción adicional para reingresar.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar el umbral de bloqueo por intentos fallidos y ofrecer un camino de autodesbloqueo (no solo soporte manual).</p>
-          <ul class='samples'><li>“Hace días q intento iniciar sesión en ripio, cuando lo logre por primera vez habilite el 2fa y después tuve mil problemas para iniciar sesión y al día de hoy no puedo, se traba la cuenta por intentos fallidos y no puedo hacer nada, copien el login de Brubank q anda lindo”</li><li>“Estimados que pasa que quiero ingresar a mi cuenta. Me llevo a resetear las contraseñas y no puedo ingresad”</li></ul>
+          <p class="finding-meta">47 reseñas · 91.5% negativas</p>
+          <p>Quejas sobre el volumen de anuncios de Ripio en otras apps/plataformas, generando rechazo antes de instalarla.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar frecuencia y segmentación de la pauta publicitaria externa: puede estar dañando la adquisición neta de usuarios.</p>
+          <ul class='samples'><li>“Ver sus anuncios en todos lados no me hace querer descargar la app, me hace ODIARLOS por ser tan molestos”</li><li>“Ustedes creen que su ponen sus anuncios a cada rato las personas van a instalar su app no si molestan a las personas con sus anuncios obvio nadie la va a instalar si los molestan con sus anuncios”</li></ul>
         </article>
         
     </div>
@@ -239,11 +238,11 @@ NO USAR !!!”</li></ul>
   <section>
     <h2>Detalle completo por tópico</h2>
     <details class="detail-table">
-      <summary>Ver los 37 tópicos detectados</summary>
+      <summary>Ver los 18 tópicos detectados</summary>
       <div class="table-scroll">
         <table>
           <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
-          <tbody><tr><td>Código de verificación (SMS/2FA) inválido o no llega</td><td class='num'>42</td><td class='num'>1.52</td><td class='num'>100.0%</td><td>media</td></tr><tr><td>Rechazo total (&#x27;la peor app&#x27;)</td><td class='num'>22</td><td class='num'>1.18</td><td class='num'>100.0%</td><td>media</td></tr><tr><td>Confirmación por email no completa el login</td><td class='num'>34</td><td class='num'>1.74</td><td class='num'>97.1%</td><td>media</td></tr><tr><td>No puede crear la cuenta</td><td class='num'>31</td><td class='num'>1.23</td><td class='num'>96.8%</td><td>media</td></tr><tr><td>App lenta / se traba</td><td class='num'>29</td><td class='num'>1.86</td><td class='num'>96.6%</td><td>media</td></tr><tr><td>No puede recuperar el 2FA con video de verificación</td><td class='num'>21</td><td class='num'>1.86</td><td class='num'>95.2%</td><td>media</td></tr><tr><td>Cuenta bloqueada con dinero adentro</td><td class='num'>227</td><td class='num'>1.36</td><td class='num'>94.7%</td><td>alta</td></tr><tr><td>Verificación facial/selfie no funciona</td><td class='num'>53</td><td class='num'>1.62</td><td class='num'>94.3%</td><td>media</td></tr><tr><td>Retención de fondos al retirar</td><td class='num'>45</td><td class='num'>1.02</td><td class='num'>93.3%</td><td>alta</td></tr><tr><td>La app no abre o queda colgada en el login</td><td class='num'>245</td><td class='num'>1.7</td><td class='num'>92.7%</td><td>alta</td></tr><tr><td>No puede iniciar sesión (variante general)</td><td class='num'>51</td><td class='num'>1.33</td><td class='num'>92.2%</td><td>media</td></tr><tr><td>Login bloqueado por intentos fallidos / 2FA</td><td class='num'>72</td><td class='num'>1.74</td><td class='num'>91.7%</td><td>media</td></tr><tr><td>Publicidad agresiva de la propia app</td><td class='num'>47</td><td class='num'>1.15</td><td class='num'>91.5%</td><td>media</td></tr><tr><td>SMS de verificación no llega</td><td class='num'>35</td><td class='num'>1.63</td><td class='num'>91.4%</td><td>media</td></tr><tr><td>Transferencias y depósitos no acreditados</td><td class='num'>231</td><td class='num'>1.4</td><td class='num'>90.9%</td><td>alta</td></tr><tr><td>Desconfianza en el precio de cotización de criptomonedas</td><td class='num'>70</td><td class='num'>1.61</td><td class='num'>90.0%</td><td>media</td></tr><tr><td>La app se cierra al tomar foto del DNI</td><td class='num'>29</td><td class='num'>1.97</td><td class='num'>89.7%</td><td>media</td></tr><tr><td>Fricción al forzar actualizaciones</td><td class='num'>38</td><td class='num'>2.05</td><td class='num'>89.5%</td><td>media</td></tr><tr><td>Operaciones de compra/venta de cripto rechazadas con dinero retenido</td><td class='num'>122</td><td class='num'>1.53</td><td class='num'>87.7%</td><td>alta</td></tr><tr><td>Demoras largas en validación de cuenta (KYC)</td><td class='num'>47</td><td class='num'>1.62</td><td class='num'>87.2%</td><td>media</td></tr><tr><td>No puede recuperar la cuenta al cambiar de celular</td><td class='num'>41</td><td class='num'>2.34</td><td class='num'>85.4%</td><td>media</td></tr><tr><td>No puede activar o desbloquear la cuenta</td><td class='num'>38</td><td class='num'>2.0</td><td class='num'>84.2%</td><td>media</td></tr><tr><td>Precio de Bitcoin no coincide con el mercado</td><td class='num'>25</td><td class='num'>1.8</td><td class='num'>84.0%</td><td>media</td></tr><tr><td>Lentitud en transacciones y soporte</td><td class='num'>24</td><td class='num'>2.04</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Rechazo genérico / no recomendable</td><td class='num'>54</td><td class='num'>1.81</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Depósito que nunca se refleja en la cuenta</td><td class='num'>39</td><td class='num'>1.77</td><td class='num'>82.1%</td><td>alta</td></tr><tr><td>Soporte no resuelve (tickets sin respuesta)</td><td class='num'>50</td><td class='num'>1.1</td><td class='num'>82.0%</td><td>alta</td></tr><tr><td>Código de verificación nunca llega (variante)</td><td class='num'>33</td><td class='num'>1.45</td><td class='num'>81.8%</td><td>media</td></tr><tr><td>Comisiones percibidas como abusivas</td><td class='num'>97</td><td class='num'>1.76</td><td class='num'>77.3%</td><td>media</td></tr><tr><td>Reclamos de dinero retenido (en mayúsculas, alta frustración)</td><td class='num'>46</td><td class='num'>2.22</td><td class='num'>69.6%</td><td>media</td></tr><tr><td>Cuentas demoradas en habilitarse (con frustración)</td><td class='num'>33</td><td class='num'>2.39</td><td class='num'>42.4%</td><td>media</td></tr><tr><td>Opiniones mixtas sobre el exchange para Argentina</td><td class='num'>45</td><td class='num'>2.6</td><td class='num'>42.2%</td><td>baja</td></tr><tr><td>Satisfacción general con la app (cuando funciona)</td><td class='num'>270</td><td class='num'>4.57</td><td class='num'>7.0%</td><td>baja</td></tr><tr><td>Fácil de usar (elogio con matices)</td><td class='num'>552</td><td class='num'>4.42</td><td class='num'>6.3%</td><td>baja</td></tr><tr><td>Satisfacción con la oferta de criptomonedas</td><td class='num'>118</td><td class='num'>4.34</td><td class='num'>5.1%</td><td>baja</td></tr><tr><td>Satisfacción con la billetera para invertir</td><td class='num'>46</td><td class='num'>4.3</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td class='num'>1563</td><td class='num'>1.66</td><td class='num'>88.0%</td><td>-</td></tr></tbody>
+          <tbody><tr><td>No puede crear la cuenta</td><td class='num'>29</td><td class='num'>1.17</td><td class='num'>100.0%</td><td>alta</td></tr><tr><td>No puede recuperar la cuenta al cambiar de celular</td><td class='num'>21</td><td class='num'>1.86</td><td class='num'>95.2%</td><td>media</td></tr><tr><td>Verificación facial/selfie no funciona</td><td class='num'>52</td><td class='num'>1.63</td><td class='num'>94.2%</td><td>alta</td></tr><tr><td>La app no abre o el login falla constantemente</td><td class='num'>718</td><td class='num'>1.58</td><td class='num'>94.0%</td><td>alta</td></tr><tr><td>Publicidad agresiva de la propia app</td><td class='num'>47</td><td class='num'>1.15</td><td class='num'>91.5%</td><td>media</td></tr><tr><td>Fricción al forzar actualizaciones</td><td class='num'>42</td><td class='num'>2.0</td><td class='num'>90.5%</td><td>media</td></tr><tr><td>No puede iniciar sesión (variante)</td><td class='num'>46</td><td class='num'>1.35</td><td class='num'>89.1%</td><td>media</td></tr><tr><td>Rechazo total (&#x27;no confío en esta app&#x27;)</td><td class='num'>98</td><td class='num'>1.42</td><td class='num'>86.7%</td><td>media</td></tr><tr><td>App lenta / transacciones lentas</td><td class='num'>24</td><td class='num'>2.04</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Soporte no resuelve (tickets sin respuesta)</td><td class='num'>49</td><td class='num'>1.1</td><td class='num'>81.6%</td><td>alta</td></tr><tr><td>Reclamos de dinero/transferencias sin respuesta de soporte</td><td class='num'>952</td><td class='num'>1.95</td><td class='num'>78.9%</td><td>alta</td></tr><tr><td>Comisiones percibidas como abusivas</td><td class='num'>99</td><td class='num'>1.84</td><td class='num'>75.8%</td><td>media</td></tr><tr><td>Dinero retenido / reclamos sin solución</td><td class='num'>46</td><td class='num'>2.22</td><td class='num'>69.6%</td><td>media</td></tr><tr><td>Opiniones mixtas sobre el exchange para Argentina</td><td class='num'>46</td><td class='num'>2.57</td><td class='num'>43.5%</td><td>baja</td></tr><tr><td>Demoras de activación de cuenta (con frustración)</td><td class='num'>33</td><td class='num'>2.36</td><td class='num'>42.4%</td><td>media</td></tr><tr><td>Satisfacción general con la app (cuando funciona)</td><td class='num'>821</td><td class='num'>4.47</td><td class='num'>6.7%</td><td>baja</td></tr><tr><td>Satisfacción con la inversión en cripto</td><td class='num'>49</td><td class='num'>4.35</td><td class='num'>4.1%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td class='num'>1393</td><td class='num'>1.65</td><td class='num'>87.6%</td><td>-</td></tr></tbody>
         </table>
       </div>
     </details>
