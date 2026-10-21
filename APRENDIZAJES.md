@@ -269,3 +269,38 @@ unidad explícita generaba la misma clase de ambigüedad que el eje del
 gráfico sin etiquetar (ver entrada del eje Y, arriba): cualquier número
 que mezcle escalas (fracción 0-1 vs. porcentaje 0-100 vs. "puntos") necesita
 la unidad escrita en el texto, no asumida por contexto.
+
+---
+
+### 2026-10-21 — Un salto grande con muestra chica puede ser ruido, no señal
+
+**Qué pasó:** la primera versión de `version_breakout.py` encontró "un
+quiebre real" en Ripio: la versión 5.45.0 pasaba de 70.7% a 94.7% de
+negativas. El usuario cuestionó el hallazgo apenas vio el dato de
+respaldo: esa versión tenía solo **19 reseñas** — un 94.7% sobre una
+muestra así (~18 de 19) puede ser una racha de mala suerte, no un cambio
+real de comportamiento de usuarios.
+
+**Cómo lo resolvimos:** dos cambios al método, no solo subir el umbral de
+N:
+1. Comparar **"desde la versión en adelante"** contra "antes", en vez de
+   la versión sola contra el acumulado anterior. Así exige que la caída se
+   sostenga en todas las versiones siguientes, no que sea un pico aislado
+   de una sola versión con pocos datos.
+2. Agregar un **test de proporciones de dos muestras** (scipy) y exigir
+   significancia (p < 0.05) antes de reportar cualquier cosa.
+
+Con ese cambio, el "quiebre" de Ripio dejó de aparecer — no se sostenía
+en las versiones posteriores ni pasaba el test de significancia. El
+sistema prefiere no afirmar nada a afirmar algo que no se puede sostener.
+
+**Lección generalizable:** cualquier comparación de dos proporciones
+(% negativas, % de churn, tasa de conversión, lo que sea) necesita un
+umbral de volumen **y** un test de significancia antes de presentarse como
+un hecho — un umbral de volumen por sí solo (ej. "al menos 15 reseñas")
+es arbitrario y no dice si la diferencia observada es distinguible de
+azar. Cuando el objetivo del hallazgo es ser citable y defendible ante
+alguien que lo va a cuestionar (un CEO, en este caso), el criterio de
+"¿me animo a decir esto con un número específico de 2 decimales?" tiene
+que estar respaldado por el mismo rigor que un hallazgo que se publicaría
+en cualquier otro contexto donde importa la precisión.

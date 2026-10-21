@@ -5,10 +5,20 @@ específica de la app, no solo "empeoró en los últimos meses" — permite deci
 
 Metodología: para cada store, agrupa por versión (ordenadas por su primera
 fecha vista — la fecha real de lanzamiento no está disponible por este medio,
-se aproxima con la primera reseña de esa versión), y compara cada versión
-contra el acumulado de TODAS las versiones anteriores. Se descartan
-versiones con poco volumen propio o poca base acumulada previa, para no
-reportar un quiebre que en realidad es ruido de pocas reseñas.
+se aproxima con la primera reseña de esa versión). Para cada versión V
+candidata compara DOS BLOQUES:
+  - "antes de V": todas las reseñas con fecha anterior a la primera de V.
+  - "desde V en adelante": todas las reseñas de V y de toda versión posterior.
+Comparar contra "desde V en adelante" (no solo contra V sola) exige que la
+caída se sostenga en las versiones siguientes, no que sea un pico aislado de
+una sola versión con pocas reseñas — una versión sola con n chico puede dar
+un % extremo por puro ruido de muestra.
+
+Además, antes de reportar nada se corre un test de proporciones (dos
+muestras, scipy) y se exige significancia (p < P_VALUE_MAX): con muestras
+chicas, una diferencia de puntos porcentuales grande puede no ser
+estadísticamente distinguible de azar, y no se quiere reportar eso como un
+hecho firme.
 
 Uso: python 04_evaluation/version_breakout.py --name <empresa>
 Genera data/<empresa>/04_evaluation/version_breakout.json
@@ -19,13 +29,26 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+from scipy.stats import norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
 
-MIN_VERSION_N = 15     # reseñas de la versión candidata, para que su % no sea ruido
-MIN_BEFORE_N = 30       # reseñas acumuladas previas, para que la base de comparación sea sólida
+MIN_ONWARD_N = 30       # reseñas desde la versión candidata en adelante, para que su % no sea ruido
+MIN_BEFORE_N = 30       # reseñas previas, para que la base de comparación sea sólida
 MIN_DELTA_PTS = 10      # diferencia mínima en puntos porcentuales para considerarlo un quiebre real
+P_VALUE_MAX = 0.05      # significancia exigida al test de dos proporciones
+
+
+def two_proportion_test(neg1: int, n1: int, neg2: int, n2: int) -> float:
+    """p-value de un test de dos proporciones (dos colas). neg/n son conteos, no fracciones."""
+    p1, p2 = neg1 / n1, neg2 / n2
+    p_pool = (neg1 + neg2) / (n1 + n2)
+    se = (p_pool * (1 - p_pool) * (1 / n1 + 1 / n2)) ** 0.5
+    if se == 0:
+        return 1.0
+    z = (p1 - p2) / se
+    return 2 * (1 - norm.cdf(abs(z)))
 
 
 def find_breakout(reviews: pd.DataFrame) -> dict | None:
@@ -34,36 +57,46 @@ def find_breakout(reviews: pd.DataFrame) -> dict | None:
     for store, store_df in reviews.groupby("store"):
         by_version = (store_df.groupby("version")
                       .agg(n=("text", "size"),
-                           pct_neg=("sentiment", lambda s: (s == "NEG").mean()),
+                           n_neg=("sentiment", lambda s: int((s == "NEG").sum())),
                            first_date=("date", "min"))
                       .sort_values("first_date"))
 
-        cum_neg = 0
-        cum_n = 0
-        for version, row in by_version.iterrows():
-            if cum_n >= MIN_BEFORE_N and row["n"] >= MIN_VERSION_N:
-                pct_before = cum_neg / cum_n
-                delta = row["pct_neg"] - pct_before  # positivo = empeoró
-                candidates.append({
-                    "store": store,
-                    "version": str(version),
-                    "release_approx": row["first_date"].strftime("%Y-%m-%d"),
-                    "n_version": int(row["n"]),
-                    "pct_neg_version": round(float(row["pct_neg"]) * 100, 1),
-                    "pct_neg_before": round(float(pct_before) * 100, 1),
-                    "n_before": int(cum_n),
-                    "delta": round(float(delta) * 100, 1),
-                })
-            cum_neg += row["n"] * row["pct_neg"]
-            cum_n += row["n"]
+        versions = list(by_version.index)
+        for i, version in enumerate(versions):
+            before = by_version.iloc[:i]
+            onward = by_version.iloc[i:]
+            n_before, neg_before = int(before["n"].sum()), int(before["n_neg"].sum())
+            n_onward, neg_onward = int(onward["n"].sum()), int(onward["n_neg"].sum())
+
+            if n_before < MIN_BEFORE_N or n_onward < MIN_ONWARD_N:
+                continue
+
+            pct_before = neg_before / n_before
+            pct_onward = neg_onward / n_onward
+            delta = pct_onward - pct_before
+            if delta < MIN_DELTA_PTS / 100:
+                continue
+
+            p_value = two_proportion_test(neg_before, n_before, neg_onward, n_onward)
+            if p_value >= P_VALUE_MAX:
+                continue
+
+            candidates.append({
+                "store": store,
+                "version": str(version),
+                "release_approx": by_version.loc[version, "first_date"].strftime("%Y-%m-%d"),
+                "n_onward": n_onward,
+                "pct_neg_onward": round(pct_onward * 100, 1),
+                "pct_neg_before": round(pct_before * 100, 1),
+                "n_before": n_before,
+                "delta": round(delta * 100, 1),
+                "p_value": round(p_value, 4),
+            })
 
     if not candidates:
         return None
 
-    worst = max(candidates, key=lambda c: c["delta"])
-    if worst["delta"] < MIN_DELTA_PTS:
-        return None
-    return worst
+    return max(candidates, key=lambda c: c["delta"])
 
 
 def run(paths: Paths) -> dict | None:
@@ -86,7 +119,7 @@ if __name__ == "__main__":
     breakout = run(Paths(args.name))
     if breakout:
         print(f"Quiebre encontrado: {breakout['store']} v{breakout['version']} "
-              f"({breakout['release_approx']}) — {breakout['pct_neg_before']}% -> {breakout['pct_neg_version']}% "
-              f"negativas (+{breakout['delta']} pts)")
+              f"({breakout['release_approx']}) — {breakout['pct_neg_before']}% -> {breakout['pct_neg_onward']}% "
+              f"negativas (+{breakout['delta']} pts, n={breakout['n_onward']}, p={breakout['p_value']})")
     else:
-        print("No se encontró un quiebre de versión significativo (o no hay suficiente volumen por versión).")
+        print("No se encontró un quiebre de versión significativo (o no hay suficiente volumen/significancia).")

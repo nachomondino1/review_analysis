@@ -142,7 +142,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 04_evaluation/version_breakout.py --name spotify
    ```
 
-   Compara cada versión (con suficiente volumen propio) contra el acumulado de todas las anteriores; si no hay un salto real (≥10 puntos porcentuales) o no hay suficiente historial por versión, no reporta nada — no fuerza un hallazgo donde no lo hay.
+   Compara "desde esa versión en adelante" contra "antes" (exige que la caída se sostenga en las versiones siguientes, no un pico de una sola versión), y solo reporta un quiebre si además pasa un test de significancia de dos proporciones (p < 0.05) — no alcanza con un salto grande de puntos porcentuales si la muestra es chica.
 
 7. Revisar `data/spotify/03_modeling/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
 

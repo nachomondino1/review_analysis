@@ -73,10 +73,11 @@ def build_version_breakout_section(paths: Paths) -> str:
 
     store_label = STORE_LABEL.get(breakout["store"], breakout["store"])
     note = (
-        f"La versión {breakout['version']} de {store_label} (lanzada ~{breakout['release_approx']}) "
-        f"marca un quiebre real: pasó de {breakout['pct_neg_before']}% a {breakout['pct_neg_version']}% "
-        f"de reseñas negativas (+{breakout['delta']} puntos porcentuales), sobre {breakout['n_version']} "
-        f"reseñas de esa versión y {breakout['n_before']} previas."
+        f"Desde la versión {breakout['version']} de {store_label} (lanzada ~{breakout['release_approx']}) "
+        f"en adelante, el % de negativas pasó de {breakout['pct_neg_before']}% a {breakout['pct_neg_onward']}% "
+        f"(+{breakout['delta']} puntos porcentuales) y se sostiene en esa versión y las siguientes "
+        f"({breakout['n_onward']} reseñas, contra {breakout['n_before']} previas) — diferencia "
+        f"estadísticamente significativa (p = {breakout['p_value']})."
     )
     return f'<div class="trend-banner trend-bad">{esc(note)}</div>'
 
