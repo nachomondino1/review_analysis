@@ -40,7 +40,11 @@ def run(paths: Paths):
     df["sentiment"] = [p.output for p in sent.predict(df["text"].tolist())]
 
     emb = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-    topic_model = BERTopic(language="multilingual", min_topic_size=min_topic_size_for(len(df)))
+    topic_model = BERTopic(
+        language="multilingual",
+        min_topic_size=min_topic_size_for(len(df)),
+        nr_topics="auto",  # fusiona tópicos cuyas palabras clave son casi iguales (ej. variantes de "excelente app")
+    )
     df["topic"], _ = topic_model.fit_transform(
         df["text"].tolist(), emb.encode(df["text"].tolist(), show_progress_bar=True)
     )
