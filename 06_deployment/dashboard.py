@@ -263,13 +263,18 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
 
 
 def build_table_rows(summary: pd.DataFrame) -> str:
+    has_category = "category" in summary.columns
     ordered = summary.sort_values(["is_outlier", "pct_neg"], ascending=[True, False])
     rows = []
     for _, row in ordered.iterrows():
         name = row["name"] if pd.notna(row["name"]) and row["name"] else row["Name"]
         severity = row["severity"] if pd.notna(row["severity"]) and row["severity"] else "-"
+        category_cell = ""
+        if has_category:
+            category = row["category"] if pd.notna(row["category"]) and row["category"] else "-"
+            category_cell = f"<td>{esc(category)}</td>"
         rows.append(
-            f"<tr><td>{esc(name)}</td><td class='num'>{int(row['n'])}</td>"
+            f"<tr><td>{esc(name)}</td>{category_cell}<td class='num'>{int(row['n'])}</td>"
             f"<td class='num'>{round(float(row['rating']), 2)}</td>"
             f"<td class='num'>{round(float(row['pct_neg']) * 100, 1)}%</td>"
             f"<td>{esc(severity)}</td></tr>"
@@ -355,11 +360,19 @@ header.page-head {{
 header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
 header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
 h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }}
-.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
+.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
 .stat-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }}
+.stat-card--store {{ border-top-color: var(--accent); }}
+.stat-card--sample {{ border-top-color: var(--warn); }}
+.stat-card .tag {{
+  display: inline-block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px; margin-bottom: 8px;
+}}
+.stat-card--store .tag {{ background: var(--accent-soft); color: var(--accent); }}
+.stat-card--sample .tag {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
 .category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 10px; }}
@@ -431,10 +444,10 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
   <section>
     <h2>Resumen ejecutivo</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial ({official_count})</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra ({total_n} reseñas)</div></div>
+      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
+      <div class="stat-card stat-card--sample"><div class="tag">📝 Solo con texto</div><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra con reseña escrita ({total_n} reseñas)</div></div>
     </div>
-    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
   </section>
 
   {categories_section}
@@ -456,7 +469,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
       <summary>Ver los {n_topics} tópicos detectados</summary>
       <div class="table-scroll">
         <table>
-          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+          <thead><tr><th>Tópico</th>{table_category_header}<th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
           <tbody>{table_rows}</tbody>
         </table>
       </div>
@@ -489,6 +502,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         f'<section><h2>¿Cómo vienen últimamente?</h2>{trend_html}</section>' if trend_html else ""
     )
     table_rows = build_table_rows(summary)
+    table_category_header = "<th>Categoría</th>" if "category" in summary.columns else ""
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
@@ -507,6 +521,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         trend_section=trend_section,
         competitor_section=competitor_section,
         n_topics=len(summary),
+        table_category_header=table_category_header,
         table_rows=table_rows,
     )
 
