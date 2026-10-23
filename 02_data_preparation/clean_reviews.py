@@ -1,8 +1,6 @@
 """
 Filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
-Corre sobre el dataset integrado (integrate_data.py): las filas de fuente
-"store_ratings" no tienen texto, así que el filtro de largo las descarta solo
-(no hace falta filtrar por "fuente" a mano).
+Corre sobre el dataset integrado (integrate_data.py): ios_reviews + android_reviews.
 """
 import argparse
 import sys
