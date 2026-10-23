@@ -80,6 +80,16 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
     inner_r = max(18, round(outer_r * (pct_text / 100) ** 0.5))
     inner_cy = 100 + outer_r - inner_r
 
+    # Ícono 📝 adentro del círculo chico, y ⭐ en el espacio libre de arriba
+    # del grande, para que no haya dudas de a qué representa cada uno ni de
+    # que uno vive adentro del otro (no son dos aros sueltos).
+    inner_icon = f'<text x="100" y="{inner_cy + inner_r * 0.33}" class="nest-icon" font-size="{min(32, round(inner_r * 1.1))}">📝</text>'
+    free_bottom = inner_cy - inner_r  # borde superior del espacio libre arriba del círculo chico
+    outer_icon = ""
+    if free_bottom - (100 - outer_r) >= 36:
+        star_cy = (100 - outer_r + free_bottom) / 2
+        outer_icon = f'<text x="100" y="{star_cy + 10}" class="nest-icon" font-size="26">⭐</text>'
+
     return f'''
     <div class="composition">
       <p class="composition-intro">De las {total_official_fmt} reseñas, algunas tienen texto y otras no:</p>
@@ -87,7 +97,9 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
         <svg viewBox="0 0 200 200" width="180" height="180" role="img"
              aria-label="{pct_text}% de las reseñas tiene texto, {pct_no_text}% son solo estrellas">
           <circle cx="100" cy="100" r="{outer_r}" class="nest-outer"></circle>
+          {outer_icon}
           <circle cx="100" cy="{inner_cy}" r="{inner_r}" class="nest-inner"></circle>
+          {inner_icon}
         </svg>
         <div class="composition-stats">
           <div class="comp-stat comp-stat--text">
@@ -599,6 +611,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 .composition-nest svg {{ flex-shrink: 0; }}
 .nest-outer {{ fill: var(--border-soft); stroke: var(--muted-soft); stroke-width: 1.5; }}
 .nest-inner {{ fill: var(--warn); }}
+.nest-icon {{ text-anchor: middle; dominant-baseline: middle; }}
 .composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; flex: 1 1 220px; }}
 .comp-stat {{ flex: 1 1 160px; }}
 .comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
