@@ -222,15 +222,15 @@ def render_categories_html(categories: list[dict]) -> str:
         scale = (c["n"] / max_n) ** 0.5 if max_n else 0  # área ~ n, no diámetro ~ n
         size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
         color = pct_to_color(c["pct_neg"])
-        font_size = max(11, min(15, round(size / 7)))
+        font_size = max(10, min(14, round(size / 8)))
         item_width = max(size, 90)
         bubbles.append(f'''
         <div class="bubble-item" style="width:{item_width}px;">
           <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
                title="{esc(c["category"])}: {c["n"]} reseñas, {c["pct_neg"]}% negativas">
-            {c["pct_neg"]}%
+            {esc(c["category"])}
           </div>
-          <div class="bubble-name">{esc(c["category"])}</div>
+          <div class="bubble-pct" style="color:{color};">{c["pct_neg"]}% negativas</div>
           <div class="bubble-n">{c["n"]} reseñas</div>
         </div>
         ''')
@@ -481,8 +481,10 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 .bubble {{
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
 }}
-.bubble-name {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
+.bubble-pct {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
 .bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{

@@ -103,8 +103,10 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 .bubble {
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
 }
-.bubble-name { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
+.bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
 .bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
@@ -259,74 +261,74 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble" style="width:160px;height:160px;background:#dc3321;font-size:15px;"
+          <div class="bubble" style="width:160px;height:160px;background:#dc3321;font-size:14px;"
                title="Acceso: 2579 reseñas, 91.7% negativas">
-            91.7%
+            Acceso
           </div>
-          <div class="bubble-name">Acceso</div>
+          <div class="bubble-pct" style="color:#dc3321;">91.7% negativas</div>
           <div class="bubble-n">2579 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:139px;">
-          <div class="bubble" style="width:139px;height:139px;background:#db4b17;font-size:15px;"
+          <div class="bubble" style="width:139px;height:139px;background:#db4b17;font-size:14px;"
                title="Dinero: 1649 reseñas, 77.1% negativas">
-            77.1%
+            Dinero
           </div>
-          <div class="bubble-name">Dinero</div>
+          <div class="bubble-pct" style="color:#db4b17;">77.1% negativas</div>
           <div class="bubble-n">1649 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:127px;">
-          <div class="bubble" style="width:127px;height:127px;background:#838a24;font-size:15px;"
+          <div class="bubble" style="width:127px;height:127px;background:#838a24;font-size:14px;"
                title="Otros: 1188 reseñas, 28.0% negativas">
-            28.0%
+            Otros
           </div>
-          <div class="bubble-name">Otros</div>
+          <div class="bubble-pct" style="color:#838a24;">28.0% negativas</div>
           <div class="bubble-n">1188 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:105px;">
-          <div class="bubble" style="width:105px;height:105px;background:#da5613;font-size:15px;"
+          <div class="bubble" style="width:105px;height:105px;background:#da5613;font-size:13px;"
                title="Costos: 567 reseñas, 70.5% negativas">
-            70.5%
+            Costos
           </div>
-          <div class="bubble-name">Costos</div>
+          <div class="bubble-pct" style="color:#da5613;">70.5% negativas</div>
           <div class="bubble-n">567 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:92px;">
-          <div class="bubble" style="width:92px;height:92px;background:#6a902d;font-size:13px;"
+          <div class="bubble" style="width:92px;height:92px;background:#6a902d;font-size:12px;"
                title="Usabilidad: 311 reseñas, 21.5% negativas">
-            21.5%
+            Usabilidad
           </div>
-          <div class="bubble-name">Usabilidad</div>
+          <div class="bubble-pct" style="color:#6a902d;">21.5% negativas</div>
           <div class="bubble-n">311 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble" style="width:84px;height:84px;background:#c77b0c;font-size:12px;"
+          <div class="bubble" style="width:84px;height:84px;background:#c77b0c;font-size:10px;"
                title="Soporte: 183 reseñas, 45.4% negativas">
-            45.4%
+            Soporte
           </div>
-          <div class="bubble-name">Soporte</div>
+          <div class="bubble-pct" style="color:#c77b0c;">45.4% negativas</div>
           <div class="bubble-n">183 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble" style="width:82px;height:82px;background:#16a34a;font-size:12px;"
+          <div class="bubble" style="width:82px;height:82px;background:#16a34a;font-size:10px;"
                title="Seguridad: 161 reseñas, 0.0% negativas">
-            0.0%
+            Seguridad
           </div>
-          <div class="bubble-name">Seguridad</div>
+          <div class="bubble-pct" style="color:#16a34a;">0.0% negativas</div>
           <div class="bubble-n">161 reseñas</div>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble" style="width:81px;height:81px;background:#db401c;font-size:12px;"
+          <div class="bubble" style="width:81px;height:81px;background:#db401c;font-size:10px;"
                title="Rendimiento: 150 reseñas, 84.0% negativas">
-            84.0%
+            Rendimiento
           </div>
-          <div class="bubble-name">Rendimiento</div>
+          <div class="bubble-pct" style="color:#db401c;">84.0% negativas</div>
           <div class="bubble-n">150 reseñas</div>
         </div>
         </div></div>
