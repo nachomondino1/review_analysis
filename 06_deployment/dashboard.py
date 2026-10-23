@@ -23,7 +23,7 @@ import companies  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
-TOP_FINDINGS_MAX = 6
+TOP_FINDINGS_MAX = 3  # minimalismo: 3 hallazgos que se leen, no 6 que se scrollean
 SAMPLES_PER_FINDING = 2
 
 
@@ -52,6 +52,31 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     total = sum(r["ratings_count"] for r in rows)
     weighted = sum(r["score"] * r["ratings_count"] for r in rows) / total
     return {"score": round(weighted, 2), "count": total}
+
+
+def build_composition_bar(official: dict | None, total_n: int) -> str:
+    """
+    Barra de proporción: de todas las calificaciones de las tiendas, cuántas
+    traen texto (la única parte que este análisis puede leer) y cuántas son
+    solo estrellas — para que el % de negativas de más abajo no se lea como
+    si describiera a todos los usuarios, sino solo a esta porción.
+    """
+    if not official or not official.get("count"):
+        return ""
+    total_official = official["count"]
+    pct_text = max(0.0, min(100.0, round(total_n / total_official * 100, 1)))
+    pct_no_text = round(100 - pct_text, 1)
+    return f'''
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>{pct_text}% con texto — analizadas abajo ({total_n:,} reseñas)</span>
+        <span><span class="dot dot--notext"></span>{pct_no_text}% solo estrellas, sin texto</span>
+      </div>
+    </div>
+    '''.replace(f"{total_n:,}", f"{total_n:,}".replace(",", "."))
 
 
 STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
@@ -127,15 +152,59 @@ def build_competitor_section(official: dict | None, empresa_display: str, compet
 
 
 def build_summary_stats(summary: pd.DataFrame) -> dict:
-    real = summary[~summary["is_outlier"]]
     total_n = int(summary["n"].sum())
     pct_neg = round(float((summary["pct_neg"] * summary["n"]).sum() / total_n * 100), 1)
-    n_findings = int((real["severity"].isin(["alta", "media"])).sum())
     return {
         "total_n": total_n,
         "pct_neg": pct_neg,
-        "n_findings": n_findings,
     }
+
+
+def build_categories(summary: pd.DataFrame) -> list[dict]:
+    """
+    Agrupa los tópicos (no outlier) en sus categorías de una palabra, asignadas
+    a mano en topics_named.json junto con el resto del enriquecimiento (ver
+    topics_enrich.py) — no hay una cantidad fija de categorías: la raíz
+    cuadrada del número de tópicos es solo una guía orientativa de cuántos
+    grupos tienen sentido, no una regla que el código fuerce.
+    """
+    if "category" not in summary.columns:
+        return []
+    real = summary[~summary["is_outlier"]].copy()
+    real = real[real["category"].notna() & (real["category"] != "")]
+    if real.empty:
+        return []
+
+    grouped = real.groupby("category").apply(
+        lambda g: pd.Series({
+            "n": int(g["n"].sum()),
+            "pct_neg": round(float((g["pct_neg"] * g["n"]).sum() / g["n"].sum() * 100), 1),
+        }),
+        include_groups=False,
+    ).reset_index()
+    grouped["n"] = grouped["n"].astype(int)
+    return grouped.sort_values("n", ascending=False).to_dict("records")
+
+
+def render_categories_html(categories: list[dict]) -> str:
+    if not categories:
+        return ""
+    cards = []
+    for c in categories:
+        if c["pct_neg"] >= 60:
+            pct_class = "cat-bad"
+        elif c["pct_neg"] >= 30:
+            pct_class = "cat-warn"
+        else:
+            pct_class = "cat-good"
+        cards.append(f'''
+        <div class="category-card">
+          <div class="category-name">{esc(c["category"])}</div>
+          <div class="category-n">{c["n"]} reseñas</div>
+          <div class="category-pct {pct_class}">{c["pct_neg"]}% negativas</div>
+        </div>
+        ''')
+    return f'<div class="subsection"><h3>Por categoría</h3><div class="category-grid">{"".join(cards)}</div></div>'
 
 
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
@@ -143,6 +212,8 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
     real["_priority"] = real["n"] * real["pct_neg"]
     real = real[real["severity"].isin(["alta", "media"])].sort_values("_priority", ascending=False)
     real = real.head(TOP_FINDINGS_MAX)
+
+    has_category = "category" in real.columns
 
     findings = []
     for _, row in real.iterrows():
@@ -154,6 +225,7 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
             "summary": row["summary"],
             "recommendation": row["recommendation"],
             "severity": row["severity"],
+            "category": row["category"] if has_category and pd.notna(row["category"]) and row["category"] else None,
             "n": int(row["n"]),
             "pct_neg": round(float(row["pct_neg"]) * 100, 1),
             "samples": samples,
@@ -219,13 +291,18 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
 
 
 def build_table_rows(summary: pd.DataFrame) -> str:
+    has_category = "category" in summary.columns
     ordered = summary.sort_values(["is_outlier", "pct_neg"], ascending=[True, False])
     rows = []
     for _, row in ordered.iterrows():
         name = row["name"] if pd.notna(row["name"]) and row["name"] else row["Name"]
         severity = row["severity"] if pd.notna(row["severity"]) and row["severity"] else "-"
+        category_cell = ""
+        if has_category:
+            category = row["category"] if pd.notna(row["category"]) and row["category"] else "-"
+            category_cell = f"<td>{esc(category)}</td>"
         rows.append(
-            f"<tr><td>{esc(name)}</td><td class='num'>{int(row['n'])}</td>"
+            f"<tr><td>{esc(name)}</td>{category_cell}<td class='num'>{int(row['n'])}</td>"
             f"<td class='num'>{round(float(row['rating']), 2)}</td>"
             f"<td class='num'>{round(float(row['pct_neg']) * 100, 1)}%</td>"
             f"<td>{esc(severity)}</td></tr>"
@@ -240,13 +317,14 @@ def render_findings_html(findings: list[dict]) -> str:
     cards = []
     for f in findings:
         samples_html = "".join(f"<li>“{esc(s)}”</li>" for s in f["samples"])
+        category_chip = f'<span class="chip chip-category">{esc(f["category"])}</span>' if f.get("category") else ""
         cards.append(f'''
         <article class="finding-card">
           <div class="finding-head">
             <h3>{esc(f["name"])}</h3>
             <span class="chip {SEVERITY_CLASS.get(f["severity"], "")}">{esc(SEVERITY_LABEL.get(f["severity"], f["severity"]))}</span>
           </div>
-          <p class="finding-meta">{f["n"]} reseñas · {f["pct_neg"]}% negativas</p>
+          <p class="finding-meta">{category_chip}{f["n"]} reseñas · {f["pct_neg"]}% negativas</p>
           <p>{esc(f["summary"])}</p>
           <p class="recommendation"><strong>Recomendación:</strong> {esc(f["recommendation"])}</p>
           {f"<ul class='samples'>{samples_html}</ul>" if samples_html else ""}
@@ -260,7 +338,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Análisis de reseñas — {empresa}</title>
+<title>Análisis de reseñas de la app de {empresa}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -300,7 +378,7 @@ body {{
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
 }}
-.container {{ max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }}
+.container {{ max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }}
 @media (max-width: 640px) {{ .container {{ padding: 16px 16px 48px; }} }}
 header.page-head {{
   position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
@@ -310,14 +388,38 @@ header.page-head {{
 @media (max-width: 640px) {{ header.page-head {{ padding: 12px 16px; }} }}
 header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
 header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
-h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }}
-.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
+h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
+.part {{
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}}
+.part:first-child {{ margin-top: 0; }}
+.part--store {{ border-top: 4px solid var(--accent); }}
+.part--text {{ border-top: 4px solid var(--warn); }}
+.part-eyebrow {{
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}}
+.part-title {{ font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }}
+.part-scope {{ color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }}
+.subsection {{ margin-top: 32px; }}
+.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
 .stat-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
+.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }}
+.category-card {{
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs); padding: 12px 14px;
+}}
+.category-name {{ font-weight: 700; font-size: 0.9rem; }}
+.category-n {{ color: var(--muted); font-size: 0.78rem; margin-top: 2px; }}
+.category-pct {{ font-size: 0.78rem; font-weight: 700; margin-top: 4px; }}
+.cat-bad {{ color: var(--bad); }}
+.cat-warn {{ color: var(--warn); }}
+.cat-good {{ color: var(--good); }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -336,6 +438,7 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 .sev-alta {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
 .sev-media {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
 .sev-baja {{ background: var(--bg-subtle); color: var(--muted); }}
+.chip-category {{ background: var(--accent-soft); color: var(--accent); margin-right: 8px; }}
 .recency-grid {{ display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }}
 .recency-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -359,59 +462,124 @@ table {{ width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.
 th {{ background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }}
 td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
 td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
+table.sortable th[data-sort] {{ cursor: pointer; user-select: none; white-space: nowrap; }}
+table.sortable th[data-sort]:hover {{ color: var(--text); }}
+table.sortable th.sorted-asc::after {{ content: " \\25B2"; }}
+table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
+.table-hint {{ color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
-.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }}
+.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
+.composition {{ margin-top: 16px; }}
+.composition-bar {{ display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }}
+.composition-fill--text {{ background: var(--warn); height: 100%; }}
+.composition-legend {{
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}}
+.composition-legend .dot {{ display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }}
+.dot--text {{ background: var(--warn); }}
+.dot--notext {{ background: var(--border-soft); border: 1px solid var(--muted-soft); }}
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 {empresa}</h1>
+    <h1>📊 Análisis de reseñas de la app de {empresa}</h1>
     <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado {fecha}</div>
   </div>
 </header>
 <div class="container">
 
-  <section>
-    <h2>Resumen ejecutivo</h2>
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de todas las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial ({official_count})</div></div>
-      <div class="stat-card"><div class="value">{total_n}</div><div class="label">Reseñas con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra</div></div>
-      <div class="stat-card"><div class="value">{n_findings}</div><div class="label">Hallazgos a atender</div></div>
+      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
+      <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
-    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
-  </section>
+    {composition_html}
+    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
+    {competitor_section}
+  </div>
 
-  <section>
-    <h2>Principales hallazgos</h2>
-    <div class="findings-grid">
-      {findings_html}
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
+      <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
     </div>
-  </section>
+    <div class="subsection">{trend_html}</div>
 
-  {trend_section}
+    {categories_section}
 
-  {competitor_section}
-
-  <section>
-    <h2>Detalle completo por tópico</h2>
-    <details class="detail-table">
-      <summary>Ver los {n_topics} tópicos detectados</summary>
-      <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
-          <tbody>{table_rows}</tbody>
-        </table>
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        {findings_html}
       </div>
-    </details>
-  </section>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los {n_topics} tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th>{table_category_header}
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody>{table_rows}</tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {{
+  document.querySelectorAll("table.sortable").forEach(function (table) {{
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {{
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {{
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {{
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        }});
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {{
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {{
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }}
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        }});
+        rows.forEach(function (row) {{ tbody.appendChild(row); }});
+      }});
+    }});
+  }});
+}})();
+</script>
 </body>
 </html>
 """
@@ -421,18 +589,23 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
+    composition_html = build_composition_bar(official, stats["total_n"])
+    categories_section = render_categories_html(build_categories(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
-    recency_html = build_recency_comparison(reviews)
+    # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
+    # El quiebre de versión es el hallazgo más fuerte y citable (persistencia +
+    # significancia ya exigidas en version_breakout.py) — si existe, gana;
+    # si no, cae al genérico "últimos N meses vs. histórico".
     breakout_html = build_version_breakout_section(paths)
-    trend_section = (
-        f'<section><h2>¿Cómo vienen últimamente?</h2>{recency_html}{breakout_html}</section>' if (recency_html or breakout_html) else ""
-    )
+    trend_body = breakout_html or build_recency_comparison(reviews)
+    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
     table_rows = build_table_rows(summary)
+    table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
-        f'<section><h2>Comparado con la competencia</h2>{competitor_html}</section>' if competitor_html else ""
+        f'<div class="subsection"><h3>Comparado con la competencia</h3>{competitor_html}</div>' if competitor_html else ""
     )
 
     return TEMPLATE.format(
@@ -440,13 +613,17 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
+        official_count_num=f'{official["count"]:,}'.replace(",", ".") if official else "N/D",
         total_n=stats["total_n"],
+        total_n_fmt=f'{stats["total_n"]:,}'.replace(",", "."),
         pct_neg=stats["pct_neg"],
-        n_findings=stats["n_findings"],
+        composition_html=composition_html,
+        categories_section=categories_section,
         findings_html=findings_html,
-        trend_section=trend_section,
+        trend_html=trend_html,
         competitor_section=competitor_section,
         n_topics=len(summary),
+        table_category_header=table_category_header,
         table_rows=table_rows,
     )
 
@@ -502,7 +679,7 @@ def build_index(site_dir: Path, root: Path):
     pages = sorted(site_dir.glob("*.html"))
     items = []
     for page in pages:
-        match = re.search(r"<title>Análisis de reseñas — (.*?)</title>", page.read_text(encoding="utf-8"))
+        match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", page.read_text(encoding="utf-8"))
         name = match.group(1) if match else page.stem
         items.append(f'<li><a class="company-link" href="{site_dir.name}/{page.name}">{esc(name)}</a></li>')
     (root / "index.html").write_text(

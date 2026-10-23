@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Análisis de reseñas — Ripio</title>
+<title>Análisis de reseñas de la app de ripio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -43,7 +43,7 @@ body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
 }
-.container { max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
 @media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
 header.page-head {
   position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
@@ -53,14 +53,38 @@ header.page-head {
 @media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
 header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
-h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
+.part {
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.part:first-child { margin-top: 0; }
+.part--store { border-top: 4px solid var(--accent); }
+.part--text { border-top: 4px solid var(--warn); }
+.part-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}
+.part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
+.part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
+.subsection { margin-top: 32px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }
 .stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
 .stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
+.category-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs); padding: 12px 14px;
+}
+.category-name { font-weight: 700; font-size: 0.9rem; }
+.category-n { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.category-pct { font-size: 0.78rem; font-weight: 700; margin-top: 4px; }
+.cat-bad { color: var(--bad); }
+.cat-warn { color: var(--warn); }
+.cat-good { color: var(--good); }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -79,6 +103,7 @@ h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 
 .sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
 .sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
 .sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.chip-category { background: var(--accent-soft); color: var(--accent); margin-right: 8px; }
 .recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 .recency-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -102,155 +127,231 @@ table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.8
 th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
 td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
-.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 16px; }
+.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
+.composition-fill--text { background: var(--warn); height: 100%; }
+.composition-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}
+.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot--text { background: var(--warn); }
+.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Ripio</h1>
-    <div class="sub">Análisis de reseñas de usuarios · generado 2026-10-21</div>
+    <h1>📊 Análisis de reseñas de la app de ripio</h1>
+    <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado 2026-10-23</div>
   </div>
 </header>
 <div class="container">
 
-  <section>
-    <h2>Resumen ejecutivo</h2>
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de todas las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial (62.767 calificaciones)</div></div>
-      <div class="stat-card"><div class="value">4565</div><div class="label">Reseñas con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">70.3%</div><div class="label">Negativas en la muestra</div></div>
-      <div class="stat-card"><div class="value">14</div><div class="label">Hallazgos a atender</div></div>
+      <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial de las tiendas (62.767 calificaciones)</div></div>
+      <div class="stat-card"><div class="value">62.767</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
-    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
-  </section>
-
-  <section>
-    <h2>Principales hallazgos</h2>
-    <div class="findings-grid">
-      
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Reclamos de dinero/transferencias sin respuesta de soporte</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta">952 reseñas · 78.9% negativas</p>
-          <p>Depósitos, transferencias o compras de cripto que no se acreditan, cuentas que tardan meses en activarse, y reclamos que nadie responde.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Es el segundo tópico más grande (952 reseñas). Auditar el pipeline de conciliación de depósitos y el SLA real de soporte — son los dos problemas que más golpean la confianza.</p>
-          <ul class='samples'><li>“No llegan los sms no puedo logearme, más allá de huella tactil, no se qué pasa”</li><li>“La primera vez que compré me cobraron la comisión y 8 mil pesos de más , mandé una consulta y todavía no me contestaron”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>La app no abre o el login falla constantemente</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta">718 reseñas · 94.0% negativas</p>
-          <p>El problema más grande y repetido: la app queda cargando en blanco, el 2FA falla, o hay que desinstalar y reinstalar para poder entrar.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Tratar como incidente de estabilidad de producción, no como feedback de UX: es el tópico de mayor volumen de todo el dataset (718 reseñas) y bloquea el uso básico de la app.</p>
-          <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“Por favor cambien esa interfaz nefasta, la manera de entrar es malisima”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Rechazo total (&#x27;no confío en esta app&#x27;)</h3>
-            <span class="chip sev-media">Media</span>
-          </div>
-          <p class="finding-meta">98 reseñas · 86.7% negativas</p>
-          <p>Reseñas de rechazo genérico y desconfianza, sin detalle técnico específico más allá de desaconsejar la app.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Bajo valor de señal accionable por sí solo; refuerza el panorama general negativo visto en los otros hallazgos.</p>
-          <ul class='samples'><li>“No sirve si no tienes cuit”</li><li>“No descarguen ni hagan nada te están mas de lo que crees así que ni intentan nada queda en casa sino”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Comisiones percibidas como abusivas</h3>
-            <span class="chip sev-media">Media</span>
-          </div>
-          <p class="finding-meta">99 reseñas · 75.8% negativas</p>
-          <p>Quejas sobre el costo total de operar (comisión + spread compra-venta), comparado desfavorablemente con otros exchanges (se menciona Bitso).</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Evaluar competitividad real de comisiones vs. otros exchanges locales; si el costo total no se comunica claramente, parte del problema puede ser de percepción.</p>
-          <ul class='samples'><li>“Nunca se puede entrar, se traba todo el tiempo. Las comisiones son caras. No la bajen! Busquen cualquier otra aplicación que seguro es mejor”</li><li>“ESTAFA TOTAL, INGRESE DINERO “XX.XXX” COMPRE A -32.5% UNA CRIPTOMONEDA QUE SUBIÓ A UN -2,56% y no me genero ninguna ganancia es más de sacaron dinero. Es una rotunda estafa”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Verificación facial/selfie no funciona</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta">52 reseñas · 94.2% negativas</p>
-          <p>El paso de validación de identidad con foto/selfie/video no logra capturar la imagen o se traba.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar compatibilidad de cámara en distintos dispositivos — bloquea el onboarding completo para quien lo sufre.</p>
-          <ul class='samples'><li>“Me piden un video de mi cara con mi dni y mi voz para eliminarlo y poder entrar. Están locxs
-Solucionenme el ingreso por favor.”</li><li>“No me deja tomar la foto para activar la cuenta”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Publicidad agresiva de la propia app</h3>
-            <span class="chip sev-media">Media</span>
-          </div>
-          <p class="finding-meta">47 reseñas · 91.5% negativas</p>
-          <p>Quejas sobre el volumen de anuncios de Ripio en otras apps/plataformas, generando rechazo antes de instalarla.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar frecuencia y segmentación de la pauta publicitaria externa: puede estar dañando la adquisición neta de usuarios.</p>
-          <ul class='samples'><li>“Ver sus anuncios en todos lados no me hace querer descargar la app, me hace ODIARLOS por ser tan molestos”</li><li>“Ustedes creen que su ponen sus anuncios a cada rato las personas van a instalar su app no si molestan a las personas con sus anuncios obvio nadie la va a instalar si los molestan con sus anuncios”</li></ul>
-        </article>
-        
+    
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:19.3%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>19.3% con texto — analizadas abajo (12.098 reseñas)</span>
+        <span><span class="dot dot--notext"></span>80.7% solo estrellas, sin texto</span>
+      </div>
     </div>
-  </section>
+    
+    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (12.098 de 62.767 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
+    
+  </div>
 
-  <section><h2>¿Cómo vienen últimamente?</h2>
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 12.098 reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">69.9%</div><div class="label">Negativas sobre 12.098 reseñas con texto</div></div>
+      <div class="stat-card"><div class="value">12.098</div><div class="label">Reseñas totales con texto analizadas</div></div>
+    </div>
+    <div class="subsection"><h3>¿Cómo vienen últimamente?</h3>
     <div class="recency-grid">
       <div class="recency-card">
         <div class="recency-label">Últimos 3 meses</div>
-        <div class="recency-value">2.71★</div>
-        <div class="recency-sub">57.8% negativas · 180 reseñas</div>
+        <div class="recency-value">2.66★</div>
+        <div class="recency-sub">59.4% negativas · 180 reseñas</div>
       </div>
       <div class="recency-arrow">vs.</div>
       <div class="recency-card">
         <div class="recency-label">Histórico completo</div>
-        <div class="recency-value">2.25★</div>
-        <div class="recency-sub">70.3% negativas · 4565 reseñas</div>
+        <div class="recency-value">2.28★</div>
+        <div class="recency-sub">69.9% negativas · 12098 reseñas</div>
       </div>
     </div>
-    <div class="trend-banner trend-good">Mejorando: 12.5 puntos porcentuales menos reseñas negativas que el histórico</div>
-    </section>
+    <div class="trend-banner trend-good">Mejorando: 10.5 puntos porcentuales menos reseñas negativas que el histórico</div>
+    </div>
 
-  <section><h2>Comparado con la competencia</h2>
-    <div class="recency-grid">
-      <div class="recency-card">
-        <div class="recency-label">Ripio</div>
-        <div class="recency-value">4.61★</div>
-        <div class="recency-sub">62.767 calificaciones</div>
-      </div>
-      <div class="recency-arrow">vs.</div>
-      <div class="recency-card">
-        <div class="recency-label">Bitso</div>
-        <div class="recency-value">4.61★</div>
-        <div class="recency-sub">83.214 calificaciones</div>
+    <div class="subsection"><h3>Por categoría</h3><div class="category-grid">
+        <div class="category-card">
+          <div class="category-name">Acceso</div>
+          <div class="category-n">2579 reseñas</div>
+          <div class="category-pct cat-bad">91.7% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Dinero</div>
+          <div class="category-n">1649 reseñas</div>
+          <div class="category-pct cat-bad">77.1% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Otros</div>
+          <div class="category-n">1188 reseñas</div>
+          <div class="category-pct cat-good">28.0% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Costos</div>
+          <div class="category-n">567 reseñas</div>
+          <div class="category-pct cat-bad">70.5% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Usabilidad</div>
+          <div class="category-n">311 reseñas</div>
+          <div class="category-pct cat-good">21.5% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Soporte</div>
+          <div class="category-n">183 reseñas</div>
+          <div class="category-pct cat-warn">45.4% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Seguridad</div>
+          <div class="category-n">161 reseñas</div>
+          <div class="category-pct cat-good">0.0% negativas</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-name">Rendimiento</div>
+          <div class="category-n">150 reseñas</div>
+          <div class="category-pct cat-bad">84.0% negativas</div>
+        </div>
+        </div></div>
+
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Dinero depositado/transferido que no se acredita</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Dinero</span>707 reseñas · 91.5% negativas</p>
+          <p>Usuarios depositan o transfieren dinero a su cuenta Ripio y el saldo no aparece, en algunos casos durante semanas, con reclamos de soporte sin respuesta.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Es el tópico más grave (707 reseñas, 91.5% negativas): audita el pipeline de acreditación de depósitos/transferencias y el SLA real de soporte para reclamos de dinero no acreditado.</p>
+          <ul class='samples'><li>“Deposité dinero desde un cvu y no me lo cargaron, hace dias estoy mandando mensajes mediante el soporte y no me dan respuestas, si no me lo van a cargar por lo menos exijo la devolución!!”</li><li>“Pesimo todo. 0 soporte. 
+Me robaron mi dinero.
+NO USAR !!!”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>La app no carga / login se queda colgado</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>516 reseñas · 96.5% negativas</p>
+          <p>La app queda en pantalla de carga infinita al intentar ingresar, sin llegar nunca al login ni mostrar error.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de carga inicial/login (516 reseñas, 96.5% negativas) — es de los problemas técnicos más extendidos y bloquea el uso completo de la app.</p>
+          <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“Cada vez que intento ingresar a mi cuenta me envía un mail desde el cual me redirige a la aplicación pero se queda cargando y nunca abre. Realmente engorroso”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Compras de cripto rechazadas o reembolsos que no llegan</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Dinero</span>554 reseñas · 84.7% negativas</p>
+          <p>Transacciones de compra/venta de cripto se rechazan después de debitar el dinero, o quedan en estado de reembolso pendiente por días.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar la consistencia transaccional del flujo de compra/venta y reembolso; es dinero de usuarios en tránsito, alto riesgo reputacional (554 reseñas, 84.7% negativas).</p>
+          <ul class='samples'><li>“Hice una inversión de 50usd coin, al cancelarla por que debo utilizar el dinero la app me informa que se reembolsaran en 72hs, ya ha pasado el tiempo y no he recibido nada, estoy preocupado y no recibo respuesta, espero tener una, gracias.”</li><li>“La verdad que un desastre! Hice una transferencia (se acreditó) para realizar compra de cripto y por alguna razón me la rechazaron y se comieron la plata! Hace semanas estoy haciendo el reclamo y nadie responde! No lo recomiendo para nada.”</li></ul>
+        </article>
+        
       </div>
     </div>
-    <div class="trend-banner trend-flat">Ripio y Bitso califican parecido</div>
-    </section>
 
-  <section>
-    <h2>Detalle completo por tópico</h2>
-    <details class="detail-table">
-      <summary>Ver los 18 tópicos detectados</summary>
-      <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
-          <tbody><tr><td>No puede crear la cuenta</td><td class='num'>29</td><td class='num'>1.17</td><td class='num'>100.0%</td><td>alta</td></tr><tr><td>No puede recuperar la cuenta al cambiar de celular</td><td class='num'>21</td><td class='num'>1.86</td><td class='num'>95.2%</td><td>media</td></tr><tr><td>Verificación facial/selfie no funciona</td><td class='num'>52</td><td class='num'>1.63</td><td class='num'>94.2%</td><td>alta</td></tr><tr><td>La app no abre o el login falla constantemente</td><td class='num'>718</td><td class='num'>1.58</td><td class='num'>94.0%</td><td>alta</td></tr><tr><td>Publicidad agresiva de la propia app</td><td class='num'>47</td><td class='num'>1.15</td><td class='num'>91.5%</td><td>media</td></tr><tr><td>Fricción al forzar actualizaciones</td><td class='num'>42</td><td class='num'>2.0</td><td class='num'>90.5%</td><td>media</td></tr><tr><td>No puede iniciar sesión (variante)</td><td class='num'>46</td><td class='num'>1.35</td><td class='num'>89.1%</td><td>media</td></tr><tr><td>Rechazo total (&#x27;no confío en esta app&#x27;)</td><td class='num'>98</td><td class='num'>1.42</td><td class='num'>86.7%</td><td>media</td></tr><tr><td>App lenta / transacciones lentas</td><td class='num'>24</td><td class='num'>2.04</td><td class='num'>83.3%</td><td>media</td></tr><tr><td>Soporte no resuelve (tickets sin respuesta)</td><td class='num'>49</td><td class='num'>1.1</td><td class='num'>81.6%</td><td>alta</td></tr><tr><td>Reclamos de dinero/transferencias sin respuesta de soporte</td><td class='num'>952</td><td class='num'>1.95</td><td class='num'>78.9%</td><td>alta</td></tr><tr><td>Comisiones percibidas como abusivas</td><td class='num'>99</td><td class='num'>1.84</td><td class='num'>75.8%</td><td>media</td></tr><tr><td>Dinero retenido / reclamos sin solución</td><td class='num'>46</td><td class='num'>2.22</td><td class='num'>69.6%</td><td>media</td></tr><tr><td>Opiniones mixtas sobre el exchange para Argentina</td><td class='num'>46</td><td class='num'>2.57</td><td class='num'>43.5%</td><td>baja</td></tr><tr><td>Demoras de activación de cuenta (con frustración)</td><td class='num'>33</td><td class='num'>2.36</td><td class='num'>42.4%</td><td>media</td></tr><tr><td>Satisfacción general con la app (cuando funciona)</td><td class='num'>821</td><td class='num'>4.47</td><td class='num'>6.7%</td><td>baja</td></tr><tr><td>Satisfacción con la inversión en cripto</td><td class='num'>49</td><td class='num'>4.35</td><td class='num'>4.1%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td class='num'>1393</td><td class='num'>1.65</td><td class='num'>87.6%</td><td>-</td></tr></tbody>
-        </table>
-      </div>
-    </details>
-  </section>
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los 48 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>UI percibida como fea o de mala calidad</td><td>Usabilidad</td><td class='num'>66</td><td class='num'>1.2</td><td class='num'>97.0%</td><td>media</td></tr><tr><td>Error &quot;credenciales no válidas&quot; (cod 200) al ingresar</td><td>Acceso</td><td class='num'>32</td><td class='num'>1.62</td><td class='num'>96.9%</td><td>media</td></tr><tr><td>Recuperación de 2FA vía video no funciona</td><td>Acceso</td><td class='num'>30</td><td class='num'>1.97</td><td class='num'>96.7%</td><td>media</td></tr><tr><td>La app no carga / login se queda colgado</td><td>Acceso</td><td class='num'>516</td><td class='num'>1.67</td><td class='num'>96.5%</td><td>alta</td></tr><tr><td>Código de verificación no llega (variante)</td><td>Acceso</td><td class='num'>27</td><td class='num'>1.33</td><td class='num'>96.3%</td><td>media</td></tr><tr><td>Actualización pedida pero no disponible en Play Store</td><td>Acceso</td><td class='num'>21</td><td class='num'>2.0</td><td class='num'>95.2%</td><td>baja</td></tr><tr><td>Verificación de identidad (foto DNI) falla o cierra la app</td><td>Acceso</td><td class='num'>116</td><td class='num'>1.61</td><td class='num'>94.8%</td><td>alta</td></tr><tr><td>No se puede completar el registro</td><td>Acceso</td><td class='num'>35</td><td class='num'>1.17</td><td class='num'>94.3%</td><td>media</td></tr><tr><td>App lenta en general</td><td>Rendimiento</td><td class='num'>63</td><td class='num'>1.87</td><td class='num'>93.7%</td><td>media</td></tr><tr><td>Publicidad agresiva/engañosa</td><td>Otros</td><td class='num'>216</td><td class='num'>1.2</td><td class='num'>93.5%</td><td>media</td></tr><tr><td>Login roto de forma persistente</td><td>Acceso</td><td class='num'>151</td><td class='num'>1.74</td><td class='num'>93.4%</td><td>alta</td></tr><tr><td>No puede iniciar sesión tras actualizar</td><td>Acceso</td><td class='num'>72</td><td class='num'>1.5</td><td class='num'>93.1%</td><td>media</td></tr><tr><td>No se puede crear la cuenta</td><td>Acceso</td><td class='num'>281</td><td class='num'>1.49</td><td class='num'>92.2%</td><td>alta</td></tr><tr><td>Dinero depositado/transferido que no se acredita</td><td>Dinero</td><td class='num'>707</td><td class='num'>1.43</td><td class='num'>91.5%</td><td>alta</td></tr><tr><td>Mail de confirmación de login no llega</td><td>Acceso</td><td class='num'>151</td><td class='num'>1.56</td><td class='num'>91.4%</td><td>alta</td></tr><tr><td>SMS de verificación no llega</td><td>Acceso</td><td class='num'>209</td><td class='num'>1.78</td><td class='num'>90.9%</td><td>alta</td></tr><tr><td>Actualización rompe el login</td><td>Acceso</td><td class='num'>125</td><td class='num'>1.83</td><td class='num'>90.4%</td><td>media</td></tr><tr><td>Errores genéricos, &quot;no funciona nada&quot;</td><td>Acceso</td><td class='num'>406</td><td class='num'>1.64</td><td class='num'>87.7%</td><td>alta</td></tr><tr><td>Verificación de cuenta demorada</td><td>Acceso</td><td class='num'>282</td><td class='num'>1.55</td><td class='num'>87.2%</td><td>alta</td></tr><tr><td>&quot;Ripio code&quot; (2FA) no llega</td><td>Acceso</td><td class='num'>94</td><td class='num'>1.41</td><td class='num'>87.2%</td><td>alta</td></tr><tr><td>Foto de DNI cierra la app (iPhone)</td><td>Acceso</td><td class='num'>31</td><td class='num'>2.06</td><td class='num'>87.1%</td><td>media</td></tr><tr><td>Tickets de soporte sin resolución</td><td>Soporte</td><td class='num'>85</td><td class='num'>1.11</td><td class='num'>87.1%</td><td>alta</td></tr><tr><td>La app se traba o no abre en ciertos celulares Android</td><td>Rendimiento</td><td class='num'>30</td><td class='num'>1.7</td><td class='num'>86.7%</td><td>media</td></tr><tr><td>Comisiones específicas de compra/venta de Bitcoin</td><td>Costos</td><td class='num'>169</td><td class='num'>1.81</td><td class='num'>85.2%</td><td>media</td></tr><tr><td>Compras de cripto rechazadas o reembolsos que no llegan</td><td>Dinero</td><td class='num'>554</td><td class='num'>1.74</td><td class='num'>84.7%</td><td>alta</td></tr><tr><td>Transferencias tardan mucho en acreditarse</td><td>Dinero</td><td class='num'>125</td><td class='num'>1.71</td><td class='num'>78.4%</td><td>media</td></tr><tr><td>Demoras en transferencias y código SMS tardío</td><td>Dinero</td><td class='num'>64</td><td class='num'>2.42</td><td class='num'>76.6%</td><td>media</td></tr><tr><td>Comisiones percibidas como muy altas</td><td>Costos</td><td class='num'>231</td><td class='num'>1.97</td><td class='num'>75.3%</td><td>media</td></tr><tr><td>Lentitud en depósitos y retiros</td><td>Rendimiento</td><td class='num'>57</td><td class='num'>2.42</td><td class='num'>71.9%</td><td>media</td></tr><tr><td>Reseñas de puntaje (&quot;le doy X estrellas&quot;) sin queja específica</td><td>Otros</td><td class='num'>92</td><td class='num'>2.08</td><td class='num'>59.8%</td><td>baja</td></tr><tr><td>Fricciones operando desde otros países (cambio de divisa, alta en Argentina)</td><td>Costos</td><td class='num'>167</td><td class='num'>2.65</td><td class='num'>49.1%</td><td>media</td></tr><tr><td>Comentarios breves y ambiguos</td><td>Otros</td><td class='num'>127</td><td class='num'>3.3</td><td class='num'>30.7%</td><td>baja</td></tr><tr><td>Agradecimientos por soporte que resolvió un problema</td><td>Soporte</td><td class='num'>68</td><td class='num'>4.13</td><td class='num'>11.8%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot; sin más detalle</td><td>Otros</td><td class='num'>35</td><td class='num'>4.49</td><td class='num'>8.6%</td><td>baja</td></tr><tr><td>Satisfacción con la wallet / tarjeta</td><td>Dinero</td><td class='num'>31</td><td class='num'>4.58</td><td class='num'>6.5%</td><td>baja</td></tr><tr><td>Satisfacción con la compra/gestión de Bitcoin</td><td>Dinero</td><td class='num'>50</td><td class='num'>4.5</td><td class='num'>6.0%</td><td>baja</td></tr><tr><td>Elogios generales a la app</td><td>Otros</td><td class='num'>460</td><td class='num'>4.59</td><td class='num'>5.9%</td><td>baja</td></tr><tr><td>Elogios cortos muy positivos</td><td>Otros</td><td class='num'>22</td><td class='num'>4.77</td><td class='num'>4.5%</td><td>baja</td></tr><tr><td>Satisfacción general con la operatoria de criptos</td><td>Dinero</td><td class='num'>80</td><td class='num'>4.39</td><td class='num'>3.8%</td><td>baja</td></tr><tr><td>Comentarios positivos cortos y genéricos</td><td>Otros</td><td class='num'>109</td><td class='num'>4.42</td><td class='num'>3.7%</td><td>baja</td></tr><tr><td>Elogios al servicio en general</td><td>Soporte</td><td class='num'>30</td><td class='num'>4.53</td><td class='num'>3.3%</td><td>baja</td></tr><tr><td>Experiencia sin problemas al operar</td><td>Otros</td><td class='num'>31</td><td class='num'>4.77</td><td class='num'>3.2%</td><td>baja</td></tr><tr><td>Mejoras percibidas en actualizaciones recientes</td><td>Otros</td><td class='num'>69</td><td class='num'>4.06</td><td class='num'>1.4%</td><td>baja</td></tr><tr><td>App fácil e intuitiva de usar</td><td>Usabilidad</td><td class='num'>245</td><td class='num'>4.83</td><td class='num'>1.2%</td><td>baja</td></tr><tr><td>Satisfacción usando la app para inversión</td><td>Dinero</td><td class='num'>38</td><td class='num'>4.42</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Elogios a la seguridad y confiabilidad</td><td>Seguridad</td><td class='num'>161</td><td class='num'>4.93</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Agradecimientos genéricos</td><td>Otros</td><td class='num'>27</td><td class='num'>4.63</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>5310</td><td class='num'>2.21</td><td class='num'>71.7%</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>

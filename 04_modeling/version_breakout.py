@@ -20,6 +20,14 @@ chicas, una diferencia de puntos porcentuales grande puede no ser
 estadísticamente distinguible de azar, y no se quiere reportar eso como un
 hecho firme.
 
+Solo se evalúan versiones lanzadas en los últimos RECENT_WINDOW_MONTHS: con
+una app de varios años de historia, comparar "las primeras semanas de la
+app" contra "todo lo que vino después" da un delta grande y p-value chico
+por puro desbalance de muestra (n_before chico, n_onward enorme), no porque
+esa versión vieja haya roto algo — es un quiebre de versión espurio, no uno
+real. Limitar a versiones recientes asegura que el hallazgo responda la
+pregunta de negocio real: "¿una versión reciente rompió algo?".
+
 Uso: python 04_modeling/version_breakout.py --name <empresa>
 Genera data/<empresa>/04_modeling/version_breakout.json
 """
@@ -38,6 +46,7 @@ MIN_ONWARD_N = 30       # reseñas desde la versión candidata en adelante, para
 MIN_BEFORE_N = 30       # reseñas previas, para que la base de comparación sea sólida
 MIN_DELTA_PTS = 10      # diferencia mínima en puntos porcentuales para considerarlo un quiebre real
 P_VALUE_MAX = 0.05      # significancia exigida al test de dos proporciones
+RECENT_WINDOW_MONTHS = 18  # solo evaluar versiones lanzadas en esta ventana (ver nota abajo)
 
 
 def two_proportion_test(neg1: int, n1: int, neg2: int, n2: int) -> float:
@@ -61,8 +70,20 @@ def find_breakout(reviews: pd.DataFrame) -> dict | None:
                            first_date=("date", "min"))
                       .sort_values("first_date"))
 
+        max_date = store_df["date"].max()
+        recent_cutoff = max_date - pd.DateOffset(months=RECENT_WINDOW_MONTHS)
+
         versions = list(by_version.index)
         for i, version in enumerate(versions):
+            # Solo versiones lanzadas recientemente: con apps de varios años de
+            # historia, un corte en una versión vieja compara "las primeras
+            # semanas de la app" contra "todo lo que vino después" — un
+            # desbalance de muestra que da "significativo" por volumen, no
+            # porque esa versión puntual haya roto algo (ver nota en README /
+            # caso real documentado en el repo).
+            if by_version.loc[version, "first_date"] < recent_cutoff:
+                continue
+
             before = by_version.iloc[:i]
             onward = by_version.iloc[i:]
             n_before, neg_before = int(before["n"].sum()), int(before["n_neg"].sum())

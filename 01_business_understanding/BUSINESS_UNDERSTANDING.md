@@ -35,6 +35,18 @@ que explicar.
 - **Riesgo principal:** sacar conclusiones de muestras chicas (ej. "se rompió
   en la v5.45.0" con 19 reseñas de esa versión) — ya pasó una vez y no se
   sostuvo con un test de significancia (ver `APRENDIZAJES.md`, 2026-10-21).
+- **Riesgo de defensibilidad del valor:** un análisis de reseñas públicas con
+  sentimiento + tópicos es, hoy, algo que el propio founder podría pedirle a
+  un LLM y tener en pocos minutos — el pipeline en sí no es la parte
+  defendible del trabajo. Lo que no es trivialmente reproducible, y por
+  ende donde está el valor real frente al CEO, es: 1) el control de sesgo de
+  muestreo (comparar rating oficial vs. muestra de texto, en vez de reportar
+  el segundo como si fuera el primero), 2) exigir persistencia +
+  significancia estadística antes de afirmar un quiebre de versión (evita el
+  falso positivo que ya pasó con Ripio), y 3) el entregable pulido y
+  compartible por link, no un volcado de un prompt. Si el análisis no deja
+  esto explícito (metodología visible, no solo el resultado), pierde su
+  argumento de por qué pagar por él en vez de pedírselo a un LLM.
 
 ## 1.3 Determine data mining goals
 

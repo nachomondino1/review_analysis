@@ -13,11 +13,14 @@ Uso:
 
   2) Pedirle a Claude (en esta sesión) que lea ese JSON y escriba
      data/<empresa>/04_modeling/topics_named.json con, por cada "topic" no
-     outlier: name, summary, severity ("alta"/"media"/"baja"), recommendation.
+     outlier: name, summary, severity ("alta"/"media"/"baja"), recommendation,
+     y category (una palabra; agrupa tópicos afines — como guía de cuántos
+     grupos usar, la raíz cuadrada del número de tópicos no-outlier da un
+     número razonable de categorías, ni una por tópico ni una sola para todos).
 
   3) python 04_modeling/topics_enrich.py merge --name <empresa>
      -> vuelca esas columnas a topics_summary.csv (sobrescribe el archivo,
-        agregando name/summary/severity/recommendation).
+        agregando name/summary/severity/recommendation/category).
 """
 import argparse
 import json
@@ -69,11 +72,11 @@ def merge_names(paths: Paths):
     named = {str(t["topic"]): t for t in json.loads(paths.topics_named_json.read_text())}
     summary = pd.read_csv(paths.topics_summary_csv)
 
-    for col in ["name", "summary", "severity", "recommendation"]:
+    for col in ["name", "summary", "severity", "recommendation", "category"]:
         summary[col] = summary["topic"].astype(str).map(lambda t: named.get(t, {}).get(col, ""))
 
-    summary.loc[summary["is_outlier"], ["name", "summary", "severity", "recommendation"]] = (
-        "Sin patrón claro", "Reseñas que no forman un tema reconocible.", "", ""
+    summary.loc[summary["is_outlier"], ["name", "summary", "severity", "recommendation", "category"]] = (
+        "Sin patrón claro", "Reseñas que no forman un tema reconocible.", "", "", ""
     )
 
     summary = summary.sort_values(["is_outlier", "pct_neg"], ascending=[True, False])

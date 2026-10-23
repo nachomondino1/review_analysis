@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Análisis de reseñas — Beelup</title>
+<title>Análisis de reseñas de la app de beelup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -43,7 +43,7 @@ body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
 }
-.container { max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
 @media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
 header.page-head {
   position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
@@ -53,14 +53,38 @@ header.page-head {
 @media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
 header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
-h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
+.part {
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.part:first-child { margin-top: 0; }
+.part--store { border-top: 4px solid var(--accent); }
+.part--text { border-top: 4px solid var(--warn); }
+.part-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}
+.part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
+.part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
+.subsection { margin-top: 32px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }
 .stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
 .stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
+.category-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs); padding: 12px 14px;
+}
+.category-name { font-weight: 700; font-size: 0.9rem; }
+.category-n { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.category-pct { font-size: 0.78rem; font-weight: 700; margin-top: 4px; }
+.cat-bad { color: var(--bad); }
+.cat-warn { color: var(--warn); }
+.cat-good { color: var(--good); }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -79,6 +103,7 @@ h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 
 .sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
 .sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
 .sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.chip-category { background: var(--accent-soft); color: var(--accent); margin-right: 8px; }
 .recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 .recency-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -102,35 +127,72 @@ table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.8
 th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
 td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
-.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 16px; }
+.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
+.composition-fill--text { background: var(--warn); height: 100%; }
+.composition-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}
+.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot--text { background: var(--warn); }
+.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Beelup</h1>
+    <h1>📊 Análisis de reseñas de la app de beelup</h1>
     <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado 2026-10-23</div>
   </div>
 </header>
 <div class="container">
 
-  <section>
-    <h2>Resumen ejecutivo</h2>
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de todas las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial (169 calificaciones)</div></div>
-      <div class="stat-card"><div class="value">74</div><div class="label">Reseñas con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas en la muestra</div></div>
-      <div class="stat-card"><div class="value">2</div><div class="label">Hallazgos a atender</div></div>
+      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
+      <div class="stat-card"><div class="value">169</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
-    <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
-  </section>
+    
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:43.8%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>43.8% con texto — analizadas abajo (74 reseñas)</span>
+        <span><span class="dot dot--notext"></span>56.2% solo estrellas, sin texto</span>
+      </div>
+    </div>
+    
+    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (74 de 169 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
+    
+  </div>
 
-  <section>
-    <h2>Principales hallazgos</h2>
-    <div class="findings-grid">
-      
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 74 reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
+      <div class="stat-card"><div class="value">74</div><div class="label">Reseñas totales con texto analizadas</div></div>
+    </div>
+    <div class="subsection"></div>
+
+    
+
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        
         <article class="finding-card">
           <div class="finding-head">
             <h3>La app es solo un wrapper del sitio web, con errores</h3>
@@ -153,29 +215,67 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
           <ul class='samples'><li>“Al pedo te manda a la pagina y la pagina anda re mal”</li><li>“te envia al link pesimo”</li></ul>
         </article>
         
-    </div>
-  </section>
-
-  
-
-  
-
-  <section>
-    <h2>Detalle completo por tópico</h2>
-    <details class="detail-table">
-      <summary>Ver los 3 tópicos detectados</summary>
-      <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
-          <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
-        </table>
       </div>
-    </details>
-  </section>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los 3 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
