@@ -54,7 +54,35 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     return {"score": round(weighted, 2), "count": total}
 
 
-def build_composition_bar(official: dict | None, total_n: int) -> str:
+IOS_RSS_PAGE_CAP = 500  # itunes.apple.com/.../rss/customerreviews pagina hasta 10 páginas de 50 y no da más
+
+
+def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str:
+    """
+    La RSS pública de reseñas de iOS (ver collect_ios_reviews.py) tiene un
+    techo duro de ~500 reseñas con texto, venga o no venga acompañado de
+    más — a diferencia de Android, donde reviews_all() trae todas las
+    disponibles. Si iOS pegó en ese techo, el "solo estrellas" de la barra
+    de arriba está inflado: una parte de ese resto puede tener texto
+    también, simplemente no lo podemos leer.
+    """
+    if reviews is None or "store" not in reviews.columns or not store_ratings:
+        return ""
+    ios_n = int((reviews["store"] == "ios").sum())
+    ios_official = (store_ratings.get("ios") or {}).get("ratings_count")
+    if not ios_official or ios_n < IOS_RSS_PAGE_CAP * 0.9 or ios_official <= ios_n:
+        return ""
+    ios_official_fmt = f'{ios_official:,}'.replace(",", ".")
+    return (
+        f'<p class="methodology-note">⚠️ La API pública de reseñas de iOS solo deja leer las últimas '
+        f'~{IOS_RSS_PAGE_CAP}, aunque haya más: de las {ios_official_fmt} calificaciones de iOS, este '
+        f'análisis pudo leer el texto de {ios_n}. Una parte del resto puede tener texto también — no '
+        f'figuran acá porque la tienda no las deja leer, no porque no existan. Android no tiene ese '
+        f'límite (se leyeron todas las disponibles).</p>'
+    )
+
+
+def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str = "") -> str:
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
@@ -90,6 +118,7 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
         <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
+      {ios_cap_note}
     </div>
     '''
 
@@ -718,7 +747,8 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
-    composition_html = build_composition_bar(official, stats["total_n"])
+    ios_cap_note = build_ios_cap_note(reviews, store_ratings)
+    composition_html = build_composition_bar(official, stats["total_n"], ios_cap_note)
     categories_section = render_categories_html(build_categories(summary), build_category_topics(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
