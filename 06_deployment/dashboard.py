@@ -532,7 +532,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-eyebrow">Basado en reseñas de Google Play y App Store</div>
+    <div class="goal-eyebrow">Análisis de reseñas de la app de {empresa} en Google Play y App Store</div>
     <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
     <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
   </div>
