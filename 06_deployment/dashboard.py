@@ -200,25 +200,53 @@ def build_categories(summary: pd.DataFrame) -> list[dict]:
     return grouped.sort_values("pct_neg", ascending=False).to_dict("records")
 
 
+def pct_to_color(pct_neg: float) -> str:
+    """Interpola verde (0% negativas) -> ámbar (50%) -> rojo (100%) en RGB."""
+    stops = [(0, (22, 163, 74)), (50, (217, 119, 6)), (100, (220, 38, 38))]
+    pct_neg = max(0.0, min(100.0, pct_neg))
+    (p0, c0), (p1, c1) = (stops[0], stops[1]) if pct_neg <= 50 else (stops[1], stops[2])
+    t = (pct_neg - p0) / (p1 - p0) if p1 != p0 else 0
+    r, g, b = (round(c0[i] + (c1[i] - c0[i]) * t) for i in range(3))
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+
+BUBBLE_MIN_PX, BUBBLE_MAX_PX = 56, 160
+
+
 def render_categories_html(categories: list[dict]) -> str:
     if not categories:
         return ""
-    cards = []
-    for c in categories:
-        if c["pct_neg"] >= 60:
-            pct_class = "cat-bad"
-        elif c["pct_neg"] >= 30:
-            pct_class = "cat-warn"
-        else:
-            pct_class = "cat-good"
-        cards.append(f'''
-        <div class="category-card">
-          <div class="category-name">{esc(c["category"])}</div>
-          <div class="category-n">{c["n"]} reseñas</div>
-          <div class="category-pct {pct_class}">{c["pct_neg"]}% negativas</div>
+    max_n = max(c["n"] for c in categories)
+    bubbles = []
+    for c in sorted(categories, key=lambda c: c["n"], reverse=True):
+        scale = (c["n"] / max_n) ** 0.5 if max_n else 0  # área ~ n, no diámetro ~ n
+        size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
+        color = pct_to_color(c["pct_neg"])
+        font_size = max(11, min(15, round(size / 7)))
+        bubbles.append(f'''
+        <div class="bubble-item">
+          <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
+               title="{esc(c["category"])}: {c["n"]} reseñas, {c["pct_neg"]}% negativas">
+            {c["pct_neg"]}%
+          </div>
+          <div class="bubble-name">{esc(c["category"])}</div>
+          <div class="bubble-n">{c["n"]} reseñas</div>
         </div>
         ''')
-    return f'<div class="subsection"><h3>Por categoría</h3><div class="category-grid">{"".join(cards)}</div></div>'
+    legend = f'''
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Más negativas
+      </span>
+    </div>
+    '''
+    return (
+        f'<div class="subsection"><h3>Por categoría</h3>'
+        f'{legend}'
+        f'<div class="bubble-chart">{"".join(bubbles)}</div></div>'
+    )
 
 
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
@@ -438,17 +466,23 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
-.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }}
-.category-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs); padding: 12px 14px;
+.bubble-legend {{
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
 }}
-.category-name {{ font-weight: 700; font-size: 0.9rem; }}
-.category-n {{ color: var(--muted); font-size: 0.78rem; margin-top: 2px; }}
-.category-pct {{ font-size: 0.78rem; font-weight: 700; margin-top: 4px; }}
-.cat-bad {{ color: var(--bad); }}
-.cat-warn {{ color: var(--warn); }}
-.cat-good {{ color: var(--good); }}
+.bubble-legend-scale {{ display: flex; align-items: center; gap: 6px; }}
+.bubble-legend-dot {{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; }}
+.bubble-legend-dot + .bubble-legend-dot {{ margin-left: 10px; }}
+.bubble-chart {{
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-start;
+  gap: 20px 16px; padding: 8px 0 4px;
+}}
+.bubble-item {{ display: flex; flex-direction: column; align-items: center; width: 110px; }}
+.bubble {{
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+}}
+.bubble-name {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
+.bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
