@@ -355,7 +355,8 @@ TEMPLATE = """<!doctype html>
   --accent: #2f6f62;
   --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-contrast: #ffffff;
-  --good: #16a34a; --warn: #d97706; --bad: #dc2626;
+  --good: #16a34a; --warn: #d97706; --bad: #dc2626; --info: #3f5c8a;
+  --goal-bg: var(--accent);
   --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
   --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
   --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
@@ -366,7 +367,7 @@ TEMPLATE = """<!doctype html>
     --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
     --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
     --border: #2a3342; --border-soft: #212836;
-    --accent: #4f9686;
+    --accent: #4f9686; --info: #5ac8fa; --goal-bg: #2f6f62;
     --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
     --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
     --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
@@ -389,13 +390,22 @@ header.page-head {{
 header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
 header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
 h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
+.goal-banner {{
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
+  padding: 22px 26px; margin-top: 0;
+}}
+.goal-question {{ font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }}
+.goal-sub {{ font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }}
 .part {{
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 60%, transparent);
 }}
 .part:first-child {{ margin-top: 0; }}
-.part--store {{ border-top: 4px solid var(--accent); }}
+.part--store {{ border-top: 4px solid var(--info); }}
 .part--text {{ border-top: 4px solid var(--warn); }}
+.part-title .kw {{ font-weight: 800; }}
+.part--store .kw {{ color: var(--info); }}
+.part--text .kw {{ color: var(--warn); }}
 .part-eyebrow {{
   font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
 }}
@@ -485,14 +495,19 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <header class="page-head">
   <div>
     <h1>📊 Análisis de reseñas de la app de {empresa}</h1>
-    <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado {fecha}</div>
+    <div class="sub">Generado {fecha}</div>
   </div>
 </header>
 <div class="container">
 
+  <div class="goal-banner">
+    <div class="goal-question">¿Qué podemos mejorar a continuación, según el feedback de los usuarios?</div>
+    <p class="goal-sub">Eso responde este informe: primero el panorama general (rating oficial), después qué comentan los usuarios con sus propias palabras, priorizado por impacto.</p>
+  </div>
+
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
-    <h2 class="part-title">Resumen de todas las reseñas</h2>
+    <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
     <div class="stats-grid">
       <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
       <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
@@ -504,7 +519,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 
   <div class="part part--text">
     <div class="part-eyebrow">Parte 2</div>
-    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
       <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
