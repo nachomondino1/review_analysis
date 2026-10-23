@@ -74,7 +74,7 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
 
     return f'''
     <div class="composition">
-      <p class="composition-intro">De las {total_official_fmt} reseñas, algunas tienen texto y otras no:</p>
+      <p class="composition-intro">De las <strong>{total_official_fmt} reseñas</strong>, algunas tienen texto y otras no:</p>
       <div class="composition-stats">
         <div class="comp-stat comp-stat--text">
           <div class="comp-pct">{pct_text}%</div>
