@@ -13,7 +13,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 
    Las dos primeras deduplican contra lo ya guardado. Los ids de App Store/Google Play se guardan en `common/companies.csv`: una empresa que ya se corrió antes no necesita pasarlos de nuevo, y una empresa sin presencia en una de las dos tiendas (ej. solo Android) funciona sin problema sin correr el script de la tienda que le falta.
 2. **Descripción de datos** (`01_data_understanding/describe_data.py`): documenta formato, tamaño, variables y disponibilidad de cada fuente por separado (una `<fuente>_description.md` por fuente, ya que cada una tiene su propio esquema/grano) — tarea de "Data Description" de CRISP-DM, no transforma nada.
-3. **Integración** (`02_data_preparation/integrate_data.py`): junta las fuentes de reseñas con texto (ios_reviews + android_reviews) en un solo dataset por empresa (`integrated_<empresa>.parquet`), con una columna `fuente` que identifica de dónde vino cada fila. `store_ratings` queda afuera a propósito: es una fila por tienda (rating agregado), una unidad de análisis distinta a una fila por reseña — se consume directo desde su propio JSON, sin integrar.
+3. **Integración** (`02_data_preparation/integrate_data.py`): junta las fuentes de reseñas con texto (ios_reviews + android_reviews) en un solo dataset por empresa (`integrated_<empresa>.parquet`); la columna `store` que ambas ya traen identifica el origen de cada fila, sin agregar una columna redundante. `store_ratings` queda afuera a propósito: es una fila por tienda (rating agregado), una unidad de análisis distinta a una fila por reseña — se consume directo desde su propio JSON, sin integrar.
 4. **Limpieza** (`02_data_preparation/clean_reviews.py`): sobre el dataset integrado, filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 5. **Análisis** (`03_modeling/model.py`):
    - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
@@ -41,7 +41,7 @@ common/
     collect_store_ratings.py    # fuente 3: rating oficial agregado por tienda
   describe_data.py            # describe cada fuente por separado, en un .md unificado
 02_data_preparation/
-  integrate_data.py   # integra ios_reviews + android_reviews (NO store_ratings) en un dataset, con columna "fuente"
+  integrate_data.py   # integra ios_reviews + android_reviews (NO store_ratings) en un dataset; "store" ya identifica el origen
   clean_reviews.py    # filtra reseñas sin señal real, sobre el dataset integrado
 03_modeling/
   model.py             # sentimiento + topic modeling + resumen
@@ -62,7 +62,7 @@ data/
       store_ratings_<empresa>.json       # fuente 3: rating oficial agregado por tienda (score + cantidad de calificaciones)
       <fuente>_description.{md,json}     # describe_data.py, una por fuente
     02_data_preparation/
-      integrated_<empresa>.parquet  # ios_reviews + android_reviews integradas, con columna "fuente" (store_ratings no entra)
+      integrated_<empresa>.parquet  # ios_reviews + android_reviews integradas, identificadas por "store" (store_ratings no entra)
       reviews_clean.parquet         # reseñas filtradas, insumo del modelado
     03_modeling/
       reviews_enriched.parquet  # reseñas + sentimiento + tópico

@@ -1,7 +1,8 @@
 """
 Integra las fuentes de reseñas con texto de 01_data_understanding
-(ios_reviews, android_reviews) en un único dataset, con una columna "fuente"
-que identifica de dónde vino cada fila.
+(ios_reviews, android_reviews) en un único dataset. No agrega una columna
+identificadora de fuente propia: la columna "store" (ios/android), que ya
+viene en ambos archivos, identifica el origen de cada fila sin duplicarla.
 
 store_ratings queda afuera a propósito: es una fila por tienda con el rating
 oficial agregado sobre TODAS las calificaciones, una unidad de análisis
@@ -23,18 +24,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 
-def load_reviews_source(path: Path, fuente: str) -> pd.DataFrame:
+def load_reviews_source(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
-    df = pd.read_parquet(path)
-    df["fuente"] = fuente
-    return df
+    return pd.read_parquet(path)
 
 
 def integrate(paths: Paths) -> pd.DataFrame:
     parts = [
-        load_reviews_source(paths.ios_reviews, "ios_reviews"),
-        load_reviews_source(paths.android_reviews, "android_reviews"),
+        load_reviews_source(paths.ios_reviews),
+        load_reviews_source(paths.android_reviews),
     ]
     parts = [p for p in parts if not p.empty]
     if not parts:
@@ -58,5 +57,5 @@ if __name__ == "__main__":
     df = integrate(paths)
     df.to_parquet(paths.integrated)
 
-    print(df.groupby("fuente").size())
+    print(df.groupby("store").size())
     print(f"{len(df)} filas integradas -> {paths.integrated.resolve()}")
