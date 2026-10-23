@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas de la app de Balanz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #fafaf8;
+  --bg-subtle: #f2f1ed;
+  --surface: #ffffff;
+  --text: #1a1a17;
+  --muted: #6f6d67;
+  --muted-soft: #a19e96;
+  --border: #e4e2dc;
+  --border-soft: #ecebe6;
+  --accent: #2f6f62;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-contrast: #ffffff;
+  --good: #16a34a; --warn: #d97706; --bad: #dc2626; --info: #3f5c8a;
+  --goal-bg: var(--accent);
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
+  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
+    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
+    --border: #2a3342; --border-soft: #212836;
+    --accent: #4f9686; --info: #5ac8fa; --goal-bg: #2f6f62;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
+    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
+@media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
+header.page-head {
+  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
+  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+}
+@media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
+header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
+.goal-banner {
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
+  padding: 22px 26px; margin-top: 0;
+}
+.goal-eyebrow {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) { .goal-eyebrow { font-size: 1.25rem; } }
+.goal-question { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }
+.goal-sub { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
+.part {
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.part:first-child { margin-top: 0; }
+.part--store { border-top: 4px solid var(--info); }
+.part--text { border-top: 4px solid var(--warn); }
+.part-title .kw { font-weight: 800; }
+.part--store .kw { color: var(--info); }
+.part--text .kw { color: var(--warn); }
+.part-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}
+.part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
+.part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
+.subsection { margin-top: 32px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
+}
+.stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.bubble-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
+}
+.bubble-legend-scale { display: flex; align-items: center; gap: 6px; }
+.bubble-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.bubble-legend-dot + .bubble-legend-dot { margin-left: 10px; }
+.bubble-chart {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+  gap: 20px 16px; padding: 8px 0 4px;
+}
+.bubble-item { display: flex; flex-direction: column; align-items: center; }
+.bubble-slot { display: flex; align-items: flex-end; justify-content: center; }
+.bubble {
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
+.bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
+.cat-explain { margin-top: 20px; font-size: 0.85rem; }
+.cat-explain summary {
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}
+.cat-explain summary:hover { color: var(--text); }
+.cat-explain dl { margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-explain-item dt { font-weight: 700; font-size: 0.82rem; }
+.cat-explain-item dd { margin: 2px 0 0; color: var(--muted); line-height: 1.5; }
+.findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+.finding-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px;
+}
+.finding-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.finding-head h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+.finding-meta { color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }
+.recommendation { background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+.samples { list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }
+.samples li { padding: 6px 0; border-top: 1px dashed var(--border-soft); }
+.chip {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
+.sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.chip-category { background: var(--accent-soft); color: var(--accent); margin-right: 8px; }
+.recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+.recency-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
+}
+.recency-label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.recency-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+.recency-sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+.recency-arrow { color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }
+.trend-banner {
+  margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 0.85rem; white-space: normal; max-width: 100%;
+}
+.trend-good { background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }
+.trend-bad { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.trend-flat { background: var(--bg-subtle); color: var(--muted); }
+details.detail-table { margin-top: 8px; }
+details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.table-scroll { overflow-x: auto; margin-top: 8px; }
+table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }
+th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
+td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 20px; }
+.composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.comp-stat { flex: 1 1 160px; }
+.comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.comp-stat--text .comp-pct { color: var(--warn); }
+.comp-stat--notext .comp-pct { color: var(--muted-soft); }
+.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.composition-bar {
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
+}
+.composition-fill { height: 100%; }
+.composition-fill--text { background: var(--warn); }
+.composition-fill--notext { background: var(--border-soft); }
+.composition-callout {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}
+</style>
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>📊 Análisis de reseñas de Balanz</h1>
+    <div class="sub">Generado 2026-10-23</div>
+  </div>
+</header>
+<div class="container">
+
+  <div class="goal-banner">
+    <div class="goal-eyebrow">Análisis de reseñas de la app de Balanz en Google Play y App Store</div>
+    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
+  </div>
+
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">31.046</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">4.72★</div><div class="label">Rating oficial de las tiendas (31.046 calificaciones)</div></div>
+    </div>
+    
+    <div class="composition">
+      <p class="composition-intro">De las <strong>31.046 reseñas</strong>, algunas tienen texto y otras no:</p>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">25.0%</div>
+          <div class="comp-label">📝 Con texto (7.753 reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">75.0%</div>
+          <div class="comp-label">⭐ Solo estrellas (23.293 reseñas)</div>
+        </div>
+      </div>
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:25.0%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:75.0%"></div>
+      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 25.0% que tiene texto</strong> (7.753 reseñas) — es la única porción que se puede leer.</p>
+    </div>
+    
+    
+  </div>
+
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 7.753 reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">7.753</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">13.8%</div><div class="label">Negativas sobre 7.753 reseñas con texto</div></div>
+    </div>
+    <div class="subsection"><h3>¿Cómo vienen últimamente?</h3><div class="trend-banner trend-bad">Desde la versión 2.26.0 de App Store (lanzada ~2025-03-10) en adelante, el % de negativas pasó de 42.5% a 73.3% (+30.8 puntos porcentuales) y se sostiene en esa versión y las siguientes (30 reseñas, contra 275 previas) — diferencia estadísticamente significativa (p = 0.0013).</div></div>
+
+    <div class="subsection"><h3>Por categoría</h3>
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+      </span>
+    </div>
+    <div class="bubble-chart">
+        <div class="bubble-item" style="width:160px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:160px;height:160px;background:#24a045;font-size:14px;"
+                 title="General: 2714 reseñas, 4% negativas">
+              General
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#24a045;">4% negativas</div>
+          <div class="bubble-n">2714 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:122px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:122px;height:122px;background:#24a045;font-size:14px;"
+                 title="Interfaz: 1089 reseñas, 4% negativas">
+              Interfaz
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#24a045;">4% negativas</div>
+          <div class="bubble-n">1089 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:106px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:106px;height:106px;background:#1ba248;font-size:13px;"
+                 title="Soporte: 627 reseñas, 1% negativas">
+              Soporte
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#1ba248;">1% negativas</div>
+          <div class="bubble-n">627 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:96px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:96px;height:96px;background:#db401c;font-size:12px;"
+                 title="Acceso: 404 reseñas, 84% negativas">
+              Acceso
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#db401c;">84% negativas</div>
+          <div class="bubble-n">404 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:90px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:82px;height:82px;background:#24a045;font-size:10px;"
+                 title="Pagos: 169 reseñas, 4% negativas">
+              Pagos
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#24a045;">4% negativas</div>
+          <div class="bubble-n">169 reseñas</div>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Elogios generales a la app de inversión · Elogios como mejor broker · Buena experiencia general · Recomendación general de Balanz · Elogios a la confiabilidad y atención · Satisfacción como herramienta de inversión · Confirmaciones de que no tuvieron problemas</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>Elogios a la facilidad de uso · Elogios a la interfaz intuitiva · Elogios a actualizaciones recientes · Curva de aprendizaje para usuarios nuevos</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Elogios al servicio en general · Elogios al asesoramiento personalizado</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>Verificación de identidad (foto DNI/selfie) falla técnicamente · La app se cierra o no reconoce el DNI al validar · Alta de cuenta demorada y asesor sin respuesta</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Elogios a la velocidad de la operatoria</dd></div></dl></details></div>
+
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Alta de cuenta demorada y asesor sin respuesta</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>231 reseñas · 81.0% negativas</p>
+          <p>La apertura de cuenta tarda semanas sin avance, y cuando hay un problema (transferencia que no se refleja), el asesor asignado no responde por ningún canal.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el SLA de alta de cuenta y garantizar un canal de soporte alternativo cuando el asesor asignado no responde (231 reseñas, 81% negativas) — el modelo de &quot;un asesor dedicado&quot; falla si ese asesor es el único punto de contacto.</p>
+          <ul class='samples'><li>“Hace más de 15 días que mandé todo para dar de alta la cuenta y sigo esperando.”</li><li>“Buen día . Soy una persona que no conoce de finanzas y necesito un asesoramiento frecuente. Mi asesor es muy amable pero muy escueto en sus explicaciones, solo puedo comunicarme por mail, ya que el teléfono que figura en sus datos es inexistente. Ahora quiero transferir dólares a mi  CA dólares de mi banco y es imposible. Trate de comunicarme con él pero en vano
+
+Destacó la excelente te disposición de Iñaki para ayudarme en estas cuestiones financieras tan complicadas . Ya tengo su teléfono y WA .”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Verificación de identidad (foto DNI/selfie) falla técnicamente</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>82 reseñas · 96.3% negativas</p>
+          <p>La captura de foto del DNI o la selfie de verificación falla repetidamente con errores de conexión al servidor, obligando a reintentar muchas veces.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar la estabilidad técnica del flujo de verificación biométrica (82 reseñas, 96% negativas, la más negativa de la app) — bloquea completar el alta de cuenta.</p>
+          <ul class='samples'><li>“Falla al tomar la selfie en iPhone 6s”</li><li>“Ayudenme o arreglen el tema de la foto del dni, dice qué hay un problema para establecer conexión con el servidor.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>La app se cierra o no reconoce el DNI al validar</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>91 reseñas · 81.3% negativas</p>
+          <p>Fallas técnicas genéricas al informar depósitos o validar identidad, con la app cerrándose sola y sin forma de contactar al agente designado.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Mismo frente que el tópico 11 (verificación de identidad) — revisar estabilidad de la app en esos flujos (91 reseñas, 81% negativas).</p>
+          <ul class='samples'><li>“Se cierra la App al querer informar un depósito”</li><li>“Me tira error siempre cuando me tengo q sacar una selfi! Ya receiete el teléfono y la app y no funciona!”</li></ul>
+        </article>
+        
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los 18 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>Verificación de identidad (foto DNI/selfie) falla técnicamente</td><td>Acceso</td><td class='num'>82</td><td class='num'>1.57</td><td class='num'>96.3%</td><td>alta</td></tr><tr><td>La app se cierra o no reconoce el DNI al validar</td><td>Acceso</td><td class='num'>91</td><td class='num'>2.33</td><td class='num'>81.3%</td><td>alta</td></tr><tr><td>Alta de cuenta demorada y asesor sin respuesta</td><td>Acceso</td><td class='num'>231</td><td class='num'>2.0</td><td class='num'>81.0%</td><td>alta</td></tr><tr><td>Elogios generales a la app de inversión</td><td>General</td><td class='num'>1451</td><td class='num'>4.67</td><td class='num'>5.5%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>818</td><td class='num'>4.87</td><td class='num'>3.9%</td><td>baja</td></tr><tr><td>Elogios a la velocidad de la operatoria</td><td>Pagos</td><td class='num'>169</td><td class='num'>4.85</td><td class='num'>3.6%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>93</td><td class='num'>4.89</td><td class='num'>3.2%</td><td>baja</td></tr><tr><td>Elogios a la interfaz intuitiva</td><td>Interfaz</td><td class='num'>137</td><td class='num'>4.75</td><td class='num'>2.9%</td><td>baja</td></tr><tr><td>Buena experiencia general</td><td>General</td><td class='num'>73</td><td class='num'>4.85</td><td class='num'>2.7%</td><td>baja</td></tr><tr><td>Elogios a actualizaciones recientes</td><td>Interfaz</td><td class='num'>84</td><td class='num'>4.57</td><td class='num'>2.4%</td><td>baja</td></tr><tr><td>Elogios al servicio en general</td><td>Soporte</td><td class='num'>44</td><td class='num'>4.89</td><td class='num'>2.3%</td><td>baja</td></tr><tr><td>Recomendación general de Balanz</td><td>General</td><td class='num'>50</td><td class='num'>4.72</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>Curva de aprendizaje para usuarios nuevos</td><td>Interfaz</td><td class='num'>50</td><td class='num'>4.46</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>Elogios al asesoramiento personalizado</td><td>Soporte</td><td class='num'>583</td><td class='num'>4.86</td><td class='num'>1.4%</td><td>baja</td></tr><tr><td>Elogios a la confiabilidad y atención</td><td>General</td><td class='num'>738</td><td class='num'>4.86</td><td class='num'>1.2%</td><td>baja</td></tr><tr><td>Satisfacción como herramienta de inversión</td><td>General</td><td class='num'>266</td><td class='num'>4.89</td><td class='num'>0.4%</td><td>baja</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>43</td><td class='num'>4.81</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2750</td><td class='num'>4.12</td><td class='num'>21.0%</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
+
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

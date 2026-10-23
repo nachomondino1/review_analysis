@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="es">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas de la app de Belo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #fafaf8;
+  --bg-subtle: #f2f1ed;
+  --surface: #ffffff;
+  --text: #1a1a17;
+  --muted: #6f6d67;
+  --muted-soft: #a19e96;
+  --border: #e4e2dc;
+  --border-soft: #ecebe6;
+  --accent: #2f6f62;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-contrast: #ffffff;
+  --good: #16a34a; --warn: #d97706; --bad: #dc2626; --info: #3f5c8a;
+  --goal-bg: var(--accent);
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
+  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
+  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
+    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
+    --border: #2a3342; --border-soft: #212836;
+    --accent: #4f9686; --info: #5ac8fa; --goal-bg: #2f6f62;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
+    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
+@media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
+header.page-head {
+  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
+  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+}
+@media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
+header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
+.goal-banner {
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
+  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
+}
+.goal-badge {
+  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
+}
+.goal-main { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.goal-left { flex: 1 1 320px; }
+.goal-eyebrow {
+  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
+}
+.goal-question {
+  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
+}
+@media (max-width: 640px) { .goal-question { font-size: 1.3rem; } }
+.goal-hero {
+  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
+  padding: 14px 24px; text-align: center; min-width: 150px;
+}
+.goal-hero-value { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.goal-hero-label { font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }
+.goal-steps {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
+}
+.goal-step {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
+  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
+}
+.goal-step-icon { font-size: 0.9rem; }
+.goal-step-arrow { opacity: 0.55; font-weight: 700; }
+.goal-urgent {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; padding: 14px 16px;
+  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.goal-urgent-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+.goal-urgent-label {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
+}
+.goal-urgent-name { font-weight: 700; font-size: 0.92rem; margin-top: 2px; }
+.goal-urgent-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.part {
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.part:first-child { margin-top: 0; }
+.part--store { border-top: 4px solid var(--info); }
+.part--text { border-top: 4px solid var(--warn); }
+.part-title .kw { font-weight: 800; }
+.part--store .kw { color: var(--info); }
+.part--text .kw { color: var(--warn); }
+.part-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}
+.part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
+.part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
+.subsection { margin-top: 32px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
+}
+.stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.bubble-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
+}
+.bubble-legend-scale { display: flex; align-items: center; gap: 6px; }
+.bubble-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.bubble-legend-dot + .bubble-legend-dot { margin-left: 10px; }
+.bubble-chart {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+  gap: 20px 16px; padding: 8px 0 4px;
+}
+.bubble-item { display: flex; flex-direction: column; align-items: center; }
+.bubble-slot { display: flex; align-items: flex-end; justify-content: center; }
+.bubble {
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
+.bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
+.cat-explain { margin-top: 20px; font-size: 0.85rem; }
+.cat-explain summary {
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}
+.cat-explain summary:hover { color: var(--text); }
+.cat-explain dl { margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-explain-item dt { font-weight: 700; font-size: 0.82rem; }
+.cat-explain-item dd { margin: 2px 0 0; color: var(--muted); line-height: 1.5; }
+.findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+.finding-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px;
+}
+.finding-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.finding-head h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+.finding-meta { color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }
+.recommendation { background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+.samples { list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }
+.samples li { padding: 6px 0; border-top: 1px dashed var(--border-soft); }
+.chip {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
+.sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.chip-category { background: var(--accent-soft); color: var(--accent); margin-right: 8px; }
+.recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+.recency-card {
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
+}
+.recency-label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.recency-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+.recency-sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+.recency-arrow { color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }
+.trend-banner {
+  margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 0.85rem; white-space: normal; max-width: 100%;
+}
+.trend-good { background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }
+.trend-bad { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
+.trend-flat { background: var(--bg-subtle); color: var(--muted); }
+details.detail-table { margin-top: 8px; }
+details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.table-scroll { overflow-x: auto; margin-top: 8px; }
+table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }
+th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
+td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+.methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 20px; }
+.composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.comp-stat { flex: 1 1 160px; }
+.comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.comp-stat--text .comp-pct { color: var(--warn); }
+.comp-stat--notext .comp-pct { color: var(--muted-soft); }
+.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.composition-bar {
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
+}
+.composition-fill { height: 100%; }
+.composition-fill--text { background: var(--warn); }
+.composition-fill--notext { background: var(--border-soft); }
+.composition-callout {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}
+</style>
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>📊 Análisis de reseñas de Belo</h1>
+    <div class="sub">Generado 2026-10-23</div>
+  </div>
+</header>
+<div class="container">
+
+  <div class="goal-banner">
+    <div class="goal-badge">📊 Informe ejecutivo · 2026-10-23</div>
+    <div class="goal-main">
+      <div class="goal-left">
+        <div class="goal-eyebrow">Belo en Google Play y App Store</div>
+        <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+      </div>
+      <div class="goal-hero">
+        <div class="goal-hero-value">4.66★</div>
+        <div class="goal-hero-label">Rating oficial<br>(95.044 calificaciones)</div>
+      </div>
+    </div>
+    <div class="goal-steps">
+      <div class="goal-step"><span class="goal-step-icon">⭐</span>Panorama general</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">💬</span>Qué dicen, con sus palabras</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🎯</span>Qué atacar primero</div>
+    </div>
+    
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">🚨</span>
+          <div>
+            <div class="goal-urgent-label">Lo más urgente</div>
+            <div class="goal-urgent-name">Bugs genéricos y soporte que no responde</div>
+            <div class="goal-urgent-meta">465 reseñas · 95.9% negativas</div>
+          </div>
+        </div>
+        
+  </div>
+
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">95.044</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">4.66★</div><div class="label">Rating oficial de las tiendas (95.044 calificaciones)</div></div>
+    </div>
+    
+    <div class="composition">
+      <p class="composition-intro">De las <strong>95.044 reseñas</strong>, algunas tienen texto y otras no:</p>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">7.3%</div>
+          <div class="comp-label">📝 Con texto (6.930 reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">92.7%</div>
+          <div class="comp-label">⭐ Solo estrellas (88.114 reseñas)</div>
+        </div>
+      </div>
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:7.3%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:92.7%"></div>
+      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 7.3% que tiene texto</strong> (6.930 reseñas) — es la única porción que se puede leer.</p>
+      <p class="methodology-note">⚠️ La API pública de reseñas de iOS solo deja leer las últimas ~500, aunque haya más: de las 33.556 calificaciones de iOS, este análisis pudo leer el texto de 476. Una parte del resto puede tener texto también — no figuran acá porque la tienda no las deja leer, no porque no existan. Android no tiene ese límite (se leyeron todas las disponibles).</p>
+    </div>
+    
+    
+  </div>
+
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 6.930 reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">6.930</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">56.5%</div><div class="label">Negativas sobre 6.930 reseñas con texto</div></div>
+    </div>
+    <div class="subsection"><h3>¿Cómo vienen últimamente?</h3><div class="trend-banner trend-bad">Desde la versión 7.2.0 de Google Play (lanzada ~2025-08-21) en adelante, el % de negativas pasó de 50.9% a 62.4% (+11.5 puntos porcentuales) y se sostiene en esa versión y las siguientes (752 reseñas, contra 4940 previas) — diferencia estadísticamente significativa (p = 0.0).</div></div>
+
+    <div class="subsection"><h3>Por categoría</h3>
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+      </span>
+    </div>
+    <div class="bubble-chart">
+        <div class="bubble-item" style="width:160px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:160px;height:160px;background:#9a851c;font-size:14px;"
+                 title="General: 1676 reseñas, 34% negativas">
+              General
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#9a851c;">34% negativas</div>
+          <div class="bubble-n">1676 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:140px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:140px;height:140px;background:#d96f09;font-size:14px;"
+                 title="Pagos: 1098 reseñas, 55% negativas">
+              Pagos
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#d96f09;">55% negativas</div>
+          <div class="bubble-n">1098 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:129px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:129px;height:129px;background:#db3421;font-size:14px;"
+                 title="Acceso: 824 reseñas, 92% negativas">
+              Acceso
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#db3421;">92% negativas</div>
+          <div class="bubble-n">824 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:117px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:117px;height:117px;background:#98861d;font-size:14px;"
+                 title="Interfaz: 577 reseñas, 33% negativas">
+              Interfaz
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#98861d;">33% negativas</div>
+          <div class="bubble-n">577 reseñas</div>
+        </div>
+        
+        <div class="bubble-item" style="width:90px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:84px;height:84px;background:#848a24;font-size:10px;"
+                 title="Ruido: 120 reseñas, 28% negativas">
+              Ruido
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#848a24;">28% negativas</div>
+          <div class="bubble-n">120 reseñas</div>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Bugs genéricos y soporte que no responde · Quejas de confiabilidad general: deja de funcionar sin aviso · Reclamos genéricos enfáticos (bloqueos, lentitud, promesas incumplidas) · Satisfacción general con la billetera digital · Elogios generales a la app · &quot;Funciona bien&quot; / conformidad general sin detalle · Agradecimientos y recomendaciones genéricas · Primeras impresiones, aún evaluando · Primera operación exitosa (depósito, transferencia)</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Transferencias que tardan mucho o se pierden · Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte · Problemas para obtener o vincular la tarjeta (física/virtual) · Operar con pesos argentinos (error al ingresar / conversión para pagar afuera) · Compras en Steam: valoradas cuando funcionan, quejas si se discontinúan · Comprar/vender cripto fácil, con pedidos de más staking · Elogios por pagar en Brasil con Pix usando pesos argentinos</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>El mail de verificación entra en loop y no permite ingresar · Verificación de identidad demorada (extranjeros) · Verificación de identidad (foto/video) demorada o sin aprobar · Verificación manual de cuenta demora semanas · Verificación o bloqueo de cuenta deja sin acceso al dinero viajando en Brasil · No puede registrarse o se desloguea constantemente</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>Incompatibilidad con ciertos modelos Android · Quejas por actualizaciones muy frecuentes · La app no instala o descarga correctamente · Elogios a la rapidez y practicidad · Elogios a la facilidad de uso</dd></div><div class="cat-explain-item"><dt>Ruido</dt><dd>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;) · Comentarios breves y dispersos sin un tema único</dd></div></dl></details></div>
+
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Bugs genéricos y soporte que no responde</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">General</span>465 reseñas · 95.9% negativas</p>
+          <p>Fallas técnicas variadas (secciones que no cargan, monedas que desaparecen de la lista) combinadas con soporte que no contesta ni por la app ni por mail.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Volumen alto y poco específico (465 reseñas, 95.9% negativas) — cruzar con los tópicos más concretos (registro, dinero, verificación) antes de priorizar una acción puntual; el patrón de soporte sin respuesta se repite en casi todos los tópicos negativos.</p>
+          <ul class='samples'><li>“Abro la app y no está en el listado mi moneda. No puedo ver el detalle. Algo está fallando porque están todas. Es intermitente. Hace años que la tengo y nunca pasó. Por favor arreglen ésto. THETHER USD.”</li><li>“Ni el soporte de la app ni el mail responden.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>No puede registrarse o se desloguea constantemente</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>361 reseñas · 90.0% negativas</p>
+          <p>El registro queda trabado al cargar la dirección con un error poco descriptivo, y usuarios ya registrados deben volver a iniciar sesión todo el tiempo sin poder recuperar el PIN.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de alta de cuenta y la persistencia de sesión (361 reseñas, 90% negativas) — afecta tanto la entrada de usuarios nuevos como la retención de los que ya están.</p>
+          <ul class='samples'><li>“Arreglen eso porque es infumable tener que iniciar sesion todo el tiempo”</li><li>“No recuerdo el PIN!!! Qué complicado restablecerlo!!! Necesito AYUDA 🤬”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Pagos</span>357 reseñas · 86.0% negativas</p>
+          <p>Cuentas bloqueadas por compliance con dinero adentro tras pedir justificación de fondos repetidamente, depósitos y pagos a comercios que no se acreditan, sin respuesta clara de soporte.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Es uno de los tópicos más graves (357 reseñas, 86% negativas, menciones de &quot;estafa&quot; y denuncias) — auditar el criterio de bloqueo por compliance y el SLA de soporte cuando hay dinero retenido.</p>
+          <ul class='samples'><li>“Muy mala, soy un estudiante realice transacciones por 700.000 pesos para organizar un evento con amigos me bloquearon la cuenta y nunca mas pude usarla. Ademas actualizan constantemente no la recomiendo para nada”</li><li>“Hice una compra por 600 reales y al vendedor no le llegó nunca el pago,me mandó foto y videos de sus movimientos en el banco y no estaba pero a mi si me lo debitaron”</li></ul>
+        </article>
+        
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los 30 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>Bugs genéricos y soporte que no responde</td><td>General</td><td class='num'>465</td><td class='num'>1.6</td><td class='num'>95.9%</td><td>alta</td></tr><tr><td>Incompatibilidad con ciertos modelos Android</td><td>Interfaz</td><td class='num'>44</td><td class='num'>2.23</td><td class='num'>95.5%</td><td>media</td></tr><tr><td>El mail de verificación entra en loop y no permite ingresar</td><td>Acceso</td><td class='num'>125</td><td class='num'>1.41</td><td class='num'>94.4%</td><td>alta</td></tr><tr><td>Verificación de identidad demorada (extranjeros)</td><td>Acceso</td><td class='num'>49</td><td class='num'>1.63</td><td class='num'>93.9%</td><td>media</td></tr><tr><td>Verificación de identidad (foto/video) demorada o sin aprobar</td><td>Acceso</td><td class='num'>119</td><td class='num'>1.29</td><td class='num'>93.3%</td><td>alta</td></tr><tr><td>Verificación manual de cuenta demora semanas</td><td>Acceso</td><td class='num'>27</td><td class='num'>1.26</td><td class='num'>92.6%</td><td>media</td></tr><tr><td>Transferencias que tardan mucho o se pierden</td><td>Pagos</td><td class='num'>84</td><td class='num'>1.76</td><td class='num'>90.5%</td><td>media</td></tr><tr><td>Verificación o bloqueo de cuenta deja sin acceso al dinero viajando en Brasil</td><td>Acceso</td><td class='num'>143</td><td class='num'>1.62</td><td class='num'>90.2%</td><td>alta</td></tr><tr><td>No puede registrarse o se desloguea constantemente</td><td>Acceso</td><td class='num'>361</td><td class='num'>1.69</td><td class='num'>90.0%</td><td>alta</td></tr><tr><td>Quejas de confiabilidad general: deja de funcionar sin aviso</td><td>General</td><td class='num'>65</td><td class='num'>1.88</td><td class='num'>89.2%</td><td>media</td></tr><tr><td>Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte</td><td>Pagos</td><td class='num'>357</td><td class='num'>1.57</td><td class='num'>86.0%</td><td>alta</td></tr><tr><td>Quejas por actualizaciones muy frecuentes</td><td>Interfaz</td><td class='num'>151</td><td class='num'>2.38</td><td class='num'>82.1%</td><td>media</td></tr><tr><td>La app no instala o descarga correctamente</td><td>Interfaz</td><td class='num'>25</td><td class='num'>1.88</td><td class='num'>76.0%</td><td>media</td></tr><tr><td>Reclamos genéricos enfáticos (bloqueos, lentitud, promesas incumplidas)</td><td>General</td><td class='num'>52</td><td class='num'>2.25</td><td class='num'>73.1%</td><td>media</td></tr><tr><td>Problemas para obtener o vincular la tarjeta (física/virtual)</td><td>Pagos</td><td class='num'>136</td><td class='num'>2.44</td><td class='num'>71.3%</td><td>alta</td></tr><tr><td>Operar con pesos argentinos (error al ingresar / conversión para pagar afuera)</td><td>Pagos</td><td class='num'>61</td><td class='num'>2.69</td><td class='num'>62.3%</td><td>media</td></tr><tr><td>Compras en Steam: valoradas cuando funcionan, quejas si se discontinúan</td><td>Pagos</td><td class='num'>51</td><td class='num'>2.76</td><td class='num'>58.8%</td><td>baja</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>60</td><td class='num'>2.58</td><td class='num'>36.7%</td><td>baja</td></tr><tr><td>Comprar/vender cripto fácil, con pedidos de más staking</td><td>Pagos</td><td class='num'>161</td><td class='num'>3.78</td><td class='num'>27.3%</td><td>baja</td></tr><tr><td>Comentarios breves y dispersos sin un tema único</td><td>Ruido</td><td class='num'>60</td><td class='num'>3.78</td><td class='num'>20.0%</td><td>baja</td></tr><tr><td>Satisfacción general con la billetera digital</td><td>General</td><td class='num'>142</td><td class='num'>4.63</td><td class='num'>5.6%</td><td>baja</td></tr><tr><td>Elogios por pagar en Brasil con Pix usando pesos argentinos</td><td>Pagos</td><td class='num'>248</td><td class='num'>4.69</td><td class='num'>4.8%</td><td>baja</td></tr><tr><td>Elogios generales a la app</td><td>General</td><td class='num'>589</td><td class='num'>4.73</td><td class='num'>2.9%</td><td>baja</td></tr><tr><td>Elogios a la rapidez y practicidad</td><td>Interfaz</td><td class='num'>107</td><td class='num'>4.79</td><td class='num'>2.8%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>250</td><td class='num'>4.87</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot; / conformidad general sin detalle</td><td>General</td><td class='num'>130</td><td class='num'>4.66</td><td class='num'>0.8%</td><td>baja</td></tr><tr><td>Agradecimientos y recomendaciones genéricas</td><td>General</td><td class='num'>155</td><td class='num'>4.87</td><td class='num'>0.6%</td><td>baja</td></tr><tr><td>Primeras impresiones, aún evaluando</td><td>General</td><td class='num'>52</td><td class='num'>4.0</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Primera operación exitosa (depósito, transferencia)</td><td>General</td><td class='num'>26</td><td class='num'>4.58</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2635</td><td class='num'>2.4</td><td class='num'>66.9%</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
+
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
