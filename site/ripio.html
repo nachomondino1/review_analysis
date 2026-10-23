@@ -59,7 +59,12 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
   background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
   padding: 22px 26px; margin-top: 0;
 }
-.goal-question { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+.goal-eyebrow {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) { .goal-eyebrow { font-size: 1.25rem; } }
+.goal-question { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }
 .goal-sub { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
 .part {
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -84,17 +89,34 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 }
 .stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
 .stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
-.category-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs); padding: 12px 14px;
+.bubble-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
 }
-.category-name { font-weight: 700; font-size: 0.9rem; }
-.category-n { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
-.category-pct { font-size: 0.78rem; font-weight: 700; margin-top: 4px; }
-.cat-bad { color: var(--bad); }
-.cat-warn { color: var(--warn); }
-.cat-good { color: var(--good); }
+.bubble-legend-scale { display: flex; align-items: center; gap: 6px; }
+.bubble-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.bubble-legend-dot + .bubble-legend-dot { margin-left: 10px; }
+.bubble-chart {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+  gap: 20px 16px; padding: 8px 0 4px;
+}
+.bubble-item { display: flex; flex-direction: column; align-items: center; }
+.bubble-slot { display: flex; align-items: flex-end; justify-content: center; }
+.bubble {
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
+.bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
+.cat-explain { margin-top: 20px; font-size: 0.85rem; }
+.cat-explain summary {
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}
+.cat-explain summary:hover { color: var(--text); }
+.cat-explain dl { margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-explain-item dt { font-weight: 700; font-size: 0.82rem; }
+.cat-explain-item dd { margin: 2px 0 0; color: var(--muted); line-height: 1.5; }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -145,50 +167,71 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
-.composition { margin-top: 16px; }
-.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
-.composition-fill--text { background: var(--warn); height: 100%; }
-.composition-legend {
-  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+.composition { margin-top: 20px; }
+.composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.comp-stat { flex: 1 1 160px; }
+.comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.comp-stat--text .comp-pct { color: var(--warn); }
+.comp-stat--notext .comp-pct { color: var(--muted-soft); }
+.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.composition-bar {
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
 }
-.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.dot--text { background: var(--warn); }
-.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
+.composition-fill { height: 100%; }
+.composition-fill--text { background: var(--warn); }
+.composition-fill--notext { background: var(--border-soft); }
+.composition-callout {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Análisis de reseñas de la app de ripio</h1>
+    <h1>📊 Análisis de reseñas de ripio</h1>
     <div class="sub">Generado 2026-10-23</div>
   </div>
 </header>
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-question">¿Qué podemos mejorar a continuación, según el feedback de los usuarios?</div>
-    <p class="goal-sub">Eso responde este informe: primero el panorama general (rating oficial), después qué comentan los usuarios con sus propias palabras, priorizado por impacto.</p>
+    <div class="goal-eyebrow">Análisis de reseñas de la app de ripio en Google Play y App Store</div>
+    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
   </div>
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
     <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial de las tiendas (62.767 calificaciones)</div></div>
       <div class="stat-card"><div class="value">62.767</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">4.61★</div><div class="label">Rating oficial de las tiendas (62.767 calificaciones)</div></div>
     </div>
     
     <div class="composition">
+      <p class="composition-intro">De las <strong>62.767 reseñas</strong>, algunas tienen texto y otras no:</p>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">19.3%</div>
+          <div class="comp-label">📝 Con texto (12.098 reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">80.7%</div>
+          <div class="comp-label">⭐ Solo estrellas (50.669 reseñas)</div>
+        </div>
+      </div>
       <div class="composition-bar">
         <div class="composition-fill composition-fill--text" style="width:19.3%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:80.7%"></div>
       </div>
-      <div class="composition-legend">
-        <span><span class="dot dot--text"></span>19.3% con texto — analizadas abajo (12.098 reseñas)</span>
-        <span><span class="dot dot--notext"></span>80.7% solo estrellas, sin texto</span>
-      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 19.3% que tiene texto</strong> (12.098 reseñas) — es la única porción que se puede leer.</p>
     </div>
     
-    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (12.098 de 62.767 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
     
   </div>
 
@@ -197,75 +240,123 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 12.098 reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">69.9%</div><div class="label">Negativas sobre 12.098 reseñas con texto</div></div>
       <div class="stat-card"><div class="value">12.098</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">69.9%</div><div class="label">Negativas sobre 12.098 reseñas con texto</div></div>
     </div>
     <div class="subsection"><h3>¿Cómo vienen últimamente?</h3>
     <div class="recency-grid">
-      <div class="recency-card">
-        <div class="recency-label">Últimos 3 meses</div>
-        <div class="recency-value">2.66★</div>
-        <div class="recency-sub">59.4% negativas · 180 reseñas</div>
-      </div>
-      <div class="recency-arrow">vs.</div>
       <div class="recency-card">
         <div class="recency-label">Histórico completo</div>
         <div class="recency-value">2.28★</div>
         <div class="recency-sub">69.9% negativas · 12098 reseñas</div>
       </div>
+      <div class="recency-arrow">vs.</div>
+      <div class="recency-card">
+        <div class="recency-label">Últimos 3 meses</div>
+        <div class="recency-value">2.66★</div>
+        <div class="recency-sub">59.4% negativas · 180 reseñas</div>
+      </div>
     </div>
     <div class="trend-banner trend-good">Mejorando: 10.5 puntos porcentuales menos reseñas negativas que el histórico</div>
-    </div>
+    <p class="methodology-note">El histórico completo es más bajo que el 4.61★ analizado antes, puesto que las opiniones que tienen texto por su naturaleza <strong>tienden a ser más negativas</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar.</p></div>
 
-    <div class="subsection"><h3>Por categoría</h3><div class="category-grid">
-        <div class="category-card">
-          <div class="category-name">Acceso</div>
-          <div class="category-n">2579 reseñas</div>
-          <div class="category-pct cat-bad">91.7% negativas</div>
+    <div class="subsection"><h3>Por categoría</h3>
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+      </span>
+    </div>
+    <div class="bubble-chart">
+        <div class="bubble-item" style="width:160px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:160px;height:160px;background:#dc3321;font-size:14px;"
+                 title="Acceso: 2579 reseñas, 92% negativas">
+              Acceso
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#dc3321;">92% negativas</div>
+          <div class="bubble-n">2579 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Dinero</div>
-          <div class="category-n">1649 reseñas</div>
-          <div class="category-pct cat-bad">77.1% negativas</div>
+        <div class="bubble-item" style="width:139px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:139px;height:139px;background:#db4b17;font-size:14px;"
+                 title="Dinero: 1649 reseñas, 77% negativas">
+              Dinero
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#db4b17;">77% negativas</div>
+          <div class="bubble-n">1649 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Otros</div>
-          <div class="category-n">1188 reseñas</div>
-          <div class="category-pct cat-good">28.0% negativas</div>
+        <div class="bubble-item" style="width:127px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:127px;height:127px;background:#838a24;font-size:14px;"
+                 title="Otros: 1188 reseñas, 28% negativas">
+              Otros
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#838a24;">28% negativas</div>
+          <div class="bubble-n">1188 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Costos</div>
-          <div class="category-n">567 reseñas</div>
-          <div class="category-pct cat-bad">70.5% negativas</div>
+        <div class="bubble-item" style="width:105px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:105px;height:105px;background:#da5613;font-size:13px;"
+                 title="Costos: 567 reseñas, 70% negativas">
+              Costos
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#da5613;">70% negativas</div>
+          <div class="bubble-n">567 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Usabilidad</div>
-          <div class="category-n">311 reseñas</div>
-          <div class="category-pct cat-good">21.5% negativas</div>
+        <div class="bubble-item" style="width:92px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:92px;height:92px;background:#6a902d;font-size:12px;"
+                 title="Usabilidad: 311 reseñas, 22% negativas">
+              Usabilidad
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#6a902d;">22% negativas</div>
+          <div class="bubble-n">311 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Soporte</div>
-          <div class="category-n">183 reseñas</div>
-          <div class="category-pct cat-warn">45.4% negativas</div>
+        <div class="bubble-item" style="width:90px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:84px;height:84px;background:#c77b0c;font-size:10px;"
+                 title="Soporte: 183 reseñas, 45% negativas">
+              Soporte
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#c77b0c;">45% negativas</div>
+          <div class="bubble-n">183 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Seguridad</div>
-          <div class="category-n">161 reseñas</div>
-          <div class="category-pct cat-good">0.0% negativas</div>
+        <div class="bubble-item" style="width:90px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:82px;height:82px;background:#16a34a;font-size:10px;"
+                 title="Seguridad: 161 reseñas, 0% negativas">
+              Seguridad
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#16a34a;">0% negativas</div>
+          <div class="bubble-n">161 reseñas</div>
         </div>
         
-        <div class="category-card">
-          <div class="category-name">Rendimiento</div>
-          <div class="category-n">150 reseñas</div>
-          <div class="category-pct cat-bad">84.0% negativas</div>
+        <div class="bubble-item" style="width:90px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:81px;height:81px;background:#db401c;font-size:10px;"
+                 title="Rendimiento: 150 reseñas, 84% negativas">
+              Rendimiento
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#db401c;">84% negativas</div>
+          <div class="bubble-n">150 reseñas</div>
         </div>
-        </div></div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Acceso</dt><dd>Error &quot;credenciales no válidas&quot; (cod 200) al ingresar · Recuperación de 2FA vía video no funciona · La app no carga / login se queda colgado · Código de verificación no llega (variante) · Actualización pedida pero no disponible en Play Store · Verificación de identidad (foto DNI) falla o cierra la app · No se puede completar el registro · Login roto de forma persistente · No puede iniciar sesión tras actualizar · No se puede crear la cuenta · Mail de confirmación de login no llega · SMS de verificación no llega · Actualización rompe el login · Errores genéricos, &quot;no funciona nada&quot; · Verificación de cuenta demorada · &quot;Ripio code&quot; (2FA) no llega · Foto de DNI cierra la app (iPhone)</dd></div><div class="cat-explain-item"><dt>Dinero</dt><dd>Dinero depositado/transferido que no se acredita · Compras de cripto rechazadas o reembolsos que no llegan · Transferencias tardan mucho en acreditarse · Demoras en transferencias y código SMS tardío · Satisfacción con la wallet / tarjeta · Satisfacción con la compra/gestión de Bitcoin · Satisfacción general con la operatoria de criptos · Satisfacción usando la app para inversión</dd></div><div class="cat-explain-item"><dt>Otros</dt><dd>Publicidad agresiva/engañosa · Reseñas de puntaje (&quot;le doy X estrellas&quot;) sin queja específica · Comentarios breves y ambiguos · &quot;Funciona bien&quot; sin más detalle · Elogios generales a la app · Elogios cortos muy positivos · Comentarios positivos cortos y genéricos · Experiencia sin problemas al operar · Mejoras percibidas en actualizaciones recientes · Agradecimientos genéricos</dd></div><div class="cat-explain-item"><dt>Costos</dt><dd>Comisiones específicas de compra/venta de Bitcoin · Comisiones percibidas como muy altas · Fricciones operando desde otros países (cambio de divisa, alta en Argentina)</dd></div><div class="cat-explain-item"><dt>Usabilidad</dt><dd>UI percibida como fea o de mala calidad · App fácil e intuitiva de usar</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Tickets de soporte sin resolución · Agradecimientos por soporte que resolvió un problema · Elogios al servicio en general</dd></div><div class="cat-explain-item"><dt>Seguridad</dt><dd>Elogios a la seguridad y confiabilidad</dd></div><div class="cat-explain-item"><dt>Rendimiento</dt><dd>App lenta en general · La app se traba o no abre en ciertos celulares Android · Lentitud en depósitos y retiros</dd></div></dl></details></div>
 
     <div class="subsection">
       <h3>Top 3 tópicos</h3>

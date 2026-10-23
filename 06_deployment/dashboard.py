@@ -56,27 +56,42 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
 
 def build_composition_bar(official: dict | None, total_n: int) -> str:
     """
-    Barra de proporción: de todas las calificaciones de las tiendas, cuántas
-    traen texto (la única parte que este análisis puede leer) y cuántas son
-    solo estrellas — para que el % de negativas de más abajo no se lea como
-    si describiera a todos los usuarios, sino solo a esta porción.
+    De todas las calificaciones de las tiendas, cuántas traen texto (la única
+    porción que este análisis puede leer) y cuántas son solo estrellas —
+    bien grande y visual, para que el % de negativas de más abajo no se lea
+    como si describiera a todos los usuarios, sino solo a esta porción, y
+    para que quede clarísimo cuál de las dos es la que se analiza después.
     """
     if not official or not official.get("count"):
         return ""
     total_official = official["count"]
     pct_text = max(0.0, min(100.0, round(total_n / total_official * 100, 1)))
     pct_no_text = round(100 - pct_text, 1)
+    n_no_text = total_official - total_n
+    total_n_fmt = f'{total_n:,}'.replace(",", ".")
+    n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
+    total_official_fmt = f'{total_official:,}'.replace(",", ".")
+
     return f'''
     <div class="composition">
+      <p class="composition-intro">De las <strong>{total_official_fmt} reseñas</strong>, algunas tienen texto y otras no:</p>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">{pct_text}%</div>
+          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">{pct_no_text}%</div>
+          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
+        </div>
+      </div>
       <div class="composition-bar">
         <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
-      <div class="composition-legend">
-        <span><span class="dot dot--text"></span>{pct_text}% con texto — analizadas abajo ({total_n:,} reseñas)</span>
-        <span><span class="dot dot--notext"></span>{pct_no_text}% solo estrellas, sin texto</span>
-      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
     </div>
-    '''.replace(f"{total_n:,}", f"{total_n:,}".replace(",", "."))
+    '''
 
 
 STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
@@ -183,28 +198,93 @@ def build_categories(summary: pd.DataFrame) -> list[dict]:
         include_groups=False,
     ).reset_index()
     grouped["n"] = grouped["n"].astype(int)
-    return grouped.sort_values("n", ascending=False).to_dict("records")
+    return grouped.sort_values("pct_neg", ascending=False).to_dict("records")
 
 
-def render_categories_html(categories: list[dict]) -> str:
+def pct_to_color(pct_neg: float) -> str:
+    """Interpola verde (0% negativas) -> ámbar (50%) -> rojo (100%) en RGB."""
+    stops = [(0, (22, 163, 74)), (50, (217, 119, 6)), (100, (220, 38, 38))]
+    pct_neg = max(0.0, min(100.0, pct_neg))
+    (p0, c0), (p1, c1) = (stops[0], stops[1]) if pct_neg <= 50 else (stops[1], stops[2])
+    t = (pct_neg - p0) / (p1 - p0) if p1 != p0 else 0
+    r, g, b = (round(c0[i] + (c1[i] - c0[i]) * t) for i in range(3))
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+
+BUBBLE_MIN_PX, BUBBLE_MAX_PX = 56, 160
+
+
+def build_category_topics(summary: pd.DataFrame) -> dict[str, list[str]]:
+    """Nombres de los tópicos (ya nombrados por Claude) que componen cada
+    categoría, para la explicación expandible de qué incluye cada burbuja."""
+    if "category" not in summary.columns or "name" not in summary.columns:
+        return {}
+    real = summary[~summary["is_outlier"]].copy()
+    real = real[real["category"].notna() & (real["category"] != "")]
+    if real.empty:
+        return {}
+    real = real.sort_values("pct_neg", ascending=False)
+    return {
+        category: [row["name"] for _, row in group.iterrows() if pd.notna(row["name"]) and row["name"]]
+        for category, group in real.groupby("category")
+    }
+
+
+def render_categories_html(categories: list[dict], category_topics: dict[str, list[str]] | None = None) -> str:
     if not categories:
         return ""
-    cards = []
-    for c in categories:
-        if c["pct_neg"] >= 60:
-            pct_class = "cat-bad"
-        elif c["pct_neg"] >= 30:
-            pct_class = "cat-warn"
-        else:
-            pct_class = "cat-good"
-        cards.append(f'''
-        <div class="category-card">
-          <div class="category-name">{esc(c["category"])}</div>
-          <div class="category-n">{c["n"]} reseñas</div>
-          <div class="category-pct {pct_class}">{c["pct_neg"]}% negativas</div>
+    max_n = max(c["n"] for c in categories)
+    bubbles = []
+    for c in sorted(categories, key=lambda c: c["n"], reverse=True):
+        scale = (c["n"] / max_n) ** 0.5 if max_n else 0  # área ~ n, no diámetro ~ n
+        size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
+        color = pct_to_color(c["pct_neg"])
+        pct_round = round(c["pct_neg"])
+        font_size = max(10, min(14, round(size / 8)))
+        item_width = max(size, 90)
+        bubbles.append(f'''
+        <div class="bubble-item" style="width:{item_width}px;">
+          <div class="bubble-slot" style="height:{BUBBLE_MAX_PX}px;">
+            <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
+                 title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
+              {esc(c["category"])}
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
+          <div class="bubble-n">{c["n"]} reseñas</div>
         </div>
         ''')
-    return f'<div class="subsection"><h3>Por categoría</h3><div class="category-grid">{"".join(cards)}</div></div>'
+    legend = f'''
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Más negativas
+      </span>
+    </div>
+    '''
+    explain = ""
+    if category_topics:
+        items = []
+        for c in sorted(categories, key=lambda c: c["n"], reverse=True):
+            topics = category_topics.get(c["category"]) or []
+            if not topics:
+                continue
+            items.append(
+                f'<div class="cat-explain-item"><dt>{esc(c["category"])}</dt>'
+                f'<dd>{esc(" · ".join(topics))}</dd></div>'
+            )
+        if items:
+            explain = (
+                f'<details class="cat-explain"><summary>Qué incluye cada categoría</summary>'
+                f'<dl>{"".join(items)}</dl></details>'
+            )
+    return (
+        f'<div class="subsection"><h3>Por categoría</h3>'
+        f'{legend}'
+        f'<div class="bubble-chart">{"".join(bubbles)}</div>'
+        f'{explain}</div>'
+    )
 
 
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
@@ -275,15 +355,15 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     return f'''
     <div class="recency-grid">
       <div class="recency-card">
-        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
-        <div class="recency-value">{recent_s["rating"]}★</div>
-        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
-      </div>
-      <div class="recency-arrow">vs.</div>
-      <div class="recency-card">
         <div class="recency-label">Histórico completo</div>
         <div class="recency-value">{all_s["rating"]}★</div>
         <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
+      </div>
+      <div class="recency-arrow">vs.</div>
+      <div class="recency-card">
+        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
+        <div class="recency-value">{recent_s["rating"]}★</div>
+        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
       </div>
     </div>
     <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
@@ -394,7 +474,12 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
   background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
   padding: 22px 26px; margin-top: 0;
 }}
-.goal-question {{ font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }}
+.goal-eyebrow {{
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+  margin-bottom: 10px;
+}}
+@media (max-width: 640px) {{ .goal-eyebrow {{ font-size: 1.25rem; }} }}
+.goal-question {{ font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }}
 .goal-sub {{ font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }}
 .part {{
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -419,17 +504,34 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
-.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }}
-.category-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs); padding: 12px 14px;
+.bubble-legend {{
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
 }}
-.category-name {{ font-weight: 700; font-size: 0.9rem; }}
-.category-n {{ color: var(--muted); font-size: 0.78rem; margin-top: 2px; }}
-.category-pct {{ font-size: 0.78rem; font-weight: 700; margin-top: 4px; }}
-.cat-bad {{ color: var(--bad); }}
-.cat-warn {{ color: var(--warn); }}
-.cat-good {{ color: var(--good); }}
+.bubble-legend-scale {{ display: flex; align-items: center; gap: 6px; }}
+.bubble-legend-dot {{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; }}
+.bubble-legend-dot + .bubble-legend-dot {{ margin-left: 10px; }}
+.bubble-chart {{
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+  gap: 20px 16px; padding: 8px 0 4px;
+}}
+.bubble-item {{ display: flex; flex-direction: column; align-items: center; }}
+.bubble-slot {{ display: flex; align-items: flex-end; justify-content: center; }}
+.bubble {{
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
+}}
+.bubble-pct {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
+.bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
+.cat-explain {{ margin-top: 20px; font-size: 0.85rem; }}
+.cat-explain summary {{
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}}
+.cat-explain summary:hover {{ color: var(--text); }}
+.cat-explain dl {{ margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }}
+.cat-explain-item dt {{ font-weight: 700; font-size: 0.82rem; }}
+.cat-explain-item dd {{ margin: 2px 0 0; color: var(--muted); line-height: 1.5; }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -480,40 +582,52 @@ table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
-.composition {{ margin-top: 16px; }}
-.composition-bar {{ display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }}
-.composition-fill--text {{ background: var(--warn); height: 100%; }}
-.composition-legend {{
-  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+.composition {{ margin-top: 20px; }}
+.composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
+.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
+.comp-stat {{ flex: 1 1 160px; }}
+.comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
+.comp-stat--text .comp-pct {{ color: var(--warn); }}
+.comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
+.comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
+.composition-bar {{
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
 }}
-.composition-legend .dot {{ display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }}
-.dot--text {{ background: var(--warn); }}
-.dot--notext {{ background: var(--border-soft); border: 1px solid var(--muted-soft); }}
+.composition-fill {{ height: 100%; }}
+.composition-fill--text {{ background: var(--warn); }}
+.composition-fill--notext {{ background: var(--border-soft); }}
+.composition-callout {{
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}}
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Análisis de reseñas de la app de {empresa}</h1>
+    <h1>📊 Análisis de reseñas de {empresa}</h1>
     <div class="sub">Generado {fecha}</div>
   </div>
 </header>
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-question">¿Qué podemos mejorar a continuación, según el feedback de los usuarios?</div>
-    <p class="goal-sub">Eso responde este informe: primero el panorama general (rating oficial), después qué comentan los usuarios con sus propias palabras, priorizado por impacto.</p>
+    <div class="goal-eyebrow">Análisis de reseñas de la app de {empresa} en Google Play y App Store</div>
+    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
   </div>
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
     <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
       <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
     </div>
     {composition_html}
-    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
     {competitor_section}
   </div>
 
@@ -522,8 +636,8 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
       <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
     </div>
     <div class="subsection">{trend_html}</div>
 
@@ -605,7 +719,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     composition_html = build_composition_bar(official, stats["total_n"])
-    categories_section = render_categories_html(build_categories(summary))
+    categories_section = render_categories_html(build_categories(summary), build_category_topics(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
@@ -613,8 +727,17 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     # significancia ya exigidas en version_breakout.py) — si existe, gana;
     # si no, cae al genérico "últimos N meses vs. histórico".
     breakout_html = build_version_breakout_section(paths)
-    trend_body = breakout_html or build_recency_comparison(reviews)
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
+    recency_html = build_recency_comparison(reviews)
+    trend_body = breakout_html or recency_html
+    trend_note = ""
+    if not breakout_html and recency_html and official:
+        trend_note = (
+            f'<p class="methodology-note">El histórico completo es más bajo que el {official["score"]}★ '
+            f'analizado antes, puesto que las opiniones que tienen texto por su naturaleza '
+            f'<strong>tienden a ser más negativas</strong> que el promedio general — quien solo puntúa con '
+            f'estrellas casi nunca escribe para elogiar.</p>'
+        )
+    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}{trend_note}' if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 

@@ -59,7 +59,12 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
   background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
   padding: 22px 26px; margin-top: 0;
 }
-.goal-question { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+.goal-eyebrow {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) { .goal-eyebrow { font-size: 1.25rem; } }
+.goal-question { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }
 .goal-sub { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
 .part {
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -84,17 +89,34 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 }
 .stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
 .stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
-.category-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs); padding: 12px 14px;
+.bubble-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
 }
-.category-name { font-weight: 700; font-size: 0.9rem; }
-.category-n { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
-.category-pct { font-size: 0.78rem; font-weight: 700; margin-top: 4px; }
-.cat-bad { color: var(--bad); }
-.cat-warn { color: var(--warn); }
-.cat-good { color: var(--good); }
+.bubble-legend-scale { display: flex; align-items: center; gap: 6px; }
+.bubble-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.bubble-legend-dot + .bubble-legend-dot { margin-left: 10px; }
+.bubble-chart {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+  gap: 20px 16px; padding: 8px 0 4px;
+}
+.bubble-item { display: flex; flex-direction: column; align-items: center; }
+.bubble-slot { display: flex; align-items: flex-end; justify-content: center; }
+.bubble {
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
+  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
+  overflow-wrap: break-word; word-break: break-word;
+}
+.bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
+.bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
+.cat-explain { margin-top: 20px; font-size: 0.85rem; }
+.cat-explain summary {
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}
+.cat-explain summary:hover { color: var(--text); }
+.cat-explain dl { margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-explain-item dt { font-weight: 700; font-size: 0.82rem; }
+.cat-explain-item dd { margin: 2px 0 0; color: var(--muted); line-height: 1.5; }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -145,50 +167,71 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
-.composition { margin-top: 16px; }
-.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
-.composition-fill--text { background: var(--warn); height: 100%; }
-.composition-legend {
-  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+.composition { margin-top: 20px; }
+.composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.comp-stat { flex: 1 1 160px; }
+.comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.comp-stat--text .comp-pct { color: var(--warn); }
+.comp-stat--notext .comp-pct { color: var(--muted-soft); }
+.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.composition-bar {
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
 }
-.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.dot--text { background: var(--warn); }
-.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
+.composition-fill { height: 100%; }
+.composition-fill--text { background: var(--warn); }
+.composition-fill--notext { background: var(--border-soft); }
+.composition-callout {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}
 </style>
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Análisis de reseñas de la app de beelup</h1>
+    <h1>📊 Análisis de reseñas de beelup</h1>
     <div class="sub">Generado 2026-10-23</div>
   </div>
 </header>
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-question">¿Qué podemos mejorar a continuación, según el feedback de los usuarios?</div>
-    <p class="goal-sub">Eso responde este informe: primero el panorama general (rating oficial), después qué comentan los usuarios con sus propias palabras, priorizado por impacto.</p>
+    <div class="goal-eyebrow">Análisis de reseñas de la app de beelup en Google Play y App Store</div>
+    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
   </div>
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
     <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
       <div class="stat-card"><div class="value">169</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
     </div>
     
     <div class="composition">
+      <p class="composition-intro">De las <strong>169 reseñas</strong>, algunas tienen texto y otras no:</p>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">43.8%</div>
+          <div class="comp-label">📝 Con texto (74 reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">56.2%</div>
+          <div class="comp-label">⭐ Solo estrellas (95 reseñas)</div>
+        </div>
+      </div>
       <div class="composition-bar">
         <div class="composition-fill composition-fill--text" style="width:43.8%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:56.2%"></div>
       </div>
-      <div class="composition-legend">
-        <span><span class="dot dot--text"></span>43.8% con texto — analizadas abajo (74 reseñas)</span>
-        <span><span class="dot dot--notext"></span>56.2% solo estrellas, sin texto</span>
-      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 43.8% que tiene texto</strong> (74 reseñas) — es la única porción que se puede leer.</p>
     </div>
     
-    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (74 de 169 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
     
   </div>
 
@@ -197,8 +240,8 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 74 reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
       <div class="stat-card"><div class="value">74</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
     </div>
     <div class="subsection"></div>
 
