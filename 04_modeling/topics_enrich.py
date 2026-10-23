@@ -14,9 +14,21 @@ Uso:
   2) Pedirle a Claude (en esta sesión) que lea ese JSON y escriba
      data/<empresa>/04_modeling/topics_named.json con, por cada "topic" no
      outlier: name, summary, severity ("alta"/"media"/"baja"), recommendation,
-     y category (una palabra; agrupa tópicos afines — como guía de cuántos
-     grupos usar, la raíz cuadrada del número de tópicos no-outlier da un
-     número razonable de categorías, ni una por tópico ni una sola para todos).
+     y category — una de la taxonomía fija del rubro en common/categories.py
+     (CATEGORIES_BY_DOMAIN[--domain]), la misma lista para todas las empresas
+     de ese rubro. No inventar una categoría nueva por empresa: la gracia de
+     un eje fijo es que "Seguridad" en una empresa del rubro signifique lo
+     mismo que en otra y los bubble charts sean comparables. Si de verdad
+     ningún valor de la lista encaja, agregarlo a esa entrada de
+     CATEGORIES_BY_DOMAIN (con su descripción de cuándo usarlo) en vez de
+     escribir uno suelto en el JSON. Si la app es de otro rubro (ej:
+     agrotech), usar --domain para esa lista o crear una nueva si no existe
+     aún — no forzar sus tópicos a la lista de otro rubro. "General" vs
+     "Ruido": si el comentario expresa un sentimiento claro (positivo o
+     negativo) sobre la app/marca en su conjunto aunque sea breve o genérico
+     ("funciona bien", "la mejor billetera"), es "General"; si ni siquiera se
+     entiende el tema o el sentimiento (texto ilegible, rating condicionado
+     sin desarrollar), es "Ruido".
 
   3) python 04_modeling/topics_enrich.py merge --name <empresa>
      -> vuelca esas columnas a topics_summary.csv (sobrescribe el archivo,
@@ -31,6 +43,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
+from categories import allowed as allowed_categories  # noqa: E402
 
 SAMPLES_PER_TOPIC = 5
 
@@ -65,12 +78,16 @@ def export_samples(paths: Paths):
           "por cada tópico no outlier.")
 
 
-def merge_names(paths: Paths):
+def merge_names(paths: Paths, domain: str):
     if not paths.topics_named_json.exists():
         raise SystemExit(f"No existe {paths.topics_named_json}. Corré primero 'export' y pedile a Claude que lo genere.")
 
     named = {str(t["topic"]): t for t in json.loads(paths.topics_named_json.read_text())}
     summary = pd.read_csv(paths.topics_summary_csv)
+
+    bad = {t["category"] for t in named.values() if t.get("category") and t["category"] not in allowed_categories(domain)}
+    if bad:
+        print(f"WARNING: categorías fuera de la taxonomía fija del rubro '{domain}' (common/categories.py): {sorted(bad)}")
 
     for col in ["name", "summary", "severity", "recommendation", "category"]:
         summary[col] = summary["topic"].astype(str).map(lambda t: named.get(t, {}).get(col, ""))
@@ -88,6 +105,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("command", choices=["export", "merge"])
     p.add_argument("--name", required=True, help="Nombre de la empresa/app")
+    p.add_argument("--domain", default="fintech", help="Rubro (key en CATEGORIES_BY_DOMAIN), default fintech")
     return p.parse_args()
 
 
@@ -97,4 +115,4 @@ if __name__ == "__main__":
     if args.command == "export":
         export_samples(paths)
     else:
-        merge_names(paths)
+        merge_names(paths, args.domain)
