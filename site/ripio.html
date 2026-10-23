@@ -121,9 +121,23 @@ table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.8
 th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
 td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 16px; }
+.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
+.composition-fill--text { background: var(--warn); height: 100%; }
+.composition-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}
+.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot--text { background: var(--warn); }
+.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
 </style>
 </head>
 <body>
@@ -141,7 +155,18 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">4.61★</div><div class="label">Rating oficial de las tiendas (62.767 calificaciones)</div></div>
       <div class="stat-card stat-card--sample"><div class="tag">📝 Solo con texto</div><div class="value">69.9%</div><div class="label">Negativas en la muestra con reseña escrita (12098 reseñas)</div></div>
     </div>
-    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+    
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:19.3%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>19.3% con texto — analizadas abajo (12.098 reseñas)</span>
+        <span><span class="dot dot--notext"></span>80.7% solo estrellas, sin texto</span>
+      </div>
+    </div>
+    
+    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general (abajo nos enfocamos en esa porción).</p>
   </section>
 
   <section><h2>Por categoría</h2><div class="category-grid">
@@ -254,11 +279,18 @@ NO USAR !!!”</li></ul>
     <details class="detail-table">
       <summary>Ver los 48 tópicos detectados</summary>
       <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th><th>Categoría</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+        <table class="sortable">
+          <thead><tr>
+            <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
+            <th class="num" data-sort="num">N</th>
+            <th class="num" data-sort="num">Rating</th>
+            <th class="num" data-sort="num">% negativas</th>
+            <th data-sort="text">Severidad</th>
+          </tr></thead>
           <tbody><tr><td>UI percibida como fea o de mala calidad</td><td>Otros</td><td class='num'>66</td><td class='num'>1.2</td><td class='num'>97.0%</td><td>media</td></tr><tr><td>Error &quot;credenciales no válidas&quot; (cod 200) al ingresar</td><td>Acceso</td><td class='num'>32</td><td class='num'>1.62</td><td class='num'>96.9%</td><td>media</td></tr><tr><td>Recuperación de 2FA vía video no funciona</td><td>Acceso</td><td class='num'>30</td><td class='num'>1.97</td><td class='num'>96.7%</td><td>media</td></tr><tr><td>La app no carga / login se queda colgado</td><td>Acceso</td><td class='num'>516</td><td class='num'>1.67</td><td class='num'>96.5%</td><td>alta</td></tr><tr><td>Código de verificación no llega (variante)</td><td>Acceso</td><td class='num'>27</td><td class='num'>1.33</td><td class='num'>96.3%</td><td>media</td></tr><tr><td>Actualización pedida pero no disponible en Play Store</td><td>Acceso</td><td class='num'>21</td><td class='num'>2.0</td><td class='num'>95.2%</td><td>baja</td></tr><tr><td>Verificación de identidad (foto DNI) falla o cierra la app</td><td>Acceso</td><td class='num'>116</td><td class='num'>1.61</td><td class='num'>94.8%</td><td>alta</td></tr><tr><td>No se puede completar el registro</td><td>Acceso</td><td class='num'>35</td><td class='num'>1.17</td><td class='num'>94.3%</td><td>media</td></tr><tr><td>App lenta en general</td><td>Rendimiento</td><td class='num'>63</td><td class='num'>1.87</td><td class='num'>93.7%</td><td>media</td></tr><tr><td>Publicidad agresiva/engañosa</td><td>Otros</td><td class='num'>216</td><td class='num'>1.2</td><td class='num'>93.5%</td><td>media</td></tr><tr><td>Login roto de forma persistente</td><td>Acceso</td><td class='num'>151</td><td class='num'>1.74</td><td class='num'>93.4%</td><td>alta</td></tr><tr><td>No puede iniciar sesión tras actualizar</td><td>Acceso</td><td class='num'>72</td><td class='num'>1.5</td><td class='num'>93.1%</td><td>media</td></tr><tr><td>No se puede crear la cuenta</td><td>Acceso</td><td class='num'>281</td><td class='num'>1.49</td><td class='num'>92.2%</td><td>alta</td></tr><tr><td>Dinero depositado/transferido que no se acredita</td><td>Dinero</td><td class='num'>707</td><td class='num'>1.43</td><td class='num'>91.5%</td><td>alta</td></tr><tr><td>Mail de confirmación de login no llega</td><td>Acceso</td><td class='num'>151</td><td class='num'>1.56</td><td class='num'>91.4%</td><td>alta</td></tr><tr><td>SMS de verificación no llega</td><td>Acceso</td><td class='num'>209</td><td class='num'>1.78</td><td class='num'>90.9%</td><td>alta</td></tr><tr><td>Actualización rompe el login</td><td>Acceso</td><td class='num'>125</td><td class='num'>1.83</td><td class='num'>90.4%</td><td>media</td></tr><tr><td>Errores genéricos, &quot;no funciona nada&quot;</td><td>Acceso</td><td class='num'>406</td><td class='num'>1.64</td><td class='num'>87.7%</td><td>alta</td></tr><tr><td>Verificación de cuenta demorada</td><td>Acceso</td><td class='num'>282</td><td class='num'>1.55</td><td class='num'>87.2%</td><td>alta</td></tr><tr><td>&quot;Ripio code&quot; (2FA) no llega</td><td>Acceso</td><td class='num'>94</td><td class='num'>1.41</td><td class='num'>87.2%</td><td>alta</td></tr><tr><td>Foto de DNI cierra la app (iPhone)</td><td>Acceso</td><td class='num'>31</td><td class='num'>2.06</td><td class='num'>87.1%</td><td>media</td></tr><tr><td>Tickets de soporte sin resolución</td><td>Soporte</td><td class='num'>85</td><td class='num'>1.11</td><td class='num'>87.1%</td><td>alta</td></tr><tr><td>La app se traba o no abre en ciertos celulares Android</td><td>Rendimiento</td><td class='num'>30</td><td class='num'>1.7</td><td class='num'>86.7%</td><td>media</td></tr><tr><td>Comisiones específicas de compra/venta de Bitcoin</td><td>Costos</td><td class='num'>169</td><td class='num'>1.81</td><td class='num'>85.2%</td><td>media</td></tr><tr><td>Compras de cripto rechazadas o reembolsos que no llegan</td><td>Dinero</td><td class='num'>554</td><td class='num'>1.74</td><td class='num'>84.7%</td><td>alta</td></tr><tr><td>Transferencias tardan mucho en acreditarse</td><td>Dinero</td><td class='num'>125</td><td class='num'>1.71</td><td class='num'>78.4%</td><td>media</td></tr><tr><td>Demoras en transferencias y código SMS tardío</td><td>Dinero</td><td class='num'>64</td><td class='num'>2.42</td><td class='num'>76.6%</td><td>media</td></tr><tr><td>Comisiones percibidas como muy altas</td><td>Costos</td><td class='num'>231</td><td class='num'>1.97</td><td class='num'>75.3%</td><td>media</td></tr><tr><td>Lentitud en depósitos y retiros</td><td>Rendimiento</td><td class='num'>57</td><td class='num'>2.42</td><td class='num'>71.9%</td><td>media</td></tr><tr><td>Reseñas de puntaje (&quot;le doy X estrellas&quot;) sin queja específica</td><td>Otros</td><td class='num'>92</td><td class='num'>2.08</td><td class='num'>59.8%</td><td>baja</td></tr><tr><td>Fricciones operando desde otros países (cambio de divisa, alta en Argentina)</td><td>Costos</td><td class='num'>167</td><td class='num'>2.65</td><td class='num'>49.1%</td><td>media</td></tr><tr><td>Comentarios breves y ambiguos</td><td>Otros</td><td class='num'>127</td><td class='num'>3.3</td><td class='num'>30.7%</td><td>baja</td></tr><tr><td>Agradecimientos por soporte que resolvió un problema</td><td>Soporte</td><td class='num'>68</td><td class='num'>4.13</td><td class='num'>11.8%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot; sin más detalle</td><td>Elogios</td><td class='num'>35</td><td class='num'>4.49</td><td class='num'>8.6%</td><td>baja</td></tr><tr><td>Satisfacción con la wallet / tarjeta</td><td>Elogios</td><td class='num'>31</td><td class='num'>4.58</td><td class='num'>6.5%</td><td>baja</td></tr><tr><td>Satisfacción con la compra/gestión de Bitcoin</td><td>Elogios</td><td class='num'>50</td><td class='num'>4.5</td><td class='num'>6.0%</td><td>baja</td></tr><tr><td>Elogios generales a la app</td><td>Elogios</td><td class='num'>460</td><td class='num'>4.59</td><td class='num'>5.9%</td><td>baja</td></tr><tr><td>Elogios cortos muy positivos</td><td>Elogios</td><td class='num'>22</td><td class='num'>4.77</td><td class='num'>4.5%</td><td>baja</td></tr><tr><td>Satisfacción general con la operatoria de criptos</td><td>Elogios</td><td class='num'>80</td><td class='num'>4.39</td><td class='num'>3.8%</td><td>baja</td></tr><tr><td>Comentarios positivos cortos y genéricos</td><td>Elogios</td><td class='num'>109</td><td class='num'>4.42</td><td class='num'>3.7%</td><td>baja</td></tr><tr><td>Elogios al servicio en general</td><td>Elogios</td><td class='num'>30</td><td class='num'>4.53</td><td class='num'>3.3%</td><td>baja</td></tr><tr><td>Experiencia sin problemas al operar</td><td>Elogios</td><td class='num'>31</td><td class='num'>4.77</td><td class='num'>3.2%</td><td>baja</td></tr><tr><td>Mejoras percibidas en actualizaciones recientes</td><td>Elogios</td><td class='num'>69</td><td class='num'>4.06</td><td class='num'>1.4%</td><td>baja</td></tr><tr><td>App fácil e intuitiva de usar</td><td>Elogios</td><td class='num'>245</td><td class='num'>4.83</td><td class='num'>1.2%</td><td>baja</td></tr><tr><td>Satisfacción usando la app para inversión</td><td>Elogios</td><td class='num'>38</td><td class='num'>4.42</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Elogios a la seguridad y confiabilidad</td><td>Elogios</td><td class='num'>161</td><td class='num'>4.93</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Agradecimientos genéricos</td><td>Elogios</td><td class='num'>27</td><td class='num'>4.63</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>5310</td><td class='num'>2.21</td><td class='num'>71.7%</td><td>-</td></tr></tbody>
         </table>
       </div>
+      <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
     </details>
   </section>
 
@@ -266,5 +298,39 @@ NO USAR !!!”</li></ul>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>

@@ -54,6 +54,31 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     return {"score": round(weighted, 2), "count": total}
 
 
+def build_composition_bar(official: dict | None, total_n: int) -> str:
+    """
+    Barra de proporción: de todas las calificaciones de las tiendas, cuántas
+    traen texto (la única parte que este análisis puede leer) y cuántas son
+    solo estrellas — para que el % de negativas de más abajo no se lea como
+    si describiera a todos los usuarios, sino solo a esta porción.
+    """
+    if not official or not official.get("count"):
+        return ""
+    total_official = official["count"]
+    pct_text = max(0.0, min(100.0, round(total_n / total_official * 100, 1)))
+    pct_no_text = round(100 - pct_text, 1)
+    return f'''
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>{pct_text}% con texto — analizadas abajo ({total_n:,} reseñas)</span>
+        <span><span class="dot dot--notext"></span>{pct_no_text}% solo estrellas, sin texto</span>
+      </div>
+    </div>
+    '''.replace(f"{total_n:,}", f"{total_n:,}".replace(",", "."))
+
+
 STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
 
 
@@ -427,9 +452,23 @@ table {{ width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.
 th {{ background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }}
 td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
 td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
+table.sortable th[data-sort] {{ cursor: pointer; user-select: none; white-space: nowrap; }}
+table.sortable th[data-sort]:hover {{ color: var(--text); }}
+table.sortable th.sorted-asc::after {{ content: " \\25B2"; }}
+table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
+.table-hint {{ color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
+.composition {{ margin-top: 16px; }}
+.composition-bar {{ display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }}
+.composition-fill--text {{ background: var(--warn); height: 100%; }}
+.composition-legend {{
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}}
+.composition-legend .dot {{ display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }}
+.dot--text {{ background: var(--warn); }}
+.dot--notext {{ background: var(--border-soft); border: 1px solid var(--muted-soft); }}
 </style>
 </head>
 <body>
@@ -447,7 +486,8 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
       <div class="stat-card stat-card--sample"><div class="tag">📝 Solo con texto</div><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra con reseña escrita ({total_n} reseñas)</div></div>
     </div>
-    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+    {composition_html}
+    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general (abajo nos enfocamos en esa porción).</p>
   </section>
 
   {categories_section}
@@ -468,11 +508,18 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     <details class="detail-table">
       <summary>Ver los {n_topics} tópicos detectados</summary>
       <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th>{table_category_header}<th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+        <table class="sortable">
+          <thead><tr>
+            <th data-sort="text">Tópico</th>{table_category_header}
+            <th class="num" data-sort="num">N</th>
+            <th class="num" data-sort="num">Rating</th>
+            <th class="num" data-sort="num">% negativas</th>
+            <th data-sort="text">Severidad</th>
+          </tr></thead>
           <tbody>{table_rows}</tbody>
         </table>
       </div>
+      <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
     </details>
   </section>
 
@@ -480,6 +527,40 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {{
+  document.querySelectorAll("table.sortable").forEach(function (table) {{
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {{
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {{
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {{
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        }});
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {{
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {{
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }}
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        }});
+        rows.forEach(function (row) {{ tbody.appendChild(row); }});
+      }});
+    }});
+  }});
+}})();
+</script>
 </body>
 </html>
 """
@@ -489,6 +570,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
+    composition_html = build_composition_bar(official, stats["total_n"])
     categories_section = render_categories_html(build_categories(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
@@ -502,7 +584,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         f'<section><h2>¿Cómo vienen últimamente?</h2>{trend_html}</section>' if trend_html else ""
     )
     table_rows = build_table_rows(summary)
-    table_category_header = "<th>Categoría</th>" if "category" in summary.columns else ""
+    table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
@@ -516,6 +598,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
         total_n=stats["total_n"],
         pct_neg=stats["pct_neg"],
+        composition_html=composition_html,
         categories_section=categories_section,
         findings_html=findings_html,
         trend_section=trend_section,

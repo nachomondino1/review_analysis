@@ -121,9 +121,23 @@ table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.8
 th { background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }
 td { padding: 8px 10px; border-top: 1px solid var(--border-soft); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sortable th[data-sort] { cursor: pointer; user-select: none; white-space: nowrap; }
+table.sortable th[data-sort]:hover { color: var(--text); }
+table.sortable th.sorted-asc::after { content: " \25B2"; }
+table.sortable th.sorted-desc::after { content: " \25BC"; }
+.table-hint { color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
+.composition { margin-top: 16px; }
+.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
+.composition-fill--text { background: var(--warn); height: 100%; }
+.composition-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+}
+.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot--text { background: var(--warn); }
+.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
 </style>
 </head>
 <body>
@@ -141,7 +155,18 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
       <div class="stat-card stat-card--sample"><div class="tag">📝 Solo con texto</div><div class="value">68.9%</div><div class="label">Negativas en la muestra con reseña escrita (74 reseñas)</div></div>
     </div>
-    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
+    
+    <div class="composition">
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:43.8%"></div>
+      </div>
+      <div class="composition-legend">
+        <span><span class="dot dot--text"></span>43.8% con texto — analizadas abajo (74 reseñas)</span>
+        <span><span class="dot dot--notext"></span>56.2% solo estrellas, sin texto</span>
+      </div>
+    </div>
+    
+    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general (abajo nos enfocamos en esa porción).</p>
   </section>
 
   
@@ -184,11 +209,18 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     <details class="detail-table">
       <summary>Ver los 3 tópicos detectados</summary>
       <div class="table-scroll">
-        <table>
-          <thead><tr><th>Tópico</th><th class="num">N</th><th class="num">Rating</th><th class="num">% negativas</th><th>Severidad</th></tr></thead>
+        <table class="sortable">
+          <thead><tr>
+            <th data-sort="text">Tópico</th>
+            <th class="num" data-sort="num">N</th>
+            <th class="num" data-sort="num">Rating</th>
+            <th class="num" data-sort="num">% negativas</th>
+            <th data-sort="text">Severidad</th>
+          </tr></thead>
           <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
         </table>
       </div>
+      <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
     </details>
   </section>
 
@@ -196,5 +228,39 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
 </div>
+<script>
+(function () {
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
