@@ -394,6 +394,10 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
   background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
   padding: 22px 26px; margin-top: 0;
 }}
+.goal-eyebrow {{
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800;
+  opacity: 0.85; margin-bottom: 6px;
+}}
 .goal-question {{ font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }}
 .goal-sub {{ font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }}
 .part {{
@@ -501,6 +505,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <div class="container">
 
   <div class="goal-banner">
+    <div class="goal-eyebrow">Análisis de reseñas de Google Play y App Store de la app de {empresa}</div>
     <div class="goal-question">¿Qué podemos mejorar a continuación, según el feedback de los usuarios?</div>
     <p class="goal-sub">Eso responde este informe: primero el panorama general (rating oficial), después qué comentan los usuarios con sus propias palabras, priorizado por impacto.</p>
   </div>
