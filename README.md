@@ -15,6 +15,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 2. **Descripción de datos** (`01_data_understanding/describe_data.py`): documenta formato, tamaño, variables y disponibilidad de cada fuente por separado (una `<fuente>_description.md` por fuente, ya que cada una tiene su propio esquema/grano) — tarea de "Data Description" de CRISP-DM, no transforma nada.
 3. **Integración** (`02_data_preparation/integrate_data.py`): junta las fuentes de reseñas con texto (ios_reviews + android_reviews) en un solo dataset por empresa (`integrated_<empresa>.parquet`); la columna `store` que ambas ya traen identifica el origen de cada fila, sin agregar una columna redundante. `store_ratings` queda afuera a propósito: es una fila por tienda (rating agregado), una unidad de análisis distinta a una fila por reseña — se consume directo desde su propio JSON, sin integrar.
 4. **Construcción de variables** (`02_data_preparation/construct_data.py`): deriva `month` (YYYY-MM), `text_length` (largo del texto) y `rating_bucket` (positiva/neutra/negativa a partir de las estrellas, un sentimiento "barato" independiente del modelo NLP) — tarea de "Construct Data" de CRISP-DM.
+4b. **Selección de variables** (`02_data_preparation/select_data.py`, opcional/exploratorio): corre correlación (Pearson/Spearman) o comparación por grupo (Kruskal-Wallis) entre variables, para chequear con números si una variable derivada trae señal real antes de asumirlo (ej. en Ripio, las reseñas negativas duplican en largo a las positivas, diferencia estadísticamente significativa) — tarea de "Select Data" de CRISP-DM.
 5. **Limpieza** (`02_data_preparation/clean_reviews.py`): sobre el dataset con variables derivadas, filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 6. **Análisis** (`03_modeling/model.py`):
    - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
@@ -44,6 +45,7 @@ common/
 02_data_preparation/
   integrate_data.py    # integra ios_reviews + android_reviews (NO store_ratings) en un dataset; "store" ya identifica el origen
   construct_data.py    # deriva month, text_length, rating_bucket sobre el dataset integrado
+  select_data.py       # correlación/comparación por grupo entre variables, para chequear señal antes de modelar
   clean_reviews.py     # filtra reseñas sin señal real, sobre el dataset con variables derivadas
 03_modeling/
   model.py             # sentimiento + topic modeling + resumen
@@ -140,6 +142,12 @@ cp .env.example .env   # y completar HF_TOKEN
 
    ```bash
    python 02_data_preparation/construct_data.py --name spotify
+   ```
+
+4b. (Opcional) Chequear si esas variables derivadas traen señal real antes de llevarlas a modelado:
+
+   ```bash
+   python 02_data_preparation/select_data.py --name spotify
    ```
 
 5. Limpiar las reseñas sin señal real:

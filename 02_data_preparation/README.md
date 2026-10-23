@@ -17,3 +17,11 @@ python 02_data_preparation/construct_data.py --name <empresa>
 ```bash
 python 02_data_preparation/clean_reviews.py --name <empresa>
 ```
+
+`select_data.py`: tarea de "Select Data" de CRISP-DM — antes de modelar, chequea con correlación/tests estadísticos si una variable derivada realmente trae señal (ej. "¿las reseñas más largas son más negativas?"), en vez de asumirlo. Corre sobre el dataset construido.
+
+```bash
+python 02_data_preparation/select_data.py --name <empresa>                               # pares candidatos por default
+python 02_data_preparation/select_data.py --name <empresa> --x text_length --y rating     # numérica vs numérica
+python 02_data_preparation/select_data.py --name <empresa> --x text_length --group store  # numérica vs categórica
+```
