@@ -197,7 +197,7 @@ def build_categories(summary: pd.DataFrame) -> list[dict]:
         include_groups=False,
     ).reset_index()
     grouped["n"] = grouped["n"].astype(int)
-    return grouped.sort_values("n", ascending=False).to_dict("records")
+    return grouped.sort_values("pct_neg", ascending=False).to_dict("records")
 
 
 def render_categories_html(categories: list[dict]) -> str:
