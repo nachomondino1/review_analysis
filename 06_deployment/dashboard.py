@@ -223,8 +223,9 @@ def render_categories_html(categories: list[dict]) -> str:
         size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
         color = pct_to_color(c["pct_neg"])
         font_size = max(11, min(15, round(size / 7)))
+        item_width = max(size, 90)
         bubbles.append(f'''
-        <div class="bubble-item">
+        <div class="bubble-item" style="width:{item_width}px;">
           <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
                title="{esc(c["category"])}: {c["n"]} reseñas, {c["pct_neg"]}% negativas">
             {c["pct_neg"]}%
@@ -476,7 +477,7 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
   display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: flex-start;
   gap: 20px 16px; padding: 8px 0 4px;
 }}
-.bubble-item {{ display: flex; flex-direction: column; align-items: center; width: 110px; }}
+.bubble-item {{ display: flex; flex-direction: column; align-items: center; }}
 .bubble {{
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
