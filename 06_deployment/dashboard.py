@@ -71,22 +71,33 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
+
+    # Círculo chico (con texto) adentro del grande (total) — área, no radio,
+    # proporcional a la cantidad, para que el tamaño relativo no engañe.
+    outer_r = 90
+    inner_r = max(18, round(outer_r * (pct_text / 100) ** 0.5))
+    inner_label = f'<text x="100" y="106" class="nest-label">{pct_text}%</text>' if inner_r >= 26 else ""
+
     return f'''
     <div class="composition">
       <p class="composition-intro">De las {total_official_fmt} reseñas, algunas tienen texto y otras no:</p>
-      <div class="composition-stats">
-        <div class="comp-stat comp-stat--text">
-          <div class="comp-pct">{pct_text}%</div>
-          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+      <div class="composition-nest">
+        <svg viewBox="0 0 200 200" width="180" height="180" role="img"
+             aria-label="{pct_text}% de las reseñas tiene texto, {pct_no_text}% son solo estrellas">
+          <circle cx="100" cy="100" r="{outer_r}" class="nest-outer"></circle>
+          <circle cx="100" cy="100" r="{inner_r}" class="nest-inner"></circle>
+          {inner_label}
+        </svg>
+        <div class="composition-stats">
+          <div class="comp-stat comp-stat--text">
+            <div class="comp-pct">{pct_text}%</div>
+            <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+          </div>
+          <div class="comp-stat comp-stat--notext">
+            <div class="comp-pct">{pct_no_text}%</div>
+            <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
+          </div>
         </div>
-        <div class="comp-stat comp-stat--notext">
-          <div class="comp-pct">{pct_no_text}%</div>
-          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
-        </div>
-      </div>
-      <div class="composition-bar">
-        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
-        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
     </div>
@@ -583,19 +594,17 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
 .composition {{ margin-top: 20px; }}
 .composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
-.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
+.composition-nest {{ display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-top: 8px; }}
+.composition-nest svg {{ flex-shrink: 0; }}
+.nest-outer {{ fill: var(--border-soft); stroke: var(--muted-soft); stroke-width: 1.5; }}
+.nest-inner {{ fill: var(--warn); }}
+.nest-label {{ fill: #fff; font-weight: 800; font-size: 28px; text-anchor: middle; }}
+.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; flex: 1 1 220px; }}
 .comp-stat {{ flex: 1 1 160px; }}
 .comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
 .comp-stat--text .comp-pct {{ color: var(--warn); }}
 .comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
 .comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
-.composition-bar {{
-  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
-  border: 1px solid var(--border-soft);
-}}
-.composition-fill {{ height: 100%; }}
-.composition-fill--text {{ background: var(--warn); }}
-.composition-fill--notext {{ background: var(--border-soft); }}
 .composition-callout {{
   margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
   background: color-mix(in srgb, var(--warn) 12%, transparent);

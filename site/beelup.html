@@ -169,19 +169,17 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
 .composition { margin-top: 20px; }
 .composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
-.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.composition-nest { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; margin-top: 8px; }
+.composition-nest svg { flex-shrink: 0; }
+.nest-outer { fill: var(--border-soft); stroke: var(--muted-soft); stroke-width: 1.5; }
+.nest-inner { fill: var(--warn); }
+.nest-label { fill: #fff; font-weight: 800; font-size: 28px; text-anchor: middle; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; flex: 1 1 220px; }
 .comp-stat { flex: 1 1 160px; }
 .comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
 .comp-stat--text .comp-pct { color: var(--warn); }
 .comp-stat--notext .comp-pct { color: var(--muted-soft); }
 .comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-.composition-bar {
-  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
-  border: 1px solid var(--border-soft);
-}
-.composition-fill { height: 100%; }
-.composition-fill--text { background: var(--warn); }
-.composition-fill--notext { background: var(--border-soft); }
 .composition-callout {
   margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
   background: color-mix(in srgb, var(--warn) 12%, transparent);
@@ -215,19 +213,23 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     
     <div class="composition">
       <p class="composition-intro">De las 169 reseñas, algunas tienen texto y otras no:</p>
-      <div class="composition-stats">
-        <div class="comp-stat comp-stat--text">
-          <div class="comp-pct">43.8%</div>
-          <div class="comp-label">📝 Con texto (74 reseñas)</div>
+      <div class="composition-nest">
+        <svg viewBox="0 0 200 200" width="180" height="180" role="img"
+             aria-label="43.8% de las reseñas tiene texto, 56.2% son solo estrellas">
+          <circle cx="100" cy="100" r="90" class="nest-outer"></circle>
+          <circle cx="100" cy="100" r="60" class="nest-inner"></circle>
+          <text x="100" y="106" class="nest-label">43.8%</text>
+        </svg>
+        <div class="composition-stats">
+          <div class="comp-stat comp-stat--text">
+            <div class="comp-pct">43.8%</div>
+            <div class="comp-label">📝 Con texto (74 reseñas)</div>
+          </div>
+          <div class="comp-stat comp-stat--notext">
+            <div class="comp-pct">56.2%</div>
+            <div class="comp-label">⭐ Solo estrellas (95 reseñas)</div>
+          </div>
         </div>
-        <div class="comp-stat comp-stat--notext">
-          <div class="comp-pct">56.2%</div>
-          <div class="comp-label">⭐ Solo estrellas (95 reseñas)</div>
-        </div>
-      </div>
-      <div class="composition-bar">
-        <div class="composition-fill composition-fill--text" style="width:43.8%"></div>
-        <div class="composition-fill composition-fill--notext" style="width:56.2%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 43.8% que tiene texto</strong> (74 reseñas) — es la única porción que se puede leer.</p>
     </div>
