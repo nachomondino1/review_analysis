@@ -243,9 +243,11 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
         item_width = max(size, 90)
         bubbles.append(f'''
         <div class="bubble-item" style="width:{item_width}px;">
-          <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
-               title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
-            {esc(c["category"])}
+          <div class="bubble-slot" style="height:{BUBBLE_MAX_PX}px;">
+            <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
+                 title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
+              {esc(c["category"])}
+            </div>
           </div>
           <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
           <div class="bubble-n">{c["n"]} reseñas</div>
@@ -512,6 +514,7 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
   gap: 20px 16px; padding: 8px 0 4px;
 }}
 .bubble-item {{ display: flex; flex-direction: column; align-items: center; }}
+.bubble-slot {{ display: flex; align-items: flex-end; justify-content: center; }}
 .bubble {{
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
