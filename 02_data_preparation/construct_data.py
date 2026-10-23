@@ -4,7 +4,7 @@ Construye/deriva variables nuevas a partir del dataset integrado (tarea de
 columnas calculadas a partir de las que ya existen.
 
 Variables derivadas:
-  - month: "YYYY-MM" de la fecha de la reseña. Varios scripts de 04_evaluation
+  - month: "YYYY-MM" de la fecha de la reseña. Varios scripts de 03_modeling
     necesitan agrupar por mes; calcularlo una sola vez acá evita repetir la
     misma conversión de timezone en cada script.
   - text_length: cantidad de caracteres del texto. clean_reviews.py ya lo

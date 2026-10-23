@@ -26,7 +26,6 @@ class Paths:
         self.understanding_dir = self.base / "01_data_understanding"
         self.preparation_dir = self.base / "02_data_preparation"
         self.modeling_dir = self.base / "03_modeling"
-        self.evaluation_dir = self.base / "04_evaluation"
 
         # Una fuente = un archivo, nombrado "<fuente>_<empresa>.<formato>" (ver
         # 01_data_understanding/collect_*.py): cada script de collect toca un
@@ -42,11 +41,15 @@ class Paths:
         self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
         self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
-        self.topic_samples_json = self.evaluation_dir / "topic_samples.json"
-        self.topics_named_json = self.evaluation_dir / "topics_named.json"
-        self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
-        self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
-        self.version_breakout_json = self.evaluation_dir / "version_breakout.json"
+        # Hallazgos derivados del modelo (nombrado de tópicos, tendencia, quiebre
+        # de versión): siguen operando sobre la salida de model.py, no evalúan
+        # nada contra un criterio de negocio — por eso viven en 03_modeling, no
+        # en una fase "04_evaluation" que terminaba sin nada propio adentro.
+        self.topic_samples_json = self.modeling_dir / "topic_samples.json"
+        self.topics_named_json = self.modeling_dir / "topics_named.json"
+        self.sentiment_by_month_csv = self.modeling_dir / "sentiment_by_month.csv"
+        self.store_comparison_csv = self.modeling_dir / "store_comparison.csv"
+        self.version_breakout_json = self.modeling_dir / "version_breakout.json"
 
         # En la raíz del repo (no bajo 05_deployment/) porque GitHub Pages
         # "clásico" (deploy from branch) solo sirve desde la raíz o /docs,
@@ -55,7 +58,7 @@ class Paths:
         self.site_html = self.site_dir / f"{self.slug}.html"
 
     def ensure_dirs(self):
-        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir, self.evaluation_dir):
+        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir):
             d.mkdir(parents=True, exist_ok=True)
 
     def ensure_site_dir(self):

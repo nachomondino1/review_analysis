@@ -1,10 +1,10 @@
 """
 Tendencia temporal de sentimiento y comparación App Store vs Google Play.
 
-Uso: python 04_evaluation/trends.py --name <empresa>
+Uso: python 03_modeling/trends.py --name <empresa>
 Genera:
-  - data/<empresa>/output/sentiment_by_month.csv   (mes, store, n, pct_neg, avg_rating)
-  - data/<empresa>/output/store_comparison.csv      (store, n, avg_rating, pct_neg)
+  - data/<empresa>/03_modeling/sentiment_by_month.csv   (mes, store, n, pct_neg, avg_rating)
+  - data/<empresa>/03_modeling/store_comparison.csv      (store, n, avg_rating, pct_neg)
 """
 import argparse
 import sys

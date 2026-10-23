@@ -3,7 +3,7 @@ Genera un único HTML autocontenido con el análisis de una empresa, para
 compartir por link/archivo (sin backend, sin build step).
 
 Uso: python 05_deployment/dashboard.py --name <empresa>
-Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>.html
+Lee los outputs de 03_modeling; escribe site/<empresa>.html
 y regenera index.html en la raíz del repo con el listado de empresas
 (para que GitHub Pages lo muestre como home del dominio).
 """
@@ -59,7 +59,7 @@ STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
 
 def build_version_breakout_section(paths: Paths) -> str:
     """
-    Si 04_evaluation/version_breakout.py encontró un quiebre real (ver ese
+    Si 03_modeling/version_breakout.py encontró un quiebre real (ver ese
     script para la metodología), lo muestra como un hecho concreto y citable
     ("se rompió en la v5.45.0, no 'empeoró este trimestre'") — más difícil de
     replicar al toque que un resumen genérico, porque exige cruzar sentimiento

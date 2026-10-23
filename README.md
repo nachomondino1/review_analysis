@@ -17,14 +17,12 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase, c
 4. **Construcción de variables** (`02_data_preparation/construct_data.py`): deriva `month` (YYYY-MM), `text_length` (largo del texto) y `rating_bucket` (positiva/neutra/negativa a partir de las estrellas, un sentimiento "barato" independiente del modelo NLP) — tarea de "Construct Data" de CRISP-DM.
 4b. **Selección de variables** (`02_data_preparation/select_data.py`, opcional/exploratorio): corre correlación (Pearson/Spearman) o comparación por grupo (Kruskal-Wallis) entre variables, para chequear con números si una variable derivada trae señal real antes de asumirlo (ej. en Ripio, las reseñas negativas duplican en largo a las positivas, diferencia estadísticamente significativa) — tarea de "Select Data" de CRISP-DM.
 5. **Limpieza** (`02_data_preparation/clean_reviews.py`): sobre el dataset con variables derivadas, filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
-6. **Análisis** (`03_modeling/model.py`):
-   - Clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español).
-   - Agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`), con `nr_topics="auto"` para fusionar tópicos casi idénticos (sin esto, Ripio daba 37 tópicos; con esto, 18 — varios eran variantes del mismo elogio genérico o del mismo problema de login).
-   - Genera un resumen por tópico (cantidad de reseñas, rating promedio, % de negativas) ordenado por los tópicos más problemáticos primero. El tópico `-1` (outliers de BERTopic, sin patrón claro) queda marcado con `is_outlier=True` en vez de mezclarse con tópicos reales.
-7. **Evaluación / hallazgos** (`04_evaluation/`):
+6. **Modelado** (`03_modeling/`), las 4 tareas de "Modeling" de CRISP-DM — construir los modelos y evaluar si dan resultados confiables, antes de interpretarlos en términos de negocio:
+   - `model.py`: clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español) y agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`), con `nr_topics="auto"` para fusionar tópicos casi idénticos (sin esto, Ripio daba 37 tópicos; con esto, 18). Genera un resumen por tópico (cantidad de reseñas, rating promedio, % de negativas) ordenado por los más problemáticos primero. Imprime dos chequeos de calidad del modelo ("Assess model"): `sentiment_mismatch` (% de reseñas donde el sentimiento del texto discrepa de `rating_bucket`, ej. 5 estrellas con texto que el modelo lee como negativo) y `% outliers` (reseñas que BERTopic no pudo agrupar en ningún tópico, tópico `-1`) — si cualquiera de los dos da alto, conviene desconfiar de los hallazgos antes de reportarlos.
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
-   - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play, para detectar si algo empeoró con una versión o si una plataforma tiene peor experiencia que la otra.
-8. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
+   - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play.
+   - `version_breakout.py`: busca si el % de negativas tuvo un quiebre real atado a una versión específica, con test de significancia antes de reportarlo.
+7. **Deployment** (`05_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
@@ -48,8 +46,7 @@ common/
   select_data.py       # correlación/comparación por grupo entre variables, para chequear señal antes de modelar
   clean_reviews.py     # filtra reseñas sin señal real, sobre el dataset con variables derivadas
 03_modeling/
-  model.py             # sentimiento + topic modeling + resumen
-04_evaluation/
+  model.py             # sentimiento + topic modeling + resumen + chequeos de calidad del modelo
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
   version_breakout.py  # quiebre de % negativas atado a una versión específica
@@ -70,10 +67,9 @@ data/
       constructed_<empresa>.parquet # + month, text_length, rating_bucket
       reviews_clean.parquet         # reseñas filtradas, insumo del modelado
     03_modeling/
-      reviews_enriched.parquet  # reseñas + sentimiento + tópico
+      reviews_enriched.parquet  # reseñas + sentimiento + tópico + sentiment_mismatch
       reviews_enriched.csv      # idem, para abrir en Excel
-      topics_summary.csv        # resumen por tópico; 04_evaluation le agrega name/summary/severity/recommendation
-    04_evaluation/
+      topics_summary.csv        # resumen por tópico; topics_enrich.py le agrega name/summary/severity/recommendation
       topic_samples.json        # keywords + muestras por tópico, insumo para el nombrado
       topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
       sentiment_by_month.csv    # tendencia mensual de sentimiento por store
@@ -165,27 +161,27 @@ cp .env.example .env   # y completar HF_TOKEN
 7. Exportar las muestras para nombrar los tópicos:
 
    ```bash
-   python 04_evaluation/topics_enrich.py export --name spotify
+   python 03_modeling/topics_enrich.py export --name spotify
    ```
 
-   Esto genera `data/spotify/04_evaluation/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/04_evaluation/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
+   Esto genera `data/spotify/03_modeling/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/03_modeling/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
 
 8. Mergear esos nombres al resumen:
 
    ```bash
-   python 04_evaluation/topics_enrich.py merge --name spotify
+   python 03_modeling/topics_enrich.py merge --name spotify
    ```
 
 9. (Opcional) Tendencias temporales y comparación de stores:
 
    ```bash
-   python 04_evaluation/trends.py --name spotify
+   python 03_modeling/trends.py --name spotify
    ```
 
 9b. (Opcional) Buscar si hay un quiebre de % negativas atado a una versión específica (ej. "se rompió en la v5.45.0"), no solo una tendencia de calendario:
 
    ```bash
-   python 04_evaluation/version_breakout.py --name spotify
+   python 03_modeling/version_breakout.py --name spotify
    ```
 
    Compara "desde esa versión en adelante" contra "antes" (exige que la caída se sostenga en las versiones siguientes, no un pico de una sola versión), y solo reporta un quiebre si además pasa un test de significancia de dos proporciones (p < 0.05) — no alcanza con un salto grande de puntos porcentuales si la muestra es chica.

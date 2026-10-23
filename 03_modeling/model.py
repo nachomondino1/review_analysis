@@ -73,6 +73,13 @@ def run(paths: Paths):
     # El tópico -1 son outliers de BERTopic, no un tema real: se marca aparte
     summary["is_outlier"] = summary.index == OUTLIER_TOPIC
 
+    # Chequeo de calidad del modelo de tópicos: si una fracción grande de las
+    # reseñas no se pudo agrupar en ningún tópico, el modelo no separó bien el
+    # corpus (corpus chico, min_topic_size mal calibrado, etc.) y conviene
+    # desconfiar de los tópicos que sí formó antes de reportarlos como hallazgo.
+    outlier_pct = (df["topic"] == OUTLIER_TOPIC).mean()
+    print(f"outliers (tópico -1): {(df['topic'] == OUTLIER_TOPIC).sum()}/{len(df)} reseñas ({outlier_pct:.1%})")
+
     paths.ensure_dirs()
     df.to_parquet(paths.reviews_enriched_parquet)  # fuente de verdad, reusable
     df.to_csv(paths.reviews_enriched_csv, index=False, encoding="utf-8-sig")  # para abrir en Excel
