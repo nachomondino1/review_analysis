@@ -54,7 +54,35 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
     return {"score": round(weighted, 2), "count": total}
 
 
-def build_composition_bar(official: dict | None, total_n: int) -> str:
+IOS_RSS_PAGE_CAP = 500  # itunes.apple.com/.../rss/customerreviews pagina hasta 10 páginas de 50 y no da más
+
+
+def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str:
+    """
+    La RSS pública de reseñas de iOS (ver collect_ios_reviews.py) tiene un
+    techo duro de ~500 reseñas con texto, venga o no venga acompañado de
+    más — a diferencia de Android, donde reviews_all() trae todas las
+    disponibles. Si iOS pegó en ese techo, el "solo estrellas" de la barra
+    de arriba está inflado: una parte de ese resto puede tener texto
+    también, simplemente no lo podemos leer.
+    """
+    if reviews is None or "store" not in reviews.columns or not store_ratings:
+        return ""
+    ios_n = int((reviews["store"] == "ios").sum())
+    ios_official = (store_ratings.get("ios") or {}).get("ratings_count")
+    if not ios_official or ios_n < IOS_RSS_PAGE_CAP * 0.9 or ios_official <= ios_n:
+        return ""
+    ios_official_fmt = f'{ios_official:,}'.replace(",", ".")
+    return (
+        f'<p class="methodology-note">⚠️ La API pública de reseñas de iOS solo deja leer las últimas '
+        f'~{IOS_RSS_PAGE_CAP}, aunque haya más: de las {ios_official_fmt} calificaciones de iOS, este '
+        f'análisis pudo leer el texto de {ios_n}. Una parte del resto puede tener texto también — no '
+        f'figuran acá porque la tienda no las deja leer, no porque no existan. Android no tiene ese '
+        f'límite (se leyeron todas las disponibles).</p>'
+    )
+
+
+def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str = "") -> str:
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
@@ -90,6 +118,7 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
         <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
+      {ios_cap_note}
     </div>
     '''
 
@@ -471,16 +500,48 @@ header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
 header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
 h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
 .goal-banner {{
-  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
-  padding: 22px 26px; margin-top: 0;
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
+  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
 }}
+.goal-badge {{
+  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
+}}
+.goal-main {{ display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }}
+.goal-left {{ flex: 1 1 320px; }}
 .goal-eyebrow {{
-  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
-  margin-bottom: 10px;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
 }}
-@media (max-width: 640px) {{ .goal-eyebrow {{ font-size: 1.25rem; }} }}
-.goal-question {{ font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }}
-.goal-sub {{ font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }}
+.goal-question {{
+  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
+}}
+@media (max-width: 640px) {{ .goal-question {{ font-size: 1.3rem; }} }}
+.goal-hero {{
+  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
+  padding: 14px 24px; text-align: center; min-width: 150px;
+}}
+.goal-hero-value {{ font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }}
+.goal-hero-label {{ font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }}
+.goal-steps {{
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
+}}
+.goal-step {{
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
+  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
+}}
+.goal-step-icon {{ font-size: 0.9rem; }}
+.goal-step-arrow {{ opacity: 0.55; font-weight: 700; }}
+.goal-urgent-row {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }}
+.goal-urgent {{
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
+  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}}
+.goal-urgent-icon {{ font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }}
+.goal-urgent-label {{
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
+}}
+.goal-urgent-name {{ font-weight: 700; font-size: 0.92rem; margin-top: 2px; }}
+.goal-urgent-meta {{ font-size: 0.78rem; color: var(--muted); margin-top: 2px; }}
 .part {{
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 60%, transparent);
@@ -615,9 +676,25 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-eyebrow">Análisis de reseñas de la app de {empresa} en Google Play y App Store</div>
-    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
-    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
+    <div class="goal-badge">📊 Informe ejecutivo · {fecha}</div>
+    <div class="goal-main">
+      <div class="goal-left">
+        <div class="goal-eyebrow">{empresa} en Google Play y App Store</div>
+        <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+      </div>
+      <div class="goal-hero">
+        <div class="goal-hero-value">{official_rating}</div>
+        <div class="goal-hero-label">Rating oficial<br>({official_count})</div>
+      </div>
+    </div>
+    <div class="goal-steps">
+      <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🤖</span>Analizadas con Machine Learning</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
+    </div>
+    {top_finding_html}
   </div>
 
   <div class="part part--store">
@@ -718,10 +795,33 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
-    composition_html = build_composition_bar(official, stats["total_n"])
-    categories_section = render_categories_html(build_categories(summary), build_category_topics(summary))
+    ios_cap_note = build_ios_cap_note(reviews, store_ratings)
+    composition_html = build_composition_bar(official, stats["total_n"], ios_cap_note)
+    categories = build_categories(summary)
+    categories_section = render_categories_html(categories, build_category_topics(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
+
+    def urgent_card(icon: str, label: str, name: str, n: int, pct_neg: float) -> str:
+        return f'''
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">{icon}</span>
+          <div>
+            <div class="goal-urgent-label">{label}</div>
+            <div class="goal-urgent-name">{esc(name)}</div>
+            <div class="goal-urgent-meta">{n} reseñas · {pct_neg}% negativas</div>
+          </div>
+        </div>
+        '''
+
+    urgent_cards = []
+    if categories:
+        top_category = categories[0]
+        urgent_cards.append(urgent_card("📂", "Categoría más urgente", top_category["category"], top_category["n"], top_category["pct_neg"]))
+    if findings:
+        top = findings[0]
+        urgent_cards.append(urgent_card("🚨", "Tópico más urgente", top["name"], top["n"], top["pct_neg"]))
+    top_finding_html = f'<div class="goal-urgent-row">{"".join(urgent_cards)}</div>' if urgent_cards else ""
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
     # El quiebre de versión es el hallazgo más fuerte y citable (persistencia +
     # significancia ya exigidas en version_breakout.py) — si existe, gana;
@@ -758,6 +858,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         composition_html=composition_html,
         categories_section=categories_section,
         findings_html=findings_html,
+        top_finding_html=top_finding_html,
         trend_html=trend_html,
         competitor_section=competitor_section,
         n_topics=len(summary),

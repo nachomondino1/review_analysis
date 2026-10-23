@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas de la app de beelup</title>
@@ -56,16 +64,48 @@ header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
 h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
 .goal-banner {
-  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
-  padding: 22px 26px; margin-top: 0;
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
+  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
 }
+.goal-badge {
+  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
+}
+.goal-main { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.goal-left { flex: 1 1 320px; }
 .goal-eyebrow {
-  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
-  margin-bottom: 10px;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
 }
-@media (max-width: 640px) { .goal-eyebrow { font-size: 1.25rem; } }
-.goal-question { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }
-.goal-sub { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
+.goal-question {
+  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
+}
+@media (max-width: 640px) { .goal-question { font-size: 1.3rem; } }
+.goal-hero {
+  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
+  padding: 14px 24px; text-align: center; min-width: 150px;
+}
+.goal-hero-value { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.goal-hero-label { font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }
+.goal-steps {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
+}
+.goal-step {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
+  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
+}
+.goal-step-icon { font-size: 0.9rem; }
+.goal-step-arrow { opacity: 0.55; font-weight: 700; }
+.goal-urgent-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.goal-urgent {
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
+  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.goal-urgent-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+.goal-urgent-label {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
+}
+.goal-urgent-name { font-weight: 700; font-size: 0.92rem; margin-top: 2px; }
+.goal-urgent-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 .part {
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 60%, transparent);
@@ -200,9 +240,43 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-eyebrow">Análisis de reseñas de la app de beelup en Google Play y App Store</div>
-    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
-    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
+    <div class="goal-badge">📊 Informe ejecutivo · 2026-10-23</div>
+    <div class="goal-main">
+      <div class="goal-left">
+        <div class="goal-eyebrow">beelup en Google Play y App Store</div>
+        <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+      </div>
+      <div class="goal-hero">
+        <div class="goal-hero-value">2.1★</div>
+        <div class="goal-hero-label">Rating oficial<br>(169 calificaciones)</div>
+      </div>
+    </div>
+    <div class="goal-steps">
+      <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🤖</span>Analizadas con Machine Learning</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
+    </div>
+    <div class="goal-urgent-row">
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">📂</span>
+          <div>
+            <div class="goal-urgent-label">Categoría más urgente</div>
+            <div class="goal-urgent-name">Interfaz</div>
+            <div class="goal-urgent-meta">70 reseñas · 71.4% negativas</div>
+          </div>
+        </div>
+        
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">🚨</span>
+          <div>
+            <div class="goal-urgent-label">Tópico más urgente</div>
+            <div class="goal-urgent-name">La app es solo un wrapper del sitio web, con errores</div>
+            <div class="goal-urgent-meta">48 reseñas · 75.0% negativas</div>
+          </div>
+        </div>
+        </div>
   </div>
 
   <div class="part part--store">
@@ -230,6 +304,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
         <div class="composition-fill composition-fill--notext" style="width:56.2%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 43.8% que tiene texto</strong> (74 reseñas) — es la única porción que se puede leer.</p>
+      
     </div>
     
     
@@ -245,7 +320,26 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
     <div class="subsection"></div>
 
-    
+    <div class="subsection"><h3>Por categoría</h3>
+    <div class="bubble-legend">
+      <span>Tamaño = volumen de reseñas</span>
+      <span class="bubble-legend-scale">
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+      </span>
+    </div>
+    <div class="bubble-chart">
+        <div class="bubble-item" style="width:160px;">
+          <div class="bubble-slot" style="height:160px;">
+            <div class="bubble" style="width:160px;height:160px;background:#da5414;font-size:14px;"
+                 title="Interfaz: 70 reseñas, 71% negativas">
+              Interfaz
+            </div>
+          </div>
+          <div class="bubble-pct" style="color:#da5414;">71% negativas</div>
+          <div class="bubble-n">70 reseñas</div>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Interfaz</dt><dd>La app es solo un wrapper del sitio web, con errores · Redirige a la web y esa web también funciona mal</dd></div></dl></details></div>
 
     <div class="subsection">
       <h3>Top 3 tópicos</h3>
@@ -256,7 +350,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
             <h3>La app es solo un wrapper del sitio web, con errores</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">48 reseñas · 75.0% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Interfaz</span>48 reseñas · 75.0% negativas</p>
           <p>Usuarios perciben que la app no hace más que redirigir al sitio web (en vez de ser una app nativa), con errores frecuentes y lentitud al cargar contenido.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Evaluar si vale la pena mantener una app nativa real (con reproductor propio, no un simple link) o directamente no ofrecer app y dirigir al sitio web — hoy la app está generando una percepción peor que no tener app.</p>
           <ul class='samples'><li>“Anda cuando quiere. Tarda mucho y tiene muchísimos errores. Sin contar que la aplicación simplemente tiene el link de la página, lo cual ya de por sí es una gastada.”</li><li>“muy al pedo la creación de esta app, antes podías ver los partidos desde Google y era más práctico. 👎🏼”</li></ul>
@@ -267,7 +361,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
             <h3>Redirige a la web y esa web también funciona mal</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">22 reseñas · 63.6% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Interfaz</span>22 reseñas · 63.6% negativas</p>
           <p>Mismo problema que el tópico 0, enfatizando que además la página web a la que redirige es lenta o se traba.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Mismo frente que el tópico 0: si se decide seguir con el modelo de redirección, el problema de fondo a resolver es la performance de la web, no la app en sí.</p>
           <ul class='samples'><li>“Al pedo te manda a la pagina y la pagina anda re mal”</li><li>“te envia al link pesimo”</li></ul>
@@ -283,13 +377,13 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
         <div class="table-scroll">
           <table class="sortable">
             <thead><tr>
-              <th data-sort="text">Tópico</th>
+              <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td>Interfaz</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td>Interfaz</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
