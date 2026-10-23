@@ -213,7 +213,23 @@ def pct_to_color(pct_neg: float) -> str:
 BUBBLE_MIN_PX, BUBBLE_MAX_PX = 56, 160
 
 
-def render_categories_html(categories: list[dict]) -> str:
+def build_category_topics(summary: pd.DataFrame) -> dict[str, list[str]]:
+    """Nombres de los tópicos (ya nombrados por Claude) que componen cada
+    categoría, para la explicación expandible de qué incluye cada burbuja."""
+    if "category" not in summary.columns or "name" not in summary.columns:
+        return {}
+    real = summary[~summary["is_outlier"]].copy()
+    real = real[real["category"].notna() & (real["category"] != "")]
+    if real.empty:
+        return {}
+    real = real.sort_values("pct_neg", ascending=False)
+    return {
+        category: [row["name"] for _, row in group.iterrows() if pd.notna(row["name"]) and row["name"]]
+        for category, group in real.groupby("category")
+    }
+
+
+def render_categories_html(categories: list[dict], category_topics: dict[str, list[str]] | None = None) -> str:
     if not categories:
         return ""
     max_n = max(c["n"] for c in categories)
@@ -243,10 +259,27 @@ def render_categories_html(categories: list[dict]) -> str:
       </span>
     </div>
     '''
+    explain = ""
+    if category_topics:
+        items = []
+        for c in sorted(categories, key=lambda c: c["n"], reverse=True):
+            topics = category_topics.get(c["category"]) or []
+            if not topics:
+                continue
+            items.append(
+                f'<div class="cat-explain-item"><dt>{esc(c["category"])}</dt>'
+                f'<dd>{esc(" · ".join(topics))}</dd></div>'
+            )
+        if items:
+            explain = (
+                f'<details class="cat-explain"><summary>Qué incluye cada categoría</summary>'
+                f'<dl>{"".join(items)}</dl></details>'
+            )
     return (
         f'<div class="subsection"><h3>Por categoría</h3>'
         f'{legend}'
-        f'<div class="bubble-chart">{"".join(bubbles)}</div></div>'
+        f'<div class="bubble-chart">{"".join(bubbles)}</div>'
+        f'{explain}</div>'
     )
 
 
@@ -486,6 +519,14 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 }}
 .bubble-pct {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
 .bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
+.cat-explain {{ margin-top: 20px; font-size: 0.85rem; }}
+.cat-explain summary {{
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}}
+.cat-explain summary:hover {{ color: var(--text); }}
+.cat-explain dl {{ margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }}
+.cat-explain-item dt {{ font-weight: 700; font-size: 0.82rem; }}
+.cat-explain-item dd {{ margin: 2px 0 0; color: var(--muted); line-height: 1.5; }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -673,7 +714,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     composition_html = build_composition_bar(official, stats["total_n"])
-    categories_section = render_categories_html(build_categories(summary))
+    categories_section = render_categories_html(build_categories(summary), build_category_topics(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.

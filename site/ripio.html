@@ -108,6 +108,14 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 }
 .bubble-pct { font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }
 .bubble-n { color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }
+.cat-explain { margin-top: 20px; font-size: 0.85rem; }
+.cat-explain summary {
+  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
+}
+.cat-explain summary:hover { color: var(--text); }
+.cat-explain dl { margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.cat-explain-item dt { font-weight: 700; font-size: 0.82rem; }
+.cat-explain-item dd { margin: 2px 0 0; color: var(--muted); line-height: 1.5; }
 .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
 .finding-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -331,7 +339,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
           <div class="bubble-pct" style="color:#db401c;">84.0% negativas</div>
           <div class="bubble-n">150 reseñas</div>
         </div>
-        </div></div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Acceso</dt><dd>Error &quot;credenciales no válidas&quot; (cod 200) al ingresar · Recuperación de 2FA vía video no funciona · La app no carga / login se queda colgado · Código de verificación no llega (variante) · Actualización pedida pero no disponible en Play Store · Verificación de identidad (foto DNI) falla o cierra la app · No se puede completar el registro · Login roto de forma persistente · No puede iniciar sesión tras actualizar · No se puede crear la cuenta · Mail de confirmación de login no llega · SMS de verificación no llega · Actualización rompe el login · Errores genéricos, &quot;no funciona nada&quot; · Verificación de cuenta demorada · &quot;Ripio code&quot; (2FA) no llega · Foto de DNI cierra la app (iPhone)</dd></div><div class="cat-explain-item"><dt>Dinero</dt><dd>Dinero depositado/transferido que no se acredita · Compras de cripto rechazadas o reembolsos que no llegan · Transferencias tardan mucho en acreditarse · Demoras en transferencias y código SMS tardío · Satisfacción con la wallet / tarjeta · Satisfacción con la compra/gestión de Bitcoin · Satisfacción general con la operatoria de criptos · Satisfacción usando la app para inversión</dd></div><div class="cat-explain-item"><dt>Otros</dt><dd>Publicidad agresiva/engañosa · Reseñas de puntaje (&quot;le doy X estrellas&quot;) sin queja específica · Comentarios breves y ambiguos · &quot;Funciona bien&quot; sin más detalle · Elogios generales a la app · Elogios cortos muy positivos · Comentarios positivos cortos y genéricos · Experiencia sin problemas al operar · Mejoras percibidas en actualizaciones recientes · Agradecimientos genéricos</dd></div><div class="cat-explain-item"><dt>Costos</dt><dd>Comisiones específicas de compra/venta de Bitcoin · Comisiones percibidas como muy altas · Fricciones operando desde otros países (cambio de divisa, alta en Argentina)</dd></div><div class="cat-explain-item"><dt>Usabilidad</dt><dd>UI percibida como fea o de mala calidad · App fácil e intuitiva de usar</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Tickets de soporte sin resolución · Agradecimientos por soporte que resolvió un problema · Elogios al servicio en general</dd></div><div class="cat-explain-item"><dt>Seguridad</dt><dd>Elogios a la seguridad y confiabilidad</dd></div><div class="cat-explain-item"><dt>Rendimiento</dt><dd>App lenta en general · La app se traba o no abre en ciertos celulares Android · Lentitud en depósitos y retiros</dd></div></dl></details></div>
 
     <div class="subsection">
       <h3>Top 3 tópicos</h3>
