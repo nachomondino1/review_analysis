@@ -1,5 +1,5 @@
 """
-Describe los datos crudos de 01_data_understanding para una empresa: formato,
+Describe los datos crudos de 02_data_understanding para una empresa: formato,
 tamaño, variables y su tipo, y disponibilidad real de cada atributo (nulos).
 Es la tarea de "Data Description" de CRISP-DM — no transforma ni limpia nada,
 solo documenta lo que hay antes de integrar ni preparar.
@@ -7,12 +7,12 @@ solo documenta lo que hay antes de integrar ni preparar.
 Analiza cada fuente por separado (ios_reviews, android_reviews,
 store_ratings) porque cada una tiene su propio esquema/grano — mezclarlas de
 entrada escondería diferencias reales (ver integrate_data.py en
-02_data_preparation para la integración de las 3 en un solo dataset). El
+03_data_preparation para la integración de las 3 en un solo dataset). El
 resultado se vuelca en un único .md con una sección por fuente, para no
 tener que abrir 3 archivos sueltos para ver el panorama completo.
 
-Uso: python 01_data_understanding/describe_data.py --name <empresa>
-Lee data/<empresa>/01_data_understanding/{ios,android,store_ratings}_<empresa>.*
+Uso: python 02_data_understanding/describe_data.py --name <empresa>
+Lee data/<empresa>/02_data_understanding/{ios,android,store_ratings}_<empresa>.*
 y escribe data_description.md (unificado, para leer) y <fuente>_description.json
 por fuente (para otros scripts) en la misma carpeta.
 """

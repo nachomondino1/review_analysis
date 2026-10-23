@@ -1,5 +1,5 @@
 """
-Integra las fuentes de reseñas con texto de 01_data_understanding
+Integra las fuentes de reseñas con texto de 02_data_understanding
 (ios_reviews, android_reviews) en un único dataset. No agrega una columna
 identificadora de fuente propia: la columna "store" (ios/android), que ya
 viene en ambos archivos, identifica el origen de cada fila sin duplicarla.
@@ -11,8 +11,8 @@ mezclaría dos granos distintos en una sola tabla (ver DECISIONS/APRENDIZAJES
 sobre el sesgo de la muestra con texto vs. el rating oficial) — se consume
 por separado, directo desde store_ratings_<empresa>.json.
 
-Uso: python 02_data_preparation/integrate_data.py --name <empresa>
-Escribe data/<empresa>/02_data_preparation/integrated_<empresa>.parquet
+Uso: python 03_data_preparation/integrate_data.py --name <empresa>
+Escribe data/<empresa>/03_data_preparation/integrated_<empresa>.parquet
 """
 import argparse
 import sys

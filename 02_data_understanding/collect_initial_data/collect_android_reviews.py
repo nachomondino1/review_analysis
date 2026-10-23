@@ -1,8 +1,8 @@
 """
 Fuente 2: reseñas de Google Play (con texto), para una empresa.
 
-Uso: python 01_data_understanding/collect_android_reviews.py --name <empresa> [--pkg <package>]
-Escribe data/<empresa>/01_data_understanding/android_<empresa>.parquet
+Uso: python 02_data_understanding/collect_android_reviews.py --name <empresa> [--pkg <package>]
+Escribe data/<empresa>/02_data_understanding/android_<empresa>.parquet
 """
 import argparse
 import sys

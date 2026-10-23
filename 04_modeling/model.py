@@ -38,7 +38,7 @@ def parse_args():
 
 
 def run(paths: Paths):
-    df = pd.read_parquet(paths.reviews_clean)  # ya filtrado en 02_data_preparation
+    df = pd.read_parquet(paths.reviews_clean)  # ya filtrado en 03_data_preparation
 
     sent = create_analyzer(task="sentiment", lang="es")
     df["sentiment"] = [p.output for p in sent.predict(df["text"].tolist())]

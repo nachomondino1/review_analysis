@@ -1,8 +1,8 @@
 """
 Fuente 1: reseñas de App Store (RSS, con texto), para una empresa.
 
-Uso: python 01_data_understanding/collect_ios_reviews.py --name <empresa> [--app-ios <id>]
-Escribe data/<empresa>/01_data_understanding/ios_<empresa>.parquet
+Uso: python 02_data_understanding/collect_ios_reviews.py --name <empresa> [--app-ios <id>]
+Escribe data/<empresa>/02_data_understanding/ios_<empresa>.parquet
 """
 import argparse
 import sys

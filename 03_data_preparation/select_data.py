@@ -18,11 +18,11 @@ Dos funciones reusables:
     largo de texto suele venir con cola larga).
 
 Uso:
-  python 02_data_preparation/select_data.py --name <empresa>
+  python 03_data_preparation/select_data.py --name <empresa>
       corre el set de pares candidatos por default (ver CANDIDATE_PAIRS).
-  python 02_data_preparation/select_data.py --name <empresa> --x text_length --y rating
+  python 03_data_preparation/select_data.py --name <empresa> --x text_length --y rating
       corre un par numérico-numérico puntual.
-  python 02_data_preparation/select_data.py --name <empresa> --x text_length --group rating_bucket
+  python 03_data_preparation/select_data.py --name <empresa> --x text_length --group rating_bucket
       corre una comparación numérica-categórica puntual.
 """
 import argparse
@@ -35,7 +35,7 @@ from scipy.stats import kruskal, pearsonr, spearmanr
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
 
-# Pares que tiene sentido chequear antes de decidir qué llevar a 03_modeling.
+# Pares que tiene sentido chequear antes de decidir qué llevar a 04_modeling.
 CANDIDATE_NUMERIC_PAIRS = [("text_length", "rating")]
 CANDIDATE_GROUP_PAIRS = [("text_length", "rating_bucket"), ("text_length", "store")]
 
@@ -85,7 +85,7 @@ def print_group_result(res: dict):
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Correlaciona variables del dataset construido, para decidir qué llevar a 03_modeling.")
+    p = argparse.ArgumentParser(description="Correlaciona variables del dataset construido, para decidir qué llevar a 04_modeling.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app")
     p.add_argument("--x", default=None, help="Variable numérica (ej. text_length). Si se omite, corre los pares candidatos por default.")
     p.add_argument("--y", default=None, help="Otra variable numérica, para correlacionar con --x")

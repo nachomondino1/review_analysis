@@ -5,17 +5,17 @@ en la sesión que te está ayudando (no hay API key de Anthropic disponible),
 a partir de las muestras que exporta este script.
 
 Uso:
-  1) python 03_modeling/topics_enrich.py export --name <empresa>
-     -> genera data/<empresa>/03_modeling/topic_samples.json con keywords +
+  1) python 04_modeling/topics_enrich.py export --name <empresa>
+     -> genera data/<empresa>/04_modeling/topic_samples.json con keywords +
         reseñas de muestra por tópico, priorizado por severidad
         (volumen * % negativas). El tópico -1 (outlier) se incluye al final,
         marcado, pero no hace falta nombrarlo.
 
   2) Pedirle a Claude (en esta sesión) que lea ese JSON y escriba
-     data/<empresa>/03_modeling/topics_named.json con, por cada "topic" no
+     data/<empresa>/04_modeling/topics_named.json con, por cada "topic" no
      outlier: name, summary, severity ("alta"/"media"/"baja"), recommendation.
 
-  3) python 03_modeling/topics_enrich.py merge --name <empresa>
+  3) python 04_modeling/topics_enrich.py merge --name <empresa>
      -> vuelca esas columnas a topics_summary.csv (sobrescribe el archivo,
         agregando name/summary/severity/recommendation).
 """

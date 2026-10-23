@@ -4,8 +4,8 @@ Google Play), para una empresa. Calculado sobre TODAS las calificaciones
 (toquen estrellas o escriban texto) — a diferencia de las otras dos fuentes,
 que solo pueden traer reseñas con texto y están sesgadas hacia quejas.
 
-Uso: python 01_data_understanding/collect_store_ratings.py --name <empresa>
-Escribe data/<empresa>/01_data_understanding/store_ratings_<empresa>.json
+Uso: python 02_data_understanding/collect_store_ratings.py --name <empresa>
+Escribe data/<empresa>/02_data_understanding/store_ratings_<empresa>.json
 """
 import argparse
 import json
