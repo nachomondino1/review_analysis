@@ -43,7 +43,7 @@ body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
 }
-.container { max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }
+.container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
 @media (max-width: 640px) { .container { padding: 16px 16px 48px; } }
 header.page-head {
   position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
@@ -53,24 +53,28 @@ header.page-head {
 @media (max-width: 640px) { header.page-head { padding: 12px 16px; } }
 header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
-h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
 h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
+.part {
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.part:first-child { margin-top: 0; }
+.part--store { border-top: 4px solid var(--accent); }
+.part--text { border-top: 4px solid var(--warn); }
+.part-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}
+.part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
+.part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
+.subsection { margin-top: 32px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
+  background: var(--surface); border: 1px solid var(--border-soft);
   border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }
-.stat-card--store { border-top-color: var(--accent); }
-.stat-card--sample { border-top-color: var(--warn); }
-.stat-card .tag {
-  display: inline-block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
-  padding: 2px 7px; border-radius: 999px; margin-bottom: 8px;
-}
-.stat-card--store .tag { background: var(--accent-soft); color: var(--accent); }
-.stat-card--sample .tag { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
 .stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
 .stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 10px; }
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
 .category-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
   box-shadow: var(--shadow-xs); padding: 12px 14px;
@@ -151,11 +155,12 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 </header>
 <div class="container">
 
-  <section>
-    <h2>Resumen de todas las reseñas</h2>
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de todas las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
-      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">169</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
+      <div class="stat-card"><div class="value">169</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
     
     <div class="composition">
@@ -169,23 +174,25 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
     
     <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (74 de 169 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
-  </section>
-
-  <section>
-    <h2>Análisis de reseñas con texto</h2>
-    <div class="stats-grid">
-      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
-      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">74</div><div class="label">Reseñas totales con texto analizadas</div></div>
-    </div>
     
-  </section>
+  </div>
 
-  
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 74 reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
+      <div class="stat-card"><div class="value">74</div><div class="label">Reseñas totales con texto analizadas</div></div>
+    </div>
+    <div class="subsection"></div>
 
-  <section>
-    <h2>Principales hallazgos</h2>
-    <div class="findings-grid">
-      
+    
+
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        
         <article class="finding-card">
           <div class="finding-head">
             <h3>La app es solo un wrapper del sitio web, con errores</h3>
@@ -208,30 +215,29 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
           <ul class='samples'><li>“Al pedo te manda a la pagina y la pagina anda re mal”</li><li>“te envia al link pesimo”</li></ul>
         </article>
         
-    </div>
-  </section>
-
-  
-
-  <section>
-    <h2>Detalle completo por tópico</h2>
-    <details class="detail-table">
-      <summary>Ver los 3 tópicos detectados</summary>
-      <div class="table-scroll">
-        <table class="sortable">
-          <thead><tr>
-            <th data-sort="text">Tópico</th>
-            <th class="num" data-sort="num">N</th>
-            <th class="num" data-sort="num">Rating</th>
-            <th class="num" data-sort="num">% negativas</th>
-            <th data-sort="text">Severidad</th>
-          </tr></thead>
-          <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
-        </table>
       </div>
-      <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
-    </details>
-  </section>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los 3 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.

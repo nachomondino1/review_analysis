@@ -204,7 +204,7 @@ def render_categories_html(categories: list[dict]) -> str:
           <div class="category-pct {pct_class}">{c["pct_neg"]}% negativas</div>
         </div>
         ''')
-    return f'<section><h2>Por categoría</h2><div class="category-grid">{"".join(cards)}</div></section>'
+    return f'<div class="subsection"><h3>Por categoría</h3><div class="category-grid">{"".join(cards)}</div></div>'
 
 
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
@@ -378,7 +378,7 @@ body {{
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
 }}
-.container {{ max-width: 960px; margin: 0 auto; padding: 24px 24px 64px; }}
+.container {{ max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }}
 @media (max-width: 640px) {{ .container {{ padding: 16px 16px 48px; }} }}
 header.page-head {{
   position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
@@ -388,24 +388,28 @@ header.page-head {{
 @media (max-width: 640px) {{ header.page-head {{ padding: 12px 16px; }} }}
 header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
 header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
-h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }}
 h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
+.part {{
+  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}}
+.part:first-child {{ margin-top: 0; }}
+.part--store {{ border-top: 4px solid var(--accent); }}
+.part--text {{ border-top: 4px solid var(--warn); }}
+.part-eyebrow {{
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
+}}
+.part-title {{ font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }}
+.part-scope {{ color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }}
+.subsection {{ margin-top: 32px; }}
 .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
 .stat-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
+  background: var(--surface); border: 1px solid var(--border-soft);
   border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
 }}
-.stat-card--store {{ border-top-color: var(--accent); }}
-.stat-card--sample {{ border-top-color: var(--warn); }}
-.stat-card .tag {{
-  display: inline-block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
-  padding: 2px 7px; border-radius: 999px; margin-bottom: 8px;
-}}
-.stat-card--store .tag {{ background: var(--accent-soft); color: var(--accent); }}
-.stat-card--sample .tag {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
-.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 10px; }}
+.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }}
 .category-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
   box-shadow: var(--shadow-xs); padding: 12px 14px;
@@ -486,55 +490,57 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 </header>
 <div class="container">
 
-  <section>
-    <h2>Resumen de todas las reseñas</h2>
+  <div class="part part--store">
+    <div class="part-eyebrow">Parte 1</div>
+    <h2 class="part-title">Resumen de todas las reseñas</h2>
     <div class="stats-grid">
-      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
-      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
+      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
+      <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
     {composition_html}
     <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
-  </section>
+    {competitor_section}
+  </div>
 
-  <section>
-    <h2>Análisis de reseñas con texto</h2>
+  <div class="part part--text">
+    <div class="part-eyebrow">Parte 2</div>
+    <h2 class="part-title">Análisis de reseñas que tienen texto</h2>
+    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
-      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
-      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
+      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
+      <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
     </div>
-    {trend_html}
-  </section>
+    <div class="subsection">{trend_html}</div>
 
-  {categories_section}
+    {categories_section}
 
-  <section>
-    <h2>Principales hallazgos</h2>
-    <div class="findings-grid">
-      {findings_html}
-    </div>
-  </section>
-
-  {competitor_section}
-
-  <section>
-    <h2>Detalle completo por tópico</h2>
-    <details class="detail-table">
-      <summary>Ver los {n_topics} tópicos detectados</summary>
-      <div class="table-scroll">
-        <table class="sortable">
-          <thead><tr>
-            <th data-sort="text">Tópico</th>{table_category_header}
-            <th class="num" data-sort="num">N</th>
-            <th class="num" data-sort="num">Rating</th>
-            <th class="num" data-sort="num">% negativas</th>
-            <th data-sort="text">Severidad</th>
-          </tr></thead>
-          <tbody>{table_rows}</tbody>
-        </table>
+    <div class="subsection">
+      <h3>Top 3 tópicos</h3>
+      <div class="findings-grid">
+        {findings_html}
       </div>
-      <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
-    </details>
-  </section>
+    </div>
+
+    <div class="subsection">
+      <h3>Detalle completo por tópico</h3>
+      <details class="detail-table">
+        <summary>Ver los {n_topics} tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th>{table_category_header}
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody>{table_rows}</tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
@@ -599,7 +605,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
-        f'<section><h2>Comparado con la competencia</h2>{competitor_html}</section>' if competitor_html else ""
+        f'<div class="subsection"><h3>Comparado con la competencia</h3>{competitor_html}</div>' if competitor_html else ""
     )
 
     return TEMPLATE.format(
