@@ -395,10 +395,11 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
   padding: 22px 26px; margin-top: 0;
 }}
 .goal-eyebrow {{
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800;
-  opacity: 0.85; margin-bottom: 6px;
+  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+  margin-bottom: 10px;
 }}
-.goal-question {{ font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }}
+@media (max-width: 640px) {{ .goal-eyebrow {{ font-size: 1.25rem; }} }}
+.goal-question {{ font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }}
 .goal-sub {{ font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }}
 .part {{
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
