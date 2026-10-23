@@ -4,6 +4,16 @@ Pipeline para extraer reseñas de apps en Google Play y App Store, analizarlas (
 
 Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase. Dos fases (`01_business_understanding/` y `05_evaluation/`) no tienen scripts — son documentos, porque esas tareas son juicio humano, no cálculos.
 
+## Ver el sitio en localhost
+
+El sitio (`site/*.html` + `index.html`) es HTML estático autocontenido — no hace falta backend ni build step, solo un servidor simple para que el browser lo sirva por HTTP (abrirlo con `file://` directo también funciona, pero el link entre `index.html` y cada `site/<empresa>.html` es relativo, así que un server evita sorpresas):
+
+```bash
+python3 -m http.server 8000
+```
+
+Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el listado de empresas) o directo `http://localhost:8000/site/<empresa>.html`. Si todavía no corriste `06_deployment/dashboard.py --name <empresa>` para esa empresa, `site/` no va a tener su HTML — ver paso 12 de "Uso" más abajo.
+
 ## Qué hace
 
 1. **Entendimiento del negocio** (`01_business_understanding/BUSINESS_UNDERSTANDING.md`): objetivo de negocio, situación (qué datos hay y qué sesgo tienen), objetivo técnico y criterio de éxito — se lee antes de tocar código, no se corre nada.

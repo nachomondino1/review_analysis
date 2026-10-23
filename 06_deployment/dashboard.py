@@ -23,7 +23,7 @@ import companies  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
-TOP_FINDINGS_MAX = 6
+TOP_FINDINGS_MAX = 3  # minimalismo: 3 hallazgos que se leen, no 6 que se scrollean
 SAMPLES_PER_FINDING = 2
 
 
@@ -127,14 +127,11 @@ def build_competitor_section(official: dict | None, empresa_display: str, compet
 
 
 def build_summary_stats(summary: pd.DataFrame) -> dict:
-    real = summary[~summary["is_outlier"]]
     total_n = int(summary["n"].sum())
     pct_neg = round(float((summary["pct_neg"] * summary["n"]).sum() / total_n * 100), 1)
-    n_findings = int((real["severity"].isin(["alta", "media"])).sum())
     return {
         "total_n": total_n,
         "pct_neg": pct_neg,
-        "n_findings": n_findings,
     }
 
 
@@ -361,7 +358,7 @@ td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
 td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
-.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; max-width: 70ch; }}
+.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
 </style>
 </head>
 <body>
@@ -377,9 +374,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     <h2>Resumen ejecutivo</h2>
     <div class="stats-grid">
       <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial ({official_count})</div></div>
-      <div class="stat-card"><div class="value">{total_n}</div><div class="label">Reseñas con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra</div></div>
-      <div class="stat-card"><div class="value">{n_findings}</div><div class="label">Hallazgos a atender</div></div>
+      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas en la muestra ({total_n} reseñas)</div></div>
     </div>
     <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
   </section>
@@ -423,10 +418,14 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     official = build_official_rating(store_ratings)
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
-    recency_html = build_recency_comparison(reviews)
+    # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
+    # El quiebre de versión es el hallazgo más fuerte y citable (persistencia +
+    # significancia ya exigidas en version_breakout.py) — si existe, gana;
+    # si no, cae al genérico "últimos N meses vs. histórico".
     breakout_html = build_version_breakout_section(paths)
+    trend_html = breakout_html or build_recency_comparison(reviews)
     trend_section = (
-        f'<section><h2>¿Cómo vienen últimamente?</h2>{recency_html}{breakout_html}</section>' if (recency_html or breakout_html) else ""
+        f'<section><h2>¿Cómo vienen últimamente?</h2>{trend_html}</section>' if trend_html else ""
     )
     table_rows = build_table_rows(summary)
 
@@ -442,7 +441,6 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
         total_n=stats["total_n"],
         pct_neg=stats["pct_neg"],
-        n_findings=stats["n_findings"],
         findings_html=findings_html,
         trend_section=trend_section,
         competitor_section=competitor_section,
