@@ -257,7 +257,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Análisis de reseñas — {empresa}</title>
+<title>Análisis de reseñas de la app de {empresa}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -364,7 +364,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 {empresa}</h1>
+    <h1>📊 Análisis de reseñas de la app de {empresa}</h1>
     <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado {fecha}</div>
   </div>
 </header>
@@ -500,7 +500,7 @@ def build_index(site_dir: Path, root: Path):
     pages = sorted(site_dir.glob("*.html"))
     items = []
     for page in pages:
-        match = re.search(r"<title>Análisis de reseñas — (.*?)</title>", page.read_text(encoding="utf-8"))
+        match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", page.read_text(encoding="utf-8"))
         name = match.group(1) if match else page.stem
         items.append(f'<li><a class="company-link" href="{site_dir.name}/{page.name}">{esc(name)}</a></li>')
     (root / "index.html").write_text(
