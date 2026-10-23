@@ -74,9 +74,11 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
 
     # Círculo chico (con texto) adentro del grande (total) — área, no radio,
     # proporcional a la cantidad, para que el tamaño relativo no engañe.
+    # Apoyado abajo del grande (tangente interior), no centrado: se lee como
+    # un "nivel" dentro del total en vez de dos aros concéntricos confusos.
     outer_r = 90
     inner_r = max(18, round(outer_r * (pct_text / 100) ** 0.5))
-    inner_label = f'<text x="100" y="106" class="nest-label">{pct_text}%</text>' if inner_r >= 26 else ""
+    inner_cy = 100 + outer_r - inner_r
 
     return f'''
     <div class="composition">
@@ -85,8 +87,7 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
         <svg viewBox="0 0 200 200" width="180" height="180" role="img"
              aria-label="{pct_text}% de las reseñas tiene texto, {pct_no_text}% son solo estrellas">
           <circle cx="100" cy="100" r="{outer_r}" class="nest-outer"></circle>
-          <circle cx="100" cy="100" r="{inner_r}" class="nest-inner"></circle>
-          {inner_label}
+          <circle cx="100" cy="{inner_cy}" r="{inner_r}" class="nest-inner"></circle>
         </svg>
         <div class="composition-stats">
           <div class="comp-stat comp-stat--text">
@@ -598,7 +599,6 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 .composition-nest svg {{ flex-shrink: 0; }}
 .nest-outer {{ fill: var(--border-soft); stroke: var(--muted-soft); stroke-width: 1.5; }}
 .nest-inner {{ fill: var(--warn); }}
-.nest-label {{ fill: #fff; font-weight: 800; font-size: 28px; text-anchor: middle; }}
 .composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; flex: 1 1 220px; }}
 .comp-stat {{ flex: 1 1 160px; }}
 .comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
