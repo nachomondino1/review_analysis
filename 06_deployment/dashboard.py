@@ -213,6 +213,8 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
     real = real[real["severity"].isin(["alta", "media"])].sort_values("_priority", ascending=False)
     real = real.head(TOP_FINDINGS_MAX)
 
+    has_category = "category" in real.columns
+
     findings = []
     for _, row in real.iterrows():
         topic_reviews = reviews[reviews["topic"] == row["topic"]]
@@ -223,6 +225,7 @@ def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
             "summary": row["summary"],
             "recommendation": row["recommendation"],
             "severity": row["severity"],
+            "category": row["category"] if has_category and pd.notna(row["category"]) and row["category"] else None,
             "n": int(row["n"]),
             "pct_neg": round(float(row["pct_neg"]) * 100, 1),
             "samples": samples,
@@ -314,13 +317,14 @@ def render_findings_html(findings: list[dict]) -> str:
     cards = []
     for f in findings:
         samples_html = "".join(f"<li>“{esc(s)}”</li>" for s in f["samples"])
+        category_chip = f'<span class="chip chip-category">{esc(f["category"])}</span>' if f.get("category") else ""
         cards.append(f'''
         <article class="finding-card">
           <div class="finding-head">
             <h3>{esc(f["name"])}</h3>
             <span class="chip {SEVERITY_CLASS.get(f["severity"], "")}">{esc(SEVERITY_LABEL.get(f["severity"], f["severity"]))}</span>
           </div>
-          <p class="finding-meta">{f["n"]} reseñas · {f["pct_neg"]}% negativas</p>
+          <p class="finding-meta">{category_chip}{f["n"]} reseñas · {f["pct_neg"]}% negativas</p>
           <p>{esc(f["summary"])}</p>
           <p class="recommendation"><strong>Recomendación:</strong> {esc(f["recommendation"])}</p>
           {f"<ul class='samples'>{samples_html}</ul>" if samples_html else ""}
@@ -387,7 +391,6 @@ header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
 h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }}
 h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
 .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
-.stats-grid--single {{ grid-template-columns: minmax(min(260px, 100%), 1fr); max-width: 260px; }}
 .stat-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
   border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
@@ -431,6 +434,7 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 .sev-alta {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
 .sev-media {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
 .sev-baja {{ background: var(--bg-subtle); color: var(--muted); }}
+.chip-category {{ background: var(--accent-soft); color: var(--accent); margin-right: 8px; }}
 .recency-grid {{ display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }}
 .recency-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -483,18 +487,20 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <div class="container">
 
   <section>
-    <h2>Resumen ejecutivo</h2>
-    <div class="stats-grid stats-grid--single">
+    <h2>Resumen de todas las reseñas</h2>
+    <div class="stats-grid">
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
+      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
     {composition_html}
     <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
   </section>
 
   <section>
-    <h2>Reseñas con texto</h2>
-    <div class="stats-grid stats-grid--single">
+    <h2>Análisis de reseñas con texto</h2>
+    <div class="stats-grid">
       <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
+      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
     </div>
     {trend_html}
   </section>
@@ -601,6 +607,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
+        official_count_num=f'{official["count"]:,}'.replace(",", ".") if official else "N/D",
         total_n=stats["total_n"],
         total_n_fmt=f'{stats["total_n"]:,}'.replace(",", "."),
         pct_neg=stats["pct_neg"],

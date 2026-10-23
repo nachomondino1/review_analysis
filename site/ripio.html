@@ -56,7 +56,6 @@ header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
 h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
 h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
-.stats-grid--single { grid-template-columns: minmax(min(260px, 100%), 1fr); max-width: 260px; }
 .stat-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
   border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
@@ -100,6 +99,7 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 .sev-alta { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
 .sev-media { background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }
 .sev-baja { background: var(--bg-subtle); color: var(--muted); }
+.chip-category { background: var(--accent-soft); color: var(--accent); margin-right: 8px; }
 .recency-grid { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 .recency-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -152,9 +152,10 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 <div class="container">
 
   <section>
-    <h2>Resumen ejecutivo</h2>
-    <div class="stats-grid stats-grid--single">
+    <h2>Resumen de todas las reseñas</h2>
+    <div class="stats-grid">
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">4.61★</div><div class="label">Rating oficial de las tiendas (62.767 calificaciones)</div></div>
+      <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">62.767</div><div class="label">Reseñas totales en las tiendas</div></div>
     </div>
     
     <div class="composition">
@@ -171,9 +172,10 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
   </section>
 
   <section>
-    <h2>Reseñas con texto</h2>
-    <div class="stats-grid stats-grid--single">
+    <h2>Análisis de reseñas con texto</h2>
+    <div class="stats-grid">
       <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">69.9%</div><div class="label">Negativas sobre 12.098 reseñas con texto</div></div>
+      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">12.098</div><div class="label">Reseñas totales con texto analizadas</div></div>
     </div>
     <h3>¿Cómo vienen últimamente?</h3>
     <div class="recency-grid">
@@ -252,7 +254,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
             <h3>Dinero depositado/transferido que no se acredita</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">707 reseñas · 91.5% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Dinero</span>707 reseñas · 91.5% negativas</p>
           <p>Usuarios depositan o transfieren dinero a su cuenta Ripio y el saldo no aparece, en algunos casos durante semanas, con reclamos de soporte sin respuesta.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Es el tópico más grave (707 reseñas, 91.5% negativas): audita el pipeline de acreditación de depósitos/transferencias y el SLA real de soporte para reclamos de dinero no acreditado.</p>
           <ul class='samples'><li>“Deposité dinero desde un cvu y no me lo cargaron, hace dias estoy mandando mensajes mediante el soporte y no me dan respuestas, si no me lo van a cargar por lo menos exijo la devolución!!”</li><li>“Pesimo todo. 0 soporte. 
@@ -265,7 +267,7 @@ NO USAR !!!”</li></ul>
             <h3>La app no carga / login se queda colgado</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">516 reseñas · 96.5% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>516 reseñas · 96.5% negativas</p>
           <p>La app queda en pantalla de carga infinita al intentar ingresar, sin llegar nunca al login ni mostrar error.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de carga inicial/login (516 reseñas, 96.5% negativas) — es de los problemas técnicos más extendidos y bloquea el uso completo de la app.</p>
           <ul class='samples'><li>“No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!”</li><li>“Cada vez que intento ingresar a mi cuenta me envía un mail desde el cual me redirige a la aplicación pero se queda cargando y nunca abre. Realmente engorroso”</li></ul>
@@ -276,7 +278,7 @@ NO USAR !!!”</li></ul>
             <h3>Compras de cripto rechazadas o reembolsos que no llegan</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta">554 reseñas · 84.7% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Dinero</span>554 reseñas · 84.7% negativas</p>
           <p>Transacciones de compra/venta de cripto se rechazan después de debitar el dinero, o quedan en estado de reembolso pendiente por días.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Revisar la consistencia transaccional del flujo de compra/venta y reembolso; es dinero de usuarios en tránsito, alto riesgo reputacional (554 reseñas, 84.7% negativas).</p>
           <ul class='samples'><li>“Hice una inversión de 50usd coin, al cancelarla por que debo utilizar el dinero la app me informa que se reembolsaran en 72hs, ya ha pasado el tiempo y no he recibido nada, estoy preocupado y no recibo respuesta, espero tener una, gracias.”</li><li>“La verdad que un desastre! Hice una transferencia (se acreditó) para realizar compra de cripto y por alguna razón me la rechazaron y se comieron la plata! Hace semanas estoy haciendo el reclamo y nadie responde! No lo recomiendo para nada.”</li></ul>
