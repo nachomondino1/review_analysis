@@ -150,15 +150,26 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
-.composition { margin-top: 16px; }
-.composition-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }
-.composition-fill--text { background: var(--warn); height: 100%; }
-.composition-legend {
-  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+.composition { margin-top: 20px; }
+.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
+.comp-stat { flex: 1 1 160px; }
+.comp-pct { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.comp-stat--text .comp-pct { color: var(--warn); }
+.comp-stat--notext .comp-pct { color: var(--muted-soft); }
+.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.composition-bar {
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
 }
-.composition-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.dot--text { background: var(--warn); }
-.dot--notext { background: var(--border-soft); border: 1px solid var(--muted-soft); }
+.composition-fill { height: 100%; }
+.composition-fill--text { background: var(--warn); }
+.composition-fill--notext { background: var(--border-soft); }
+.composition-callout {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}
 </style>
 </head>
 <body>
@@ -185,13 +196,21 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
     </div>
     
     <div class="composition">
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">43.8%</div>
+          <div class="comp-label">📝 Con texto (74 reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">56.2%</div>
+          <div class="comp-label">⭐ Solo estrellas, sin texto</div>
+        </div>
+      </div>
       <div class="composition-bar">
         <div class="composition-fill composition-fill--text" style="width:43.8%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:56.2%"></div>
       </div>
-      <div class="composition-legend">
-        <span><span class="dot dot--text"></span>43.8% con texto — analizadas abajo (74 reseñas)</span>
-        <span><span class="dot dot--notext"></span>56.2% solo estrellas, sin texto</span>
-      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 43.8% que tiene texto</strong> (74 reseñas) — es la única porción que se puede leer.</p>
     </div>
     
     <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (74 de 169 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>

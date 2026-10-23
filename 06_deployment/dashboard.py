@@ -56,27 +56,37 @@ def build_official_rating(store_ratings: dict | None) -> dict | None:
 
 def build_composition_bar(official: dict | None, total_n: int) -> str:
     """
-    Barra de proporción: de todas las calificaciones de las tiendas, cuántas
-    traen texto (la única parte que este análisis puede leer) y cuántas son
-    solo estrellas — para que el % de negativas de más abajo no se lea como
-    si describiera a todos los usuarios, sino solo a esta porción.
+    De todas las calificaciones de las tiendas, cuántas traen texto (la única
+    porción que este análisis puede leer) y cuántas son solo estrellas —
+    bien grande y visual, para que el % de negativas de más abajo no se lea
+    como si describiera a todos los usuarios, sino solo a esta porción, y
+    para que quede clarísimo cuál de las dos es la que se analiza después.
     """
     if not official or not official.get("count"):
         return ""
     total_official = official["count"]
     pct_text = max(0.0, min(100.0, round(total_n / total_official * 100, 1)))
     pct_no_text = round(100 - pct_text, 1)
+    total_n_fmt = f'{total_n:,}'.replace(",", ".")
     return f'''
     <div class="composition">
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">{pct_text}%</div>
+          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">{pct_no_text}%</div>
+          <div class="comp-label">⭐ Solo estrellas, sin texto</div>
+        </div>
+      </div>
       <div class="composition-bar">
         <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
-      <div class="composition-legend">
-        <span><span class="dot dot--text"></span>{pct_text}% con texto — analizadas abajo ({total_n:,} reseñas)</span>
-        <span><span class="dot dot--notext"></span>{pct_no_text}% solo estrellas, sin texto</span>
-      </div>
+      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
     </div>
-    '''.replace(f"{total_n:,}", f"{total_n:,}".replace(",", "."))
+    '''
 
 
 STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
@@ -485,15 +495,26 @@ table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
 footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
-.composition {{ margin-top: 16px; }}
-.composition-bar {{ display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--border-soft); }}
-.composition-fill--text {{ background: var(--warn); height: 100%; }}
-.composition-legend {{
-  display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.78rem; color: var(--muted);
+.composition {{ margin-top: 20px; }}
+.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
+.comp-stat {{ flex: 1 1 160px; }}
+.comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
+.comp-stat--text .comp-pct {{ color: var(--warn); }}
+.comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
+.comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
+.composition-bar {{
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
 }}
-.composition-legend .dot {{ display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }}
-.dot--text {{ background: var(--warn); }}
-.dot--notext {{ background: var(--border-soft); border: 1px solid var(--muted-soft); }}
+.composition-fill {{ height: 100%; }}
+.composition-fill--text {{ background: var(--warn); }}
+.composition-fill--notext {{ background: var(--border-soft); }}
+.composition-callout {{
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
+  font-size: 0.85rem; color: var(--text);
+}}
 </style>
 </head>
 <body>
