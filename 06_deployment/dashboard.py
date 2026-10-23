@@ -531,8 +531,9 @@ h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24p
 }}
 .goal-step-icon {{ font-size: 0.9rem; }}
 .goal-step-arrow {{ opacity: 0.55; font-weight: 700; }}
+.goal-urgent-row {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }}
 .goal-urgent {{
-  display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
   background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
 }}
 .goal-urgent-icon {{ font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }}
@@ -687,11 +688,11 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
       </div>
     </div>
     <div class="goal-steps">
-      <div class="goal-step"><span class="goal-step-icon">⭐</span>Panorama general</div>
+      <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
       <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">💬</span>Qué dicen, con sus palabras</div>
+      <div class="goal-step"><span class="goal-step-icon">🤖</span>Analizadas con Machine Learning</div>
       <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">🎯</span>Qué atacar primero</div>
+      <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
     </div>
     {top_finding_html}
   </div>
@@ -796,22 +797,31 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     official = build_official_rating(store_ratings)
     ios_cap_note = build_ios_cap_note(reviews, store_ratings)
     composition_html = build_composition_bar(official, stats["total_n"], ios_cap_note)
-    categories_section = render_categories_html(build_categories(summary), build_category_topics(summary))
+    categories = build_categories(summary)
+    categories_section = render_categories_html(categories, build_category_topics(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
-    top_finding_html = ""
-    if findings:
-        top = findings[0]
-        top_finding_html = f'''
+
+    def urgent_card(icon: str, label: str, name: str, n: int, pct_neg: float) -> str:
+        return f'''
         <div class="goal-urgent">
-          <span class="goal-urgent-icon">🚨</span>
+          <span class="goal-urgent-icon">{icon}</span>
           <div>
-            <div class="goal-urgent-label">Lo más urgente</div>
-            <div class="goal-urgent-name">{esc(top["name"])}</div>
-            <div class="goal-urgent-meta">{top["n"]} reseñas · {top["pct_neg"]}% negativas</div>
+            <div class="goal-urgent-label">{label}</div>
+            <div class="goal-urgent-name">{esc(name)}</div>
+            <div class="goal-urgent-meta">{n} reseñas · {pct_neg}% negativas</div>
           </div>
         </div>
         '''
+
+    urgent_cards = []
+    if categories:
+        top_category = categories[0]
+        urgent_cards.append(urgent_card("📂", "Categoría más urgente", top_category["category"], top_category["n"], top_category["pct_neg"]))
+    if findings:
+        top = findings[0]
+        urgent_cards.append(urgent_card("🚨", "Tópico más urgente", top["name"], top["n"], top["pct_neg"]))
+    top_finding_html = f'<div class="goal-urgent-row">{"".join(urgent_cards)}</div>' if urgent_cards else ""
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
     # El quiebre de versión es el hallazgo más fuerte y citable (persistencia +
     # significancia ya exigidas en version_breakout.py) — si existe, gana;

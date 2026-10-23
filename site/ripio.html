@@ -87,8 +87,9 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 }
 .goal-step-icon { font-size: 0.9rem; }
 .goal-step-arrow { opacity: 0.55; font-weight: 700; }
+.goal-urgent-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
 .goal-urgent {
-  display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
   background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
 }
 .goal-urgent-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
@@ -243,22 +244,31 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       </div>
     </div>
     <div class="goal-steps">
-      <div class="goal-step"><span class="goal-step-icon">⭐</span>Panorama general</div>
+      <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
       <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">💬</span>Qué dicen, con sus palabras</div>
+      <div class="goal-step"><span class="goal-step-icon">🤖</span>Analizadas con Machine Learning</div>
       <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">🎯</span>Qué atacar primero</div>
+      <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
     </div>
-    
+    <div class="goal-urgent-row">
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">📂</span>
+          <div>
+            <div class="goal-urgent-label">Categoría más urgente</div>
+            <div class="goal-urgent-name">Acceso</div>
+            <div class="goal-urgent-meta">2173 reseñas · 92.5% negativas</div>
+          </div>
+        </div>
+        
         <div class="goal-urgent">
           <span class="goal-urgent-icon">🚨</span>
           <div>
-            <div class="goal-urgent-label">Lo más urgente</div>
+            <div class="goal-urgent-label">Tópico más urgente</div>
             <div class="goal-urgent-name">Dinero depositado/transferido que no se acredita</div>
             <div class="goal-urgent-meta">707 reseñas · 91.5% negativas</div>
           </div>
         </div>
-        
+        </div>
   </div>
 
   <div class="part part--store">
