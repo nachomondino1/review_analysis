@@ -289,15 +289,15 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     return f'''
     <div class="recency-grid">
       <div class="recency-card">
-        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
-        <div class="recency-value">{recent_s["rating"]}★</div>
-        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
-      </div>
-      <div class="recency-arrow">vs.</div>
-      <div class="recency-card">
         <div class="recency-label">Histórico completo</div>
         <div class="recency-value">{all_s["rating"]}★</div>
         <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
+      </div>
+      <div class="recency-arrow">vs.</div>
+      <div class="recency-card">
+        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
+        <div class="recency-value">{recent_s["rating"]}★</div>
+        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
       </div>
     </div>
     <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
