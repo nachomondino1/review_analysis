@@ -238,15 +238,16 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
         scale = (c["n"] / max_n) ** 0.5 if max_n else 0  # área ~ n, no diámetro ~ n
         size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
         color = pct_to_color(c["pct_neg"])
+        pct_round = round(c["pct_neg"])
         font_size = max(10, min(14, round(size / 8)))
         item_width = max(size, 90)
         bubbles.append(f'''
         <div class="bubble-item" style="width:{item_width}px;">
           <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
-               title="{esc(c["category"])}: {c["n"]} reseñas, {c["pct_neg"]}% negativas">
+               title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
             {esc(c["category"])}
           </div>
-          <div class="bubble-pct" style="color:{color};">{c["pct_neg"]}% negativas</div>
+          <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
           <div class="bubble-n">{c["n"]} reseñas</div>
         </div>
         ''')
