@@ -135,6 +135,53 @@ def build_summary_stats(summary: pd.DataFrame) -> dict:
     }
 
 
+def build_categories(summary: pd.DataFrame) -> list[dict]:
+    """
+    Agrupa los tópicos (no outlier) en sus categorías de una palabra, asignadas
+    a mano en topics_named.json junto con el resto del enriquecimiento (ver
+    topics_enrich.py) — no hay una cantidad fija de categorías: la raíz
+    cuadrada del número de tópicos es solo una guía orientativa de cuántos
+    grupos tienen sentido, no una regla que el código fuerce.
+    """
+    if "category" not in summary.columns:
+        return []
+    real = summary[~summary["is_outlier"]].copy()
+    real = real[real["category"].notna() & (real["category"] != "")]
+    if real.empty:
+        return []
+
+    grouped = real.groupby("category").apply(
+        lambda g: pd.Series({
+            "n": int(g["n"].sum()),
+            "pct_neg": round(float((g["pct_neg"] * g["n"]).sum() / g["n"].sum() * 100), 1),
+        }),
+        include_groups=False,
+    ).reset_index()
+    grouped["n"] = grouped["n"].astype(int)
+    return grouped.sort_values("n", ascending=False).to_dict("records")
+
+
+def render_categories_html(categories: list[dict]) -> str:
+    if not categories:
+        return ""
+    cards = []
+    for c in categories:
+        if c["pct_neg"] >= 60:
+            pct_class = "cat-bad"
+        elif c["pct_neg"] >= 30:
+            pct_class = "cat-warn"
+        else:
+            pct_class = "cat-good"
+        cards.append(f'''
+        <div class="category-card">
+          <div class="category-name">{esc(c["category"])}</div>
+          <div class="category-n">{c["n"]} reseñas</div>
+          <div class="category-pct {pct_class}">{c["pct_neg"]}% negativas</div>
+        </div>
+        ''')
+    return f'<section><h2>Por categoría</h2><div class="category-grid">{"".join(cards)}</div></section>'
+
+
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
     real = summary[~summary["is_outlier"]].copy()
     real["_priority"] = real["n"] * real["pct_neg"]
@@ -315,6 +362,17 @@ h2 {{ font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px
 }}
 .stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
 .stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
+.category-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 10px; }}
+.category-card {{
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs); padding: 12px 14px;
+}}
+.category-name {{ font-weight: 700; font-size: 0.9rem; }}
+.category-n {{ color: var(--muted); font-size: 0.78rem; margin-top: 2px; }}
+.category-pct {{ font-size: 0.78rem; font-weight: 700; margin-top: 4px; }}
+.cat-bad {{ color: var(--bad); }}
+.cat-warn {{ color: var(--warn); }}
+.cat-good {{ color: var(--good); }}
 .findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
 .finding-card {{
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
@@ -379,6 +437,8 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     <p class="methodology-note">El rating oficial surge de todas las calificaciones en las tiendas. El resto de las métricas de este informe se basan en una muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — son el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general.</p>
   </section>
 
+  {categories_section}
+
   <section>
     <h2>Principales hallazgos</h2>
     <div class="findings-grid">
@@ -416,6 +476,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     summary, reviews, store_ratings = load_data(paths)
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
+    categories_section = render_categories_html(build_categories(summary))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
@@ -441,6 +502,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
         total_n=stats["total_n"],
         pct_neg=stats["pct_neg"],
+        categories_section=categories_section,
         findings_html=findings_html,
         trend_section=trend_section,
         competitor_section=competitor_section,
