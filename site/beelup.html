@@ -54,7 +54,9 @@ header.page-head {
 header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
 h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 16px; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+.stats-grid--single { grid-template-columns: minmax(min(260px, 100%), 1fr); max-width: 260px; }
 .stat-card {
   background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--border-soft);
   border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
@@ -151,9 +153,8 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 
   <section>
     <h2>Resumen ejecutivo</h2>
-    <div class="stats-grid">
+    <div class="stats-grid stats-grid--single">
       <div class="stat-card stat-card--store"><div class="tag">🏪 Todas las calificaciones</div><div class="value">2.1★</div><div class="label">Rating oficial de las tiendas (169 calificaciones)</div></div>
-      <div class="stat-card stat-card--sample"><div class="tag">📝 Solo con texto</div><div class="value">68.9%</div><div class="label">Negativas en la muestra con reseña escrita (74 reseñas)</div></div>
     </div>
     
     <div class="composition">
@@ -166,7 +167,15 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
       </div>
     </div>
     
-    <p class="methodology-note">Son dos poblaciones distintas, no una contradicción: el rating oficial surge de todas las calificaciones en las tiendas (con texto o solo estrellas). El % de negativas se calcula sobre la muestra de reseñas con texto, que tiende a sobre-representar quejas frente a quien solo califica con estrellas — es el insumo correcto para entender <em>qué</em> se queja la gente, no para medir la satisfacción general (abajo nos enfocamos en esa porción).</p>
+    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> (74 de 169 calificaciones): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
+  </section>
+
+  <section>
+    <h2>Reseñas con texto</h2>
+    <div class="stats-grid stats-grid--single">
+      <div class="stat-card stat-card--sample"><div class="tag">📝 Muestra con texto</div><div class="value">68.9%</div><div class="label">Negativas sobre 74 reseñas con texto</div></div>
+    </div>
+    
   </section>
 
   
@@ -199,8 +208,6 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
         
     </div>
   </section>
-
-  
 
   
 
