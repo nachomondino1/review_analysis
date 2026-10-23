@@ -16,6 +16,9 @@ from config import Paths  # noqa: E402
 OUTLIER_TOPIC = -1  # BERTopic: reseñas sin patrón claro, no es un tópico real
 MIN_TOPIC_SIZE_DEFAULT = 20
 MIN_TOPIC_SIZE_FLOOR = 5
+MAX_TOPICS = 30  # más que esto es ruido (variantes casi idénticas), no hallazgos nuevos
+MAX_TOPIC_SHARE = 0.35  # un solo tópico no debería ser "el tema" de más de un tercio del corpus
+MIN_TOPIC_SIZE_MAX_RETRIES = 4
 
 # Mapea la etiqueta de pysentimiento al mismo vocabulario que rating_bucket
 # (construct_data.py), para poder cruzarlas.
@@ -51,14 +54,44 @@ def run(paths: Paths):
     print(f"sentiment_mismatch: {df['sentiment_mismatch'].sum()}/{len(df)} reseñas ({df['sentiment_mismatch'].mean():.1%})")
 
     emb = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-    topic_model = BERTopic(
-        language="multilingual",
-        min_topic_size=min_topic_size_for(len(df)),
-        nr_topics="auto",  # fusiona tópicos cuyas palabras clave son casi iguales (ej. variantes de "excelente app")
-    )
-    df["topic"], _ = topic_model.fit_transform(
-        df["text"].tolist(), emb.encode(df["text"].tolist(), show_progress_bar=True)
-    )
+    embeddings = emb.encode(df["text"].tolist(), show_progress_bar=True)
+
+    # min_topic_size_for(n) alcanza para la mayoría de los corpus, pero no es
+    # función solo del tamaño: un corpus con temática más diversa (más
+    # features/casos de uso distintos) puede seguir fragmentándose en decenas
+    # de variantes casi idénticas (ej. "no llega el código"/"código no llega"
+    # como tópicos separados). nr_topics="auto" (probado antes acá) decide
+    # solo cuánto fusionar según una similitud fija entre tópicos, y eso es
+    # errático: en Lemon Cash dejaba casi-duplicados sin fusionar, y en Belo
+    # fusionó demasiado y mandó el 55-76% de las reseñas no-outlier a un solo
+    # tópico ("quejas generales" mezclando actualizaciones + bloqueos de
+    # cuenta + demoras, temas en realidad distintos). En vez de eso: ajustar
+    # sin fusión automática, y si el ajuste natural da más de MAX_TOPICS,
+    # reducir con un objetivo explícito (reduce_topics a MAX_TOPICS, no más)
+    # en vez de dejar que "auto" decida hasta dónde fusionar. Si aun así un
+    # solo tópico se queda con más de MAX_TOPIC_SHARE del corpus no-outlier,
+    # es la misma señal que demasiados tópicos: el ajuste no separó bien el
+    # corpus, y conviene subir min_topic_size y reintentar.
+    min_topic_size = min_topic_size_for(len(df))
+    for attempt in range(MIN_TOPIC_SIZE_MAX_RETRIES):
+        topic_model = BERTopic(language="multilingual", min_topic_size=min_topic_size)
+        topics, _ = topic_model.fit_transform(df["text"].tolist(), embeddings)
+        n_topics = len(set(topics) - {OUTLIER_TOPIC})
+        if n_topics > MAX_TOPICS:
+            topic_model.reduce_topics(df["text"].tolist(), nr_topics=MAX_TOPICS)
+            topics = topic_model.topics_
+            n_topics = len(set(topics) - {OUTLIER_TOPIC})
+
+        non_outlier = pd.Series(topics)
+        non_outlier = non_outlier[non_outlier != OUTLIER_TOPIC]
+        top_share = non_outlier.value_counts().iloc[0] / len(non_outlier) if len(non_outlier) else 0
+
+        if n_topics <= MAX_TOPICS and top_share <= MAX_TOPIC_SHARE:
+            break
+        print(f"min_topic_size={min_topic_size} dio {n_topics} tópicos, el más grande con "
+              f"{top_share:.1%} del corpus no-outlier (ruido o tópico mega) — subiendo umbral y reintentando")
+        min_topic_size *= 2
+    df["topic"] = topics
 
     # Resumen por tópico (antes se calculaba y se descartaba)
     summary = (df.groupby("topic")

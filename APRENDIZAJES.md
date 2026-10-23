@@ -337,3 +337,186 @@ semánticamente, el síntoma no es "hacen falta más reglas de negocio para
 unirlos a mano" — es que el paso de fusión posterior (que casi todas las
 librerías de topic modeling ofrecen) no se está usando. Revisar esa opción
 antes de construir lógica de deduplicación manual.
+
+### 2026-10-23 — Categorías de tópicos ad hoc por empresa: "Dinero" mezclaba cuatro cosas distintas
+
+**Qué pasó:** `topics_enrich.py` le pedía a Claude inventar categorías
+libres por empresa ("una palabra, raíz cuadrada del número de tópicos").
+En Belo, "Dinero" terminó agrupando pagos que se descuentan sin
+acreditarse (falla de confianza/seguridad), problemas de emisión de
+tarjeta, operatoria con pesos argentinos (transacción normal) y elogios
+genéricos a pagar con la app — cuatro preguntas distintas bajo un mismo
+label. El usuario lo notó mirando el dashboard. Al revisar Ripio (análisis
+previo, mismo mecanismo) tenía el mismo problema: su "Dinero" mezclaba
+"depósito no se acredita, sin respuesta de soporte" (confianza/seguridad)
+con "compra de cripto rechazada" (operatoria) y "satisfacción con la
+tarjeta" (producto).
+
+**Por qué pasaba:** sin una lista fija, cada corrida de `topics_enrich.py`
+resuelve la taxonomía desde cero, sin memoria de cómo se categorizó la
+empresa anterior — el label "Dinero" es intuitivo pero en realidad mezcla
+dos ejes ("qué tan grave/urgente es" vs. "qué parte del producto está en
+juego"), que es justo el anti-patrón de "un campo de categorización = un
+solo eje" ya documentado en el playbook de datos para fuentes en prosa.
+
+**Cómo lo resolvimos:** `common/categories.py` define una taxonomía FIJA
+y compartida entre todas las empresas, un solo eje ("¿qué área funcional
+del producto está en juego?"). Primera versión: 10 categorías finas
+(Acceso, Transacciones, Tarjeta, Cripto/Cambio, Costos, Seguridad,
+Soporte, Rendimiento, Usabilidad, Otros). El usuario la simplificó a 6
+(Acceso, Pagos, Comisiones, Interfaz, Soporte, Otros) — fusiona
+Transacciones/Tarjeta/Cripto/Seguridad en "Pagos" y Rendimiento/Usabilidad
+en "Interfaz" — más legible en el bubble chart a costa de perder alguna
+distinción fina (ej. "Seguridad" ya no resalta aparte de una demora común
+de transferencia; la severidad/recomendación de cada tópico individual
+sigue capturando esa diferencia, solo que no en el agrupado visual).
+`topics_enrich.py` instruye usar esta lista en vez de inventar una por
+empresa, y `merge` imprime un WARNING si aparece una categoría fuera de
+la allowlist. Se recategorizaron Belo y Ripio con la taxonomía final.
+
+**Lección generalizable:** un campo de categorización no es solo "una
+palabra corta que agrupe"; tiene que responder una sola pregunta de forma
+consistente. Cuando ese campo se re-genera por un LLM en cada corrida sin
+una lista fija como ancla, el riesgo no es solo inconsistencia de nombres
+entre corridas (ej. "Dinero" una vez, "Pagos" la próxima) — es mezclar
+ejes distintos dentro de una misma corrida, porque nada obliga a chequear
+contra una pregunta fija. La solución es la misma que en Arquetipo C
+(fuente en prosa): un enum cerrado y documentado en código cuando el
+campo se usa para agrupar/comparar (acá, el bubble chart del dashboard),
+no una convención de texto libre regenerada cada vez.
+
+### 2026-10-23 — `min_topic_size` fijo por tamaño de corpus no alcanza: Lemon Cash dio 82 tópicos
+
+**Qué pasó:** `min_topic_size_for(n)` escala el umbral hacia abajo para
+corpus chicos pero tiene un techo fijo (`MIN_TOPIC_SIZE_DEFAULT=20`) para
+cualquier corpus de más de 200 reseñas — el mismo valor que le vino bien a
+Ripio (12098 reseñas → 18 tópicos) y Belo (6930 → 11). Con Lemon Cash
+(15917 reseñas, más features: cripto, cashback, tarjeta, transferencias
+internacionales) ese mismo `min_topic_size=20` dio 82 tópicos no-outlier,
+puro ruido con variantes casi idénticas (ej. "código SMS no llega" /
+"video de verificación falla" / "validando identidad" / "recuperar clave"
+repartidos en 4+ tópicos separados que eran, en esencia, el mismo
+problema de acceso).
+
+**Por qué pasaba:** el número de tópicos no es función solo del tamaño
+del corpus — depende de cuán diversa es la temática real. Un umbral fijo
+calibrado contra 1-2 casos previos no generaliza a una empresa con más
+líneas de producto. Subir `min_topic_size` a mano por empresa (como se
+hizo una vez con Ripio) no escala: hay que probarlo cada vez.
+
+**Cómo lo resolvimos:** en `04_modeling/model.py`, después de fitear
+BERTopic con el `min_topic_size` calculado, si el resultado supera
+`MAX_TOPICS=30` tópicos no-outlier, se duplica `min_topic_size` y se
+reintenta (hasta `MIN_TOPIC_SIZE_MAX_RETRIES=4` veces). Con Lemon Cash,
+un solo reintento (20→40) bajó de 82 a 29 tópicos — dentro del límite,
+sin tocar código a mano por empresa.
+
+**Lección generalizable:** cuando un hiperparámetro de clustering se
+calibra contra el tamaño de la entrada pero el resultado real depende de
+otra variable que no se puede medir de antemano (acá, la diversidad
+temática del corpus), la solución robusta es un **reintento adaptativo
+con criterio de parada explícito** (acá, un techo de tópicos), no afinar
+el valor a mano la primera vez que falla ni subir el default global sin
+verificar que sigue andando bien en los casos que ya funcionaban.
+
+### 2026-10-23 — "Otros" mezclaba satisfacción general real con ruido sin contenido, y la taxonomía era universal en vez de por rubro
+
+**Qué pasó:** revisando las 5 empresas ya categorizadas con la taxonomía
+de 6 categorías (ver entrada anterior), "Otros" resultó ser el segundo o
+tercer bucket más grande en casi todas (1.5%–25% del volumen) — no por
+ser poco frecuente, sino porque ahí caía cualquier elogio o queja sin una
+función específica ("buena experiencia general", "el mejor exchange",
+"funciona bien"). Eso diluye el bubble chart: "Otros" termina siendo una
+burbuja grande que no dice nada. Peor, el mismo tipo de contenido caía en
+categorías distintas según la corrida: en Belo, el tópico dominante
+(4217 reseñas, 81% negativas, la propia descripción decía "sin función
+específica") había quedado forzado en "Acceso" solo porque mencionaba de
+paso "bloqueos de cuenta" — eso hacía ver a Belo con un problema de
+Acceso del 70% cuando el acceso puntual era en realidad <1%. Ripio tenía
+el mismo patrón (tópico "errores genéricos, no funciona nada" en
+Acceso) y un caso de inconsistencia interna: "lentitud en depósitos y
+retiros" en Interfaz mientras tópicos gemelos de demoras de transferencia
+estaban en Pagos. Además, la taxonomía estaba escrita como un único eje
+universal para "todas las empresas", pero en realidad solo tiene sentido
+dentro de un mismo rubro (fintech) — una app de agrotech no tiene
+"Comisiones" ni "tarjeta física/virtual" como áreas funcionales.
+
+**Cómo lo resolvimos:** en `common/categories.py`, 1) `CATEGORIES_BY_DOMAIN`
+pasa a ser un dict por rubro (hoy solo `"fintech"`) en vez de una lista
+plana, para no forzar los tópicos de un rubro nuevo a encajar en la lista
+de otro; 2) dentro de fintech, "Otros" se separó en dos: **"General"**
+(sentimiento claro —positivo o negativo— sobre la app/marca en su
+conjunto, sin función específica: lealtad, recomendación, "no funciona
+nada") y **"Ruido"** (ni siquiera se entiende el tema o el sentimiento:
+texto ilegible, rating condicionado sin desarrollar). Se recategorizaron
+a mano los tópicos ya nombrados de las 5 empresas con este criterio
+(incluida la corrección de Belo/Ripio de arriba) y se regeneraron
+`topics_summary.csv` y los sitios con `topics_enrich.py merge` +
+`dashboard.py`.
+
+**Lección generalizable:** un bucket catch-all ("Otros", "Varios",
+"General") suele estar mezclando dos preguntas distintas sin que nadie lo
+note hasta que se mide el volumen que absorbe: "no tengo una categoría
+para esto" (señal real que falta un bucket) vs. "no hay nada que
+categorizar" (ruido genuino). Si el catch-all es grande, vale la pena
+abrirlo y mirar qué hay adentro antes de asumir que "no es accionable
+por definición" — y una taxonomía "fija y compartida" solo es válida
+dentro del universo donde el eje tiene sentido (un rubro), nunca across
+dominios con estructuras funcionales distintas.
+
+### 2026-10-23 — `nr_topics="auto"` fusionó el 60% de Belo en un solo tópico
+
+**Qué pasó:** revisando el tamaño de los tópicos de Belo (a raíz de la
+reclasificación de categorías de la entrada anterior), el tópico 0
+("quejas generales") tenía 4217 de 6930 reseñas — 60.9% de todo el
+corpus, 76% del no-outlier. Eso no es un tema, es que el modelo no separó
+nada: mezclaba actualizaciones, bloqueos de cuenta y demoras en un solo
+cluster. Comparando con las otras empresas, el tópico más grande de cada
+una estaba entre 5.8% (Ripio) y 18.7% (Balanz) — Belo era un outlier
+claro.
+
+**Por qué pasaba:** `nr_topics="auto"` (agregado en la entrada del
+2026-10-21 para fusionar variantes casi idénticas en Lemon Cash) decide
+cuánto fusionar según una similitud fija entre tópicos, no según un
+objetivo de cantidad ni de balance de tamaños — y es errático en ambas
+direcciones. Se comprobó con un experimento controlado (mismo texto y
+embeddings, reusados desde `reviews_enriched.parquet` para no recalcular
+sentiment): sin fusión automática, Belo daba 42-48 tópicos con el más
+grande en 12-20% del corpus (saludable); con `nr_topics="auto"`, fusionó
+hasta solo 14 tópicos con uno absorbiendo 55% (en otra corrida, el 76%
+ya visto en producción). Reducir a un número fijo tampoco es monótono:
+probando `reduce_topics(nr_topics=N)` sobre el mismo fit crudo, N=30 dio
+13.6% de tópico más grande, N=25 dio 62.3%, N=20 dio 25.2%, N=15 dio
+17.7% — la fusión jerárquica puede saltar a un mega-merge en un nivel de
+corte y no en el vecino, sin que el tamaño del corpus lo explique.
+Ripio, en paralelo, mostraba el síntoma opuesto: varios tópicos
+casi-duplicados sin fusionar (ver sus propias recomendaciones: "consolidar
+con el tópico 17/18/10/15/21") — "auto" tampoco fusionaba lo que sí
+debía.
+
+**Cómo lo resolvimos:** en `04_modeling/model.py`, se reemplazó
+`nr_topics="auto"` por una reducción controlada: ajustar sin fusión, y
+solo si el resultado natural supera `MAX_TOPICS` (30), reducir con
+`reduce_topics(nr_topics=MAX_TOPICS)` — un objetivo explícito, no una
+decisión heurística de "hasta dónde fusionar". Se agregó además
+`MAX_TOPIC_SHARE=0.35`: si el tópico más grande supera esa fracción del
+corpus no-outlier (señal de que el ajuste no separó bien, igual que
+demasiados tópicos), se duplica `min_topic_size` y se reintenta con el
+mismo mecanismo de reintentos que ya existía. Validado con un
+experimento sobre las 4 empresas con datos cacheados: las 4 convergieron
+a 29 tópicos con el más grande entre 13-16.6%, sin necesitar reintentos.
+Se re-corrió el pipeline completo para Belo (quedó en 29 tópicos, el más
+grande en 8.5%) y se renombraron sus tópicos desde cero.
+
+**Lección generalizable:** un parámetro que "fusiona lo parecido" según
+un umbral de similitud fijo optimiza para una sola forma de fallar
+(demasiados tópicos casi-duplicados) y puede fallar silenciosamente en
+la forma opuesta (fusionar temas realmente distintos en un mega-tópico)
+sin que nada lo señale, porque el chequeo de calidad que ya existía
+(`n_topics <= MAX_TOPICS`) no mide balance de tamaños, solo cantidad. Si
+el objetivo real tiene dos formas de fallar, el chequeo de calidad tiene
+que cubrir las dos — acá, además de "no demasiados tópicos" hacía falta
+"ningún tópico demasiado grande". Y cuando un heurístico de "auto"
+decide algo no controlable por el caller (cuánto fusionar), preferir un
+objetivo explícito y verificable (reducir a N exacto) sobre confiar en
+que el heurístico generalice a corpus distintos.
