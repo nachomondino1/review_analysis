@@ -20,8 +20,8 @@ chicas, una diferencia de puntos porcentuales grande puede no ser
 estadísticamente distinguible de azar, y no se quiere reportar eso como un
 hecho firme.
 
-Uso: python 04_evaluation/version_breakout.py --name <empresa>
-Genera data/<empresa>/04_evaluation/version_breakout.json
+Uso: python 04_modeling/version_breakout.py --name <empresa>
+Genera data/<empresa>/04_modeling/version_breakout.json
 """
 import argparse
 import json

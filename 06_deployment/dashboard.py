@@ -2,8 +2,8 @@
 Genera un único HTML autocontenido con el análisis de una empresa, para
 compartir por link/archivo (sin backend, sin build step).
 
-Uso: python 05_deployment/dashboard.py --name <empresa>
-Lee los outputs de 03_modeling y 04_evaluation; escribe site/<empresa>.html
+Uso: python 06_deployment/dashboard.py --name <empresa>
+Lee los outputs de 04_modeling; escribe site/<empresa>.html
 y regenera index.html en la raíz del repo con el listado de empresas
 (para que GitHub Pages lo muestre como home del dominio).
 """
@@ -17,10 +17,10 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "01_data_understanding"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "02_data_understanding" / "collect_initial_data"))
 from config import Paths, ROOT  # noqa: E402
 import companies  # noqa: E402
-from collect_data import fetch_store_ratings  # noqa: E402
+from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
 TOP_FINDINGS_MAX = 6
@@ -59,7 +59,7 @@ STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
 
 def build_version_breakout_section(paths: Paths) -> str:
     """
-    Si 04_evaluation/version_breakout.py encontró un quiebre real (ver ese
+    Si 04_modeling/version_breakout.py encontró un quiebre real (ver ese
     script para la metodología), lo muestra como un hecho concreto y citable
     ("se rompió en la v5.45.0, no 'empeoró este trimestre'") — más difícil de
     replicar al toque que un resumen genérico, porque exige cruzar sentimiento
@@ -368,7 +368,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <header class="page-head">
   <div>
     <h1>📊 {empresa}</h1>
-    <div class="sub">Análisis de reseñas de usuarios · generado {fecha}</div>
+    <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado {fecha}</div>
   </div>
 </header>
 <div class="container">

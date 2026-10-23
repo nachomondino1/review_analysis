@@ -23,31 +23,42 @@ class Paths:
         self.slug = slugify(empresa)
         self.base = ROOT / "data" / self.slug
 
-        self.understanding_dir = self.base / "01_data_understanding"
-        self.preparation_dir = self.base / "02_data_preparation"
-        self.modeling_dir = self.base / "03_modeling"
-        self.evaluation_dir = self.base / "04_evaluation"
+        self.understanding_dir = self.base / "02_data_understanding"
+        self.preparation_dir = self.base / "03_data_preparation"
+        self.modeling_dir = self.base / "04_modeling"
 
-        self.reviews = self.understanding_dir / "reviews.parquet"
-        self.store_ratings_json = self.understanding_dir / "store_ratings.json"
-        self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"
+        # Una fuente = un archivo, nombrado "<fuente>_<empresa>.<formato>" (ver
+        # 02_data_understanding/collect_*.py): cada script de collect toca un
+        # solo archivo, nunca pisa el de otra fuente.
+        self.ios_reviews = self.understanding_dir / f"ios_{self.slug}.parquet"
+        self.android_reviews = self.understanding_dir / f"android_{self.slug}.parquet"
+        self.store_ratings_json = self.understanding_dir / f"store_ratings_{self.slug}.json"
+
+        # 03_data_preparation, en orden de pipeline:
+        self.integrated = self.preparation_dir / f"integrated_{self.slug}.parquet"    # ios_reviews + android_reviews juntas (integrate_data.py)
+        self.constructed = self.preparation_dir / f"constructed_{self.slug}.parquet"  # + month/text_length/rating_bucket (construct_data.py)
+        self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"           # constructed sin reseñas sin señal real (clean_reviews.py)
         self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
         self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
-        self.topic_samples_json = self.evaluation_dir / "topic_samples.json"
-        self.topics_named_json = self.evaluation_dir / "topics_named.json"
-        self.sentiment_by_month_csv = self.evaluation_dir / "sentiment_by_month.csv"
-        self.store_comparison_csv = self.evaluation_dir / "store_comparison.csv"
-        self.version_breakout_json = self.evaluation_dir / "version_breakout.json"
+        # Hallazgos derivados del modelo (nombrado de tópicos, tendencia, quiebre
+        # de versión): siguen operando sobre la salida de model.py, no evalúan
+        # nada contra un criterio de negocio — por eso viven en 04_modeling, no
+        # en una fase "04_evaluation" que terminaba sin nada propio adentro.
+        self.topic_samples_json = self.modeling_dir / "topic_samples.json"
+        self.topics_named_json = self.modeling_dir / "topics_named.json"
+        self.sentiment_by_month_csv = self.modeling_dir / "sentiment_by_month.csv"
+        self.store_comparison_csv = self.modeling_dir / "store_comparison.csv"
+        self.version_breakout_json = self.modeling_dir / "version_breakout.json"
 
-        # En la raíz del repo (no bajo 05_deployment/) porque GitHub Pages
+        # En la raíz del repo (no bajo 06_deployment/) porque GitHub Pages
         # "clásico" (deploy from branch) solo sirve desde la raíz o /docs,
         # nunca una carpeta anidada — ver DECISIONS/APRENDIZAJES.
         self.site_dir = ROOT / "site"
         self.site_html = self.site_dir / f"{self.slug}.html"
 
     def ensure_dirs(self):
-        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir, self.evaluation_dir):
+        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir):
             d.mkdir(parents=True, exist_ok=True)
 
     def ensure_site_dir(self):

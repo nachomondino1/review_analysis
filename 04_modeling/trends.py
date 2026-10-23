@@ -1,10 +1,10 @@
 """
 Tendencia temporal de sentimiento y comparación App Store vs Google Play.
 
-Uso: python 04_evaluation/trends.py --name <empresa>
+Uso: python 04_modeling/trends.py --name <empresa>
 Genera:
-  - data/<empresa>/output/sentiment_by_month.csv   (mes, store, n, pct_neg, avg_rating)
-  - data/<empresa>/output/store_comparison.csv      (store, n, avg_rating, pct_neg)
+  - data/<empresa>/04_modeling/sentiment_by_month.csv   (mes, store, n, pct_neg, avg_rating)
+  - data/<empresa>/04_modeling/store_comparison.csv      (store, n, avg_rating, pct_neg)
 """
 import argparse
 import sys
@@ -17,8 +17,7 @@ from config import Paths  # noqa: E402
 
 
 def run(paths: Paths):
-    df = pd.read_parquet(paths.reviews_enriched_parquet)
-    df["month"] = df["date"].dt.tz_convert("UTC").dt.strftime("%Y-%m")
+    df = pd.read_parquet(paths.reviews_enriched_parquet)  # "month" ya viene de construct_data.py
 
     by_month = (df.groupby(["month", "store"])
                 .agg(n=("text", "size"),
