@@ -56,16 +56,47 @@ header.page-head h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
 h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
 .goal-banner {
-  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius);
-  padding: 22px 26px; margin-top: 0;
+  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
+  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
 }
+.goal-badge {
+  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
+}
+.goal-main { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.goal-left { flex: 1 1 320px; }
 .goal-eyebrow {
-  font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
-  margin-bottom: 10px;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
 }
-@media (max-width: 640px) { .goal-eyebrow { font-size: 1.25rem; } }
-.goal-question { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.95; }
-.goal-sub { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
+.goal-question {
+  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
+}
+@media (max-width: 640px) { .goal-question { font-size: 1.3rem; } }
+.goal-hero {
+  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
+  padding: 14px 24px; text-align: center; min-width: 150px;
+}
+.goal-hero-value { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.goal-hero-label { font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }
+.goal-steps {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
+}
+.goal-step {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
+  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
+}
+.goal-step-icon { font-size: 0.9rem; }
+.goal-step-arrow { opacity: 0.55; font-weight: 700; }
+.goal-urgent {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; padding: 14px 16px;
+  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.goal-urgent-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }
+.goal-urgent-label {
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
+}
+.goal-urgent-name { font-weight: 700; font-size: 0.92rem; margin-top: 2px; }
+.goal-urgent-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 .part {
   margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 60%, transparent);
@@ -200,9 +231,34 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 <div class="container">
 
   <div class="goal-banner">
-    <div class="goal-eyebrow">Análisis de reseñas de la app de beelup en Google Play y App Store</div>
-    <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
-    <p class="goal-sub">Primero el rating oficial de las tiendas, después lo que los usuarios comentan con sus propias palabras, ordenado por impacto.</p>
+    <div class="goal-badge">📊 Informe ejecutivo · 2026-10-23</div>
+    <div class="goal-main">
+      <div class="goal-left">
+        <div class="goal-eyebrow">beelup en Google Play y App Store</div>
+        <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
+      </div>
+      <div class="goal-hero">
+        <div class="goal-hero-value">2.1★</div>
+        <div class="goal-hero-label">Rating oficial<br>(169 calificaciones)</div>
+      </div>
+    </div>
+    <div class="goal-steps">
+      <div class="goal-step"><span class="goal-step-icon">⭐</span>Panorama general</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">💬</span>Qué dicen, con sus palabras</div>
+      <div class="goal-step-arrow">→</div>
+      <div class="goal-step"><span class="goal-step-icon">🎯</span>Qué atacar primero</div>
+    </div>
+    
+        <div class="goal-urgent">
+          <span class="goal-urgent-icon">🚨</span>
+          <div>
+            <div class="goal-urgent-label">Lo más urgente</div>
+            <div class="goal-urgent-name">La app es solo un wrapper del sitio web, con errores</div>
+            <div class="goal-urgent-meta">48 reseñas · 75.0% negativas</div>
+          </div>
+        </div>
+        
   </div>
 
   <div class="part part--store">
