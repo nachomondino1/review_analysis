@@ -545,7 +545,6 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
       <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
     </div>
     {composition_html}
-    <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
     {competitor_section}
   </div>
 
@@ -645,8 +644,17 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     # significancia ya exigidas en version_breakout.py) — si existe, gana;
     # si no, cae al genérico "últimos N meses vs. histórico".
     breakout_html = build_version_breakout_section(paths)
-    trend_body = breakout_html or build_recency_comparison(reviews)
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
+    recency_html = build_recency_comparison(reviews)
+    trend_body = breakout_html or recency_html
+    trend_note = ""
+    if not breakout_html and recency_html and official:
+        trend_note = (
+            f'<p class="methodology-note">El histórico completo es más bajo que el {official["score"]}★ '
+            f'analizado antes, puesto que las opiniones que tienen texto por su naturaleza '
+            f'<strong>tienden a ser más negativas</strong> que el promedio general — quien solo puntúa con '
+            f'estrellas casi nunca escribe para elogiar.</p>'
+        )
+    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}{trend_note}' if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
