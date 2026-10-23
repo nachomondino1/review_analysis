@@ -72,45 +72,22 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
 
-    # Círculo chico (con texto) adentro del grande (total) — área, no radio,
-    # proporcional a la cantidad, para que el tamaño relativo no engañe.
-    # Apoyado abajo del grande (tangente interior), no centrado: se lee como
-    # un "nivel" dentro del total en vez de dos aros concéntricos confusos.
-    # Bien grandes para que el %, la cantidad y la etiqueta entren adentro
-    # de cada círculo en vez de tener que repetirlos aparte.
-    cx, cy = 180, 180
-    outer_r = 170
-    inner_r = max(46, round(outer_r * (pct_text / 100) ** 0.5))
-    inner_cy = cy + outer_r - inner_r
-
-    def label_block(center_y: float, pct: float, n_fmt: str, caption: str, big: bool, on_fill: bool) -> str:
-        pct_size = 46 if big else 34
-        line2_size = 15 if big else 13
-        gap1 = pct_size * 0.62
-        gap2 = line2_size * 1.5
-        pct_color = "#fff" if on_fill else "var(--text)"
-        sub_color = "#fff" if on_fill else "var(--muted)"
-        return (
-            f'<text x="{cx}" y="{center_y - gap1 * 0.25}" class="nest-pct" font-size="{pct_size}" fill="{pct_color}">{pct}%</text>'
-            f'<text x="{cx}" y="{center_y - gap1 * 0.25 + gap2}" class="nest-caption" font-size="{line2_size}" fill="{sub_color}">{caption}</text>'
-            f'<text x="{cx}" y="{center_y - gap1 * 0.25 + gap2 * 2}" class="nest-n" font-size="{line2_size}" fill="{sub_color}">{n_fmt} reseñas</text>'
-        )
-
-    free_top_center = cy - outer_r + (inner_cy - inner_r - (cy - outer_r)) / 2
-    outer_label = label_block(free_top_center, pct_no_text, n_no_text_fmt, "Solo estrellas", big=False, on_fill=False)
-    inner_label = label_block(inner_cy, pct_text, total_n_fmt, "Con texto", big=True, on_fill=True)
-
     return f'''
     <div class="composition">
       <p class="composition-intro">De las {total_official_fmt} reseñas, algunas tienen texto y otras no:</p>
-      <div class="composition-nest">
-        <svg viewBox="0 0 360 360" width="320" height="320" role="img"
-             aria-label="{pct_text}% de las reseñas tiene texto ({total_n_fmt} reseñas), {pct_no_text}% son solo estrellas ({n_no_text_fmt} reseñas)">
-          <circle cx="{cx}" cy="{cy}" r="{outer_r}" class="nest-outer"></circle>
-          {outer_label}
-          <circle cx="{cx}" cy="{inner_cy}" r="{inner_r}" class="nest-inner"></circle>
-          {inner_label}
-        </svg>
+      <div class="composition-stats">
+        <div class="comp-stat comp-stat--text">
+          <div class="comp-pct">{pct_text}%</div>
+          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+        </div>
+        <div class="comp-stat comp-stat--notext">
+          <div class="comp-pct">{pct_no_text}%</div>
+          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
+        </div>
+      </div>
+      <div class="composition-bar">
+        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
+        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
     </div>
@@ -607,13 +584,19 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
 .composition {{ margin-top: 20px; }}
 .composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
-.composition-nest {{ display: flex; align-items: center; justify-content: center; margin-top: 12px; }}
-.composition-nest svg {{ flex-shrink: 0; max-width: 100%; height: auto; }}
-.nest-outer {{ fill: var(--border-soft); stroke: var(--muted-soft); stroke-width: 1.5; }}
-.nest-inner {{ fill: var(--warn); }}
-.nest-pct {{ text-anchor: middle; font-weight: 800; }}
-.nest-caption {{ text-anchor: middle; font-weight: 700; }}
-.nest-n {{ text-anchor: middle; }}
+.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
+.comp-stat {{ flex: 1 1 160px; }}
+.comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
+.comp-stat--text .comp-pct {{ color: var(--warn); }}
+.comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
+.comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
+.composition-bar {{
+  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
+  border: 1px solid var(--border-soft);
+}}
+.composition-fill {{ height: 100%; }}
+.composition-fill--text {{ background: var(--warn); }}
+.composition-fill--notext {{ background: var(--border-soft); }}
 .composition-callout {{
   margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
   background: color-mix(in srgb, var(--warn) 12%, transparent);
