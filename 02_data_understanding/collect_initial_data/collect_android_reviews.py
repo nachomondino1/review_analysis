@@ -9,16 +9,18 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from google_play_scraper import Sort, reviews
+from google_play_scraper import Sort, reviews_all
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 import companies  # noqa: E402
 
 
-def fetch_android(pkg: str, country="ar", lang="es", count=5000) -> pd.DataFrame:
-    revs, _ = reviews(pkg, lang=lang, country=country,
-                      sort=Sort.NEWEST, count=count)
+def fetch_android(pkg: str, country="ar", lang="es") -> pd.DataFrame:
+    # reviews_all() pagina sola hasta agotar las reseñas disponibles para
+    # ese lang/country (a diferencia de reviews(), que corta en `count`) —
+    # Google Play no tiene un tope duro de API como App Store (ver README).
+    revs = reviews_all(pkg, lang=lang, country=country, sort=Sort.NEWEST)
     return pd.DataFrame({
         "review_id": [r["reviewId"] for r in revs],
         "store": "android",
