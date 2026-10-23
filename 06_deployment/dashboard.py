@@ -445,6 +445,14 @@ def render_findings_html(findings: list[dict]) -> str:
 TEMPLATE = """<!doctype html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas de la app de {empresa}</title>
@@ -870,6 +878,14 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
 INDEX_TEMPLATE = """<!doctype html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas — empresas</title>
