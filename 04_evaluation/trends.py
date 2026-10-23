@@ -17,8 +17,7 @@ from config import Paths  # noqa: E402
 
 
 def run(paths: Paths):
-    df = pd.read_parquet(paths.reviews_enriched_parquet)
-    df["month"] = df["date"].dt.tz_convert("UTC").dt.strftime("%Y-%m")
+    df = pd.read_parquet(paths.reviews_enriched_parquet)  # "month" ya viene de construct_data.py
 
     by_month = (df.groupby(["month", "store"])
                 .agg(n=("text", "size"),

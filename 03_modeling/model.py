@@ -17,6 +17,10 @@ OUTLIER_TOPIC = -1  # BERTopic: reseñas sin patrón claro, no es un tópico rea
 MIN_TOPIC_SIZE_DEFAULT = 20
 MIN_TOPIC_SIZE_FLOOR = 5
 
+# Mapea la etiqueta de pysentimiento al mismo vocabulario que rating_bucket
+# (construct_data.py), para poder cruzarlas.
+SENTIMENT_TO_BUCKET = {"POS": "positiva", "NEU": "neutra", "NEG": "negativa"}
+
 
 def min_topic_size_for(n_docs: int) -> int:
     """
@@ -38,6 +42,13 @@ def run(paths: Paths):
 
     sent = create_analyzer(task="sentiment", lang="es")
     df["sentiment"] = [p.output for p in sent.predict(df["text"].tolist())]
+
+    # Chequeo cruzado contra rating_bucket (construct_data.py): si el modelo de
+    # sentimiento del texto discrepa con las estrellas que puso el usuario, es
+    # una reseña rara (sarcasmo, rating mal puesto, texto que no acompaña la
+    # estrella) que vale la pena poder filtrar aparte.
+    df["sentiment_mismatch"] = df["sentiment"].map(SENTIMENT_TO_BUCKET) != df["rating_bucket"]
+    print(f"sentiment_mismatch: {df['sentiment_mismatch'].sum()}/{len(df)} reseñas ({df['sentiment_mismatch'].mean():.1%})")
 
     emb = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
     topic_model = BERTopic(
