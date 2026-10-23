@@ -1,4 +1,9 @@
-"""Filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar."""
+"""
+Filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
+Corre sobre el dataset integrado (integrate_data.py): las filas de fuente
+"store_ratings" no tienen texto, así que el filtro de largo las descarta solo
+(no hace falta filtrar por "fuente" a mano).
+"""
 import argparse
 import sys
 from pathlib import Path
@@ -12,7 +17,7 @@ MIN_LEN = 15
 
 
 def run(paths: Paths) -> pd.DataFrame:
-    df = pd.read_parquet(paths.reviews)
+    df = pd.read_parquet(paths.integrated)
     df = df[df["text"].str.len() > MIN_LEN].copy()
     paths.ensure_dirs()
     df.to_parquet(paths.reviews_clean)

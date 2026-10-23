@@ -17,10 +17,10 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "01_data_understanding"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "01_data_understanding" / "collect_initial_data"))
 from config import Paths, ROOT  # noqa: E402
 import companies  # noqa: E402
-from collect_data import fetch_store_ratings  # noqa: E402
+from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
 TOP_FINDINGS_MAX = 6
@@ -368,7 +368,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <header class="page-head">
   <div>
     <h1>📊 {empresa}</h1>
-    <div class="sub">Análisis de reseñas de usuarios · generado {fecha}</div>
+    <div class="sub">Lo que más critican tus usuarios, priorizado para saber qué atacar primero · generado {fecha}</div>
   </div>
 </header>
 <div class="container">

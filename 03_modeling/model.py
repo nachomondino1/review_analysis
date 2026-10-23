@@ -29,7 +29,7 @@ def min_topic_size_for(n_docs: int) -> int:
 
 def parse_args():
     p = argparse.ArgumentParser(description="Analiza sentimiento y tópicos de las reseñas de una empresa.")
-    p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en collect_data.py)")
+    p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en collect_ios_reviews.py / collect_android_reviews.py)")
     return p.parse_args()
 
 

@@ -28,8 +28,16 @@ class Paths:
         self.modeling_dir = self.base / "03_modeling"
         self.evaluation_dir = self.base / "04_evaluation"
 
-        self.reviews = self.understanding_dir / "reviews.parquet"
-        self.store_ratings_json = self.understanding_dir / "store_ratings.json"
+        # Una fuente = un archivo, nombrado "<fuente>_<empresa>.<formato>" (ver
+        # 01_data_understanding/collect_*.py): cada script de collect toca un
+        # solo archivo, nunca pisa el de otra fuente.
+        self.ios_reviews = self.understanding_dir / f"ios_{self.slug}.parquet"
+        self.android_reviews = self.understanding_dir / f"android_{self.slug}.parquet"
+        self.store_ratings_json = self.understanding_dir / f"store_ratings_{self.slug}.json"
+
+        # Dataset único de 02_data_preparation: las 3 fuentes integradas con
+        # columna "fuente" (ver integrate_data.py), antes de derivar variables.
+        self.integrated = self.preparation_dir / f"integrated_{self.slug}.parquet"
         self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"
         self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
