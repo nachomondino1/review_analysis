@@ -494,7 +494,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Análisis de reseñas de la app de {empresa}</h1>
+    <h1>📊 Análisis de reseñas de Google Play y App Store de la app de {empresa}</h1>
     <div class="sub">Generado {fecha}</div>
   </div>
 </header>
@@ -514,18 +514,18 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
     </div>
     {composition_html}
     <p class="methodology-note">De acá en adelante, este informe analiza <strong>solo las reseñas con texto</strong> ({total_n_fmt} de {official_count}): es la <strong>única porción que se puede leer</strong> para entender qué pasa, pero por su naturaleza <strong>tiende a ser más negativa</strong> que el promedio general — quien solo puntúa con estrellas casi nunca escribe para elogiar. El foco de lo que sigue es <strong>identificar qué mejorar</strong>, no medir la satisfacción general (para eso ya está el rating oficial de arriba).</p>
+    <div class="subsection">{trend_html}</div>
     {competitor_section}
   </div>
 
   <div class="part part--text">
     <div class="part-eyebrow">Parte 2</div>
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
-    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
+    <p class="part-scope">Todo lo que sigue en esta sección — categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="stats-grid">
       <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
       <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
     </div>
-    <div class="subsection">{trend_html}</div>
 
     {categories_section}
 
@@ -614,7 +614,13 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     # si no, cae al genérico "últimos N meses vs. histórico".
     breakout_html = build_version_breakout_section(paths)
     trend_body = breakout_html or build_recency_comparison(reviews)
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
+    trend_html = (
+        f'<h3>¿Cómo vienen últimamente?</h3>'
+        f'<p class="methodology-note">Calculado sobre la evolución de las reseñas con texto, que es la única '
+        f'porción con fecha disponible para medir tendencia (la tienda no entrega un histórico del rating '
+        f'general) — se usa acá como la mejor aproximación a cómo viene la percepción general.</p>'
+        f'{trend_body}'
+    ) if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
