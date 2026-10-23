@@ -35,10 +35,10 @@ class Paths:
         self.android_reviews = self.understanding_dir / f"android_{self.slug}.parquet"
         self.store_ratings_json = self.understanding_dir / f"store_ratings_{self.slug}.json"
 
-        # Dataset único de 02_data_preparation: las 3 fuentes integradas con
-        # columna "fuente" (ver integrate_data.py), antes de derivar variables.
-        self.integrated = self.preparation_dir / f"integrated_{self.slug}.parquet"
-        self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"
+        # 02_data_preparation, en orden de pipeline:
+        self.integrated = self.preparation_dir / f"integrated_{self.slug}.parquet"    # ios_reviews + android_reviews juntas (integrate_data.py)
+        self.constructed = self.preparation_dir / f"constructed_{self.slug}.parquet"  # + month/text_length/rating_bucket (construct_data.py)
+        self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"           # constructed sin reseñas sin señal real (clean_reviews.py)
         self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
         self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
