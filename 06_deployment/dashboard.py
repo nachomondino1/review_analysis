@@ -67,9 +67,13 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
     total_official = official["count"]
     pct_text = max(0.0, min(100.0, round(total_n / total_official * 100, 1)))
     pct_no_text = round(100 - pct_text, 1)
+    n_no_text = total_official - total_n
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
+    n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
+    total_official_fmt = f'{total_official:,}'.replace(",", ".")
     return f'''
     <div class="composition">
+      <p class="composition-intro">De las {total_official_fmt} reseñas, algunas tienen texto y otras no:</p>
       <div class="composition-stats">
         <div class="comp-stat comp-stat--text">
           <div class="comp-pct">{pct_text}%</div>
@@ -77,7 +81,7 @@ def build_composition_bar(official: dict | None, total_n: int) -> str:
         </div>
         <div class="comp-stat comp-stat--notext">
           <div class="comp-pct">{pct_no_text}%</div>
-          <div class="comp-label">⭐ Solo estrellas, sin texto</div>
+          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
         </div>
       </div>
       <div class="composition-bar">
@@ -496,6 +500,7 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 .empty {{ color: var(--muted); text-align: center; padding: 24px; }}
 .methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
 .composition {{ margin-top: 20px; }}
+.composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
 .composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
 .comp-stat {{ flex: 1 1 160px; }}
 .comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
