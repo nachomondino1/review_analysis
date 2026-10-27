@@ -1,17 +1,22 @@
 """
-Exporta un Markdown legible por humano con el detalle de CADA reseña: texto
-completo, cómo se partió en oraciones, qué categoría menciona cada oración
-(por keywords del tópico que le tocó) y qué sentimiento le asignó el modelo
-a cada una — más el sentimiento y la confianza de la reseña completa. Un CSV
-no se puede hojear para chequear a ojo si el modelo clasifica bien; esto sí.
+Exporta una tabla (CSV) con una fila por ORACIÓN/split de cada reseña — no
+una fila por reseña — para poder chequear a ojo si el modelo clasifica bien
+a nivel de detalle real: texto de la oración, categoría que le detectó (por
+las keywords del tópico asignado a la reseña) y sentimiento de esa oración.
+"review_id" identifica a qué reseña pertenece cada oración, para poder
+agrupar y ver cómo quedó partida una reseña puntual.
+
+Si una oración menciona más de una categoría, se emite una fila por cada
+una (no se concatenan en una sola celda) — más fácil de filtrar/pivotear
+en una planilla. Si no menciona ninguna, la fila queda con category vacío.
 
 No modifica ningún dato de la empresa (reviews_enriched.parquet,
-topics_summary.csv): solo lee y arma un reporte aparte. Pensado para correr
+topics_summary.csv): solo lee y arma una tabla aparte. Pensado para correr
 después de refine_topic_sentiment.py y topics_enrich.py merge (necesita la
-categoría y el nombre de cada tópico ya asignados).
+categoría y las keywords de cada tópico ya asignadas).
 
 Uso: python 04_modeling/export_review_audit.py --name <empresa>
-Escribe data/<empresa>/04_modeling/topics/review_audit.md
+Escribe data/<empresa>/04_modeling/topics/review_audit.csv
 """
 import argparse
 import re
@@ -27,8 +32,6 @@ from pysentimiento import create_analyzer
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 from config import Paths  # noqa: E402
 
-SENTIMENT_EMOJI = {"POS": "🟢", "NEU": "⚪", "NEG": "🔴"}
-
 
 def split_sentences(text: str) -> list[str]:
     text = text.replace("\n", ". ")
@@ -43,10 +46,11 @@ def topic_keywords(name: str) -> list[str]:
     return [p for p in name.split("_")[1:] if len(p) > 2]
 
 
-def matching_categories(sentence: str, keywords_by_category: dict[str, list[str]]) -> list[str]:
+def matching_categories(sentence: str, category: str, keywords: list[str]) -> list[str]:
+    if not keywords:
+        return []
     low = sentence.lower()
-    return [cat for cat, kws in keywords_by_category.items()
-            if any(re.search(rf"\b{re.escape(kw.lower())}", low) for kw in kws)]
+    return [category] if any(re.search(rf"\b{re.escape(kw.lower())}", low) for kw in keywords) else []
 
 
 def run(paths: Paths):
@@ -55,51 +59,36 @@ def run(paths: Paths):
     if "category" not in summary.columns:
         raise SystemExit("topics_summary.csv no tiene tópicos nombrados todavía — correr topics_enrich.py merge primero.")
 
-    # Keywords por categoría propia de esta reseña: el tópico que BERTopic/la
-    # categorización manual le asignó a CADA reseña, no todas las keywords de
-    # todas las categorías (si no, cualquier reseña "matchearía" con medio
-    # vocabulario de la empresa).
     topic_to_category = summary.set_index("topic")["category"].to_dict()
-    topic_to_name = summary.set_index("topic")["name"].to_dict()
     topic_to_keywords = {row["topic"]: topic_keywords(row["Name"]) for _, row in summary.iterrows()}
 
     analyzer = create_analyzer(task="sentiment", lang="es")
-    has_confidence = "sentiment_confidence" in df.columns
 
-    lines = [f"# Auditoría de clasificación — {paths.slug}", "",
-             f"{len(df)} reseñas. Para cada una: texto completo, oraciones, categoría que menciona cada "
-             "oración (según las keywords del tópico asignado a la reseña) y sentimiento de esa oración.",
-             "Pensado para chequear a ojo si el modelo clasifica bien, no para publicar.", ""]
-
-    df = df.sort_values("date", ascending=False)
-    for _, row in df.iterrows():
-        topic = row["topic"]
-        category = topic_to_category.get(topic, "(sin categoría)")
+    rows = []
+    for _, review in df.iterrows():
+        topic = review["topic"]
+        category = topic_to_category.get(topic, "")
         keywords = topic_to_keywords.get(topic, [])
-        date_fmt = pd.to_datetime(row["date"]).strftime("%d/%m/%Y")
-        conf = f" (confianza {row['sentiment_confidence']:.0%})" if has_confidence else ""
-
-        lines.append(f"## {date_fmt} · {row['store']} · {row['rating']}★ · "
-                     f"{SENTIMENT_EMOJI.get(row['sentiment'], '')} {row['sentiment']}{conf}")
-        topic_name = topic_to_name.get(topic)
-        topic_name = topic_name if isinstance(topic_name, str) and topic_name else f"tópico {topic}"
-        lines.append(f"**Tópico asignado:** {category} — *{topic_name}*")
-        lines.append("")
-        lines.append(f"> {row['text']}".replace("\n", "\n> "))
-        lines.append("")
-        lines.append("| Oración | Categoría que menciona | Sentimiento de la oración |")
-        lines.append("|---|---|---|")
-        for sentence in split_sentences(row["text"]):
-            cats = matching_categories(sentence, {category: keywords}) if keywords else []
-            cats_label = ", ".join(cats) if cats else "—"
+        for order, sentence in enumerate(split_sentences(review["text"])):
+            cats = matching_categories(sentence, category, keywords)
             pred = analyzer.predict(sentence)
-            lines.append(f"| {sentence} | {cats_label} | {SENTIMENT_EMOJI.get(pred.output, '')} {pred.output} |")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
+            base = {
+                "review_id": review["review_id"],
+                "sentence_order": order,
+                "sentence": sentence,
+                "sentence_sentiment": pred.output,
+                "sentence_confidence": round(pred.probas[pred.output], 4),
+            }
+            if cats:
+                for cat in cats:
+                    rows.append({**base, "category": cat})
+            else:
+                rows.append({**base, "category": ""})
 
-    paths.review_audit_md.write_text("\n".join(lines), encoding="utf-8")
-    print(f"Guardado en {paths.review_audit_md.resolve()}")
+    out = pd.DataFrame(rows, columns=["review_id", "sentence_order", "sentence", "category",
+                                       "sentence_sentiment", "sentence_confidence"])
+    out.to_csv(paths.review_audit_csv, index=False, encoding="utf-8-sig")
+    print(f"{len(out)} filas ({df['review_id'].nunique()} reseñas) -> {paths.review_audit_csv.resolve()}")
 
 
 def parse_args():
