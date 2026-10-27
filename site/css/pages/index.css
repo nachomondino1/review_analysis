@@ -1,0 +1,9 @@
+/* Reglas propias de index.html (listado de empresas). Carga después de components/base.css. */
+.index-page .container { max-width: 640px; padding: 32px 24px 64px; }
+.index-page h1 { font-size: 1.3rem; font-weight: 800; }
+.index-page ul { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }
+a.company-link {
+  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
+}
+a.company-link:hover { border-color: var(--accent); }

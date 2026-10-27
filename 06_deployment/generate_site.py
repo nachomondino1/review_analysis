@@ -1,8 +1,9 @@
 """
 Genera el HTML con el análisis de una empresa, para compartir por link
 (sin backend, sin build step). Los datos quedan embebidos en el HTML; los
-estilos viven en site/styles.css, compartido por todas las empresas (un
-cambio de diseño no implica regenerar los HTML de todas).
+estilos viven en site/css/components/base.css (compartido) + site/css/pages/empresa.css
+(propio de esta página) — un cambio de diseño compartido no implica regenerar
+los HTML de todas las empresas.
 
 Uso: python 06_deployment/generate_site.py --name <empresa>
 Lee los outputs de 04_modeling; escribe site/<empresa>.html
@@ -332,7 +333,7 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
                 f'<dl>{"".join(items)}</dl></details>'
             )
     return (
-        f'<div class="subsection"><h3>Por categoría</h3>'
+        f'<div class="subsection"><h3>¿Qué categoría molesta más?</h3>'
         f'{legend}'
         f'<div class="bubble-chart">{"".join(bubbles)}</div>'
         f'{explain}</div>'
@@ -507,7 +508,8 @@ TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/components/base.css">
+<link rel="stylesheet" href="css/pages/empresa.css">
 </head>
 <body>
 <header class="page-head">
@@ -538,28 +540,28 @@ TEMPLATE = """<!doctype html>
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
-    <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
+    <h2 class="part-title">¿Qué dicen <span class="kw">todas</span> las calificaciones de la tienda?</h2>
     {composition_html}
     {competitor_section}
   </div>
 
   <div class="part part--text">
     <div class="part-eyebrow">Parte 2</div>
-    <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
+    <h2 class="part-title">¿Qué dicen las reseñas <span class="kw">que tienen texto</span>?</h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="subsection">{trend_html}</div>
 
     {categories_section}
 
     <div class="subsection">
-      <h3>Top 3 tópicos</h3>
+      <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
         {findings_html}
       </div>
     </div>
 
     <div class="subsection">
-      <h3>Detalle completo por tópico</h3>
+      <h3>¿Qué dice cada tópico en detalle?</h3>
       <details class="detail-table">
         <summary>Ver los {n_topics} tópicos detectados</summary>
         <div class="table-scroll">
@@ -675,7 +677,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
-        f'<div class="subsection"><h3>Comparado con la competencia</h3>{competitor_html}</div>' if competitor_html else ""
+        f'<div class="subsection"><h3>¿Cómo comparás con la competencia?</h3>{competitor_html}</div>' if competitor_html else ""
     )
 
     return TEMPLATE.format(
@@ -715,7 +717,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="site/styles.css">
+<link rel="stylesheet" href="site/css/components/base.css">
+<link rel="stylesheet" href="site/css/pages/index.css">
 </head>
 <body class="index-page">
 <div class="container">
@@ -747,7 +750,7 @@ def build_index(site_dir: Path, root: Path):
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Genera el HTML para compartir el análisis (estilos en site/styles.css, compartido).")
+    p = argparse.ArgumentParser(description="Genera el HTML para compartir el análisis (estilos en site/css/, compartidos entre empresas).")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
     p.add_argument("--display-name", default=None, help="Nombre a mostrar en la web (default: --name tal cual)")
     p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en data/companies.csv, para comparar rating oficial")
