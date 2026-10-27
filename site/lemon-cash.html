@@ -69,26 +69,31 @@
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
     <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">49.840</div><div class="label">Reseñas totales en las tiendas</div></div>
-      <div class="stat-card"><div class="value">4.05★</div><div class="label">Rating oficial de las tiendas (49.840 calificaciones)</div></div>
-    </div>
     
     <div class="composition">
-      <p class="composition-intro">De las <strong>49.840 reseñas</strong>, algunas tienen texto y otras no:</p>
-      <div class="composition-stats">
-        <div class="comp-stat comp-stat--text">
-          <div class="comp-pct">31.9%</div>
-          <div class="comp-label">📝 Con texto (15.917 reseñas)</div>
+      <div class="split-flow">
+        <div class="split-origin">
+          <div class="split-origin-value">49.840</div>
+          <div class="split-origin-label">Reseñas totales</div>
         </div>
-        <div class="comp-stat comp-stat--notext">
-          <div class="comp-pct">68.1%</div>
-          <div class="comp-label">⭐ Solo estrellas (33.923 reseñas)</div>
+        <div class="split-branches">
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow">↳</span>
+            <div class="split-branch-body">
+              <div class="split-branch-value">31.9%</div>
+              <div class="split-branch-label">📝 Con texto · 15.917 reseñas</div>
+              <div class="split-branch-sub">40.5% negativas</div>
+            </div>
+          </div>
+          <div class="split-branch split-branch--notext">
+            <span class="split-arrow">↳</span>
+            <div class="split-branch-body">
+              <div class="split-branch-value">68.1%</div>
+              <div class="split-branch-label">⭐ Solo estrellas · 33.923 reseñas</div>
+              <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="composition-bar">
-        <div class="composition-fill composition-fill--text" style="width:31.9%"></div>
-        <div class="composition-fill composition-fill--notext" style="width:68.1%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el 31.9% que tiene texto</strong> (15.917 reseñas) — es la única porción que se puede leer.</p>
       <p class="methodology-note">⚠️ La API pública de reseñas de iOS solo deja leer las últimas ~500, aunque haya más: de las 4.135 calificaciones de iOS, este análisis pudo leer el texto de 468. Una parte del resto puede tener texto también — no figuran acá porque la tienda no las deja leer, no porque no existan. Android no tiene ese límite (se leyeron todas las disponibles).</p>
@@ -101,10 +106,6 @@
     <div class="part-eyebrow">Parte 2</div>
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 15.917 reseñas con texto</strong>, no sobre el total de la tienda.</p>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">15.917</div><div class="label">Reseñas totales con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">40.5%</div><div class="label">Negativas sobre 15.917 reseñas con texto</div></div>
-    </div>
     <div class="subsection"><h3>¿Cómo vienen últimamente?</h3><div class="trend-banner trend-bad">Desde la versión 3.0.2 de App Store (lanzada ~2026-05-27) en adelante, el % de negativas pasó de 45.7% a 83.8% (+38.1 puntos porcentuales) y se sostiene en esa versión y las siguientes (37 reseñas, contra 431 previas) — diferencia estadísticamente significativa (p = 0.0).</div></div>
 
     <div class="subsection"><h3>Por categoría</h3>

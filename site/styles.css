@@ -105,13 +105,6 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 .part-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }
 .part-scope { color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }
 .subsection { margin-top: 32px; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
-.stat-card {
-  background: var(--surface); border: 1px solid var(--border-soft);
-  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
-}
-.stat-card .value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
-.stat-card .label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
 .bubble-legend {
   display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
 }
@@ -175,6 +168,13 @@ h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px
 .trend-good { background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }
 .trend-bad { background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }
 .trend-flat { background: var(--bg-subtle); color: var(--muted); }
+.trend-tile {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 8px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px 20px;
+}
+.trend-tile-main { flex: 1 1 220px; }
+.sparkline { flex: 1 1 200px; max-width: 260px; height: 48px; }
 details.detail-table { margin-top: 8px; }
 details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
 .table-scroll { overflow-x: auto; margin-top: 8px; }
@@ -191,20 +191,24 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 .methodology-note { color: var(--muted); font-size: 0.8rem; margin-top: 12px; }
 .composition { margin-top: 20px; }
-.composition-intro { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
-.composition-stats { display: flex; flex-wrap: wrap; gap: 24px; }
-.comp-stat { flex: 1 1 160px; }
-.comp-pct { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-.comp-stat--text .comp-pct { color: var(--warn); }
-.comp-stat--notext .comp-pct { color: var(--muted-soft); }
-.comp-label { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-.composition-bar {
-  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
-  border: 1px solid var(--border-soft);
+.split-flow { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.split-origin { text-align: center; flex: 0 0 auto; }
+.split-origin-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.split-origin-label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
+.split-branches { display: flex; flex-direction: column; gap: 10px; flex: 1 1 320px; }
+.split-branch {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 12px 16px;
 }
-.composition-fill { height: 100%; }
-.composition-fill--text { background: var(--warn); }
-.composition-fill--notext { background: var(--border-soft); }
+.split-arrow { font-size: 1.1rem; color: var(--muted-soft); flex-shrink: 0; }
+.split-branch-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.split-branch--text .split-branch-value { color: var(--warn); }
+.split-branch--notext .split-branch-value { color: var(--muted-soft); }
+.split-branch-label { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+.split-branch-sub { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
+.split-branch--text .split-branch-sub { color: var(--bad); }
+.split-branch--notext .split-branch-sub { color: var(--muted-soft); font-weight: 400; }
 .composition-callout {
   margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
   background: color-mix(in srgb, var(--warn) 12%, transparent);

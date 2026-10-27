@@ -84,13 +84,15 @@ def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str
     )
 
 
-def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str = "") -> str:
+def build_composition_bar(official: dict | None, total_n: int, pct_neg_text: float | None, ios_cap_note: str = "") -> str:
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
-    bien grande y visual, para que el % de negativas de más abajo no se lea
-    como si describiera a todos los usuarios, sino solo a esta porción, y
-    para que quede clarísimo cuál de las dos es la que se analiza después.
+    como un split visual (total -> dos ramas con flecha), no una barra +
+    números sueltos. La rama "con texto" ya trae ahí mismo su % de
+    negativas (el dato que antes se repetía en una card aparte más abajo);
+    la rama "sin texto" no puede traerlo — no hay texto que analizar — y lo
+    dice explícito en vez de omitirlo en silencio.
     """
     if not official or not official.get("count"):
         return ""
@@ -101,23 +103,33 @@ def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
+    neg_sub = f'<div class="split-branch-sub">{pct_neg_text}% negativas</div>' if pct_neg_text is not None else ""
 
     return f'''
     <div class="composition">
-      <p class="composition-intro">De las <strong>{total_official_fmt} reseñas</strong>, algunas tienen texto y otras no:</p>
-      <div class="composition-stats">
-        <div class="comp-stat comp-stat--text">
-          <div class="comp-pct">{pct_text}%</div>
-          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+      <div class="split-flow">
+        <div class="split-origin">
+          <div class="split-origin-value">{total_official_fmt}</div>
+          <div class="split-origin-label">Reseñas totales</div>
         </div>
-        <div class="comp-stat comp-stat--notext">
-          <div class="comp-pct">{pct_no_text}%</div>
-          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
+        <div class="split-branches">
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow">↳</span>
+            <div class="split-branch-body">
+              <div class="split-branch-value">{pct_text}%</div>
+              <div class="split-branch-label">📝 Con texto · {total_n_fmt} reseñas</div>
+              {neg_sub}
+            </div>
+          </div>
+          <div class="split-branch split-branch--notext">
+            <span class="split-arrow">↳</span>
+            <div class="split-branch-body">
+              <div class="split-branch-value">{pct_no_text}%</div>
+              <div class="split-branch-label">⭐ Solo estrellas · {n_no_text_fmt} reseñas</div>
+              <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="composition-bar">
-        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
-        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
       {ios_cap_note}
@@ -349,13 +361,39 @@ MIN_SAMPLE_FOR_COMPARISON = 5  # con menos reseñas, el % no es confiable para c
 TREND_THRESHOLD_PTS = 3  # diferencia de puntos porcentuales para no llamarlo "estable"
 
 
+def build_sparkline_svg(monthly_pct_neg: list[float], trend_class: str) -> str:
+    """
+    12 puntos (o los que haya) de % negativas por mes, en el tono de
+    "de-énfasis" (--muted-soft) con el punto actual resaltado en el color de
+    la tendencia (good/bad/flat) — mismo color que el chip de abajo, nunca
+    color solo (ver dataviz skill: "status colors... icon + label").
+    """
+    if len(monthly_pct_neg) < 2:
+        return ""
+    w, h, pad = 260, 48, 6
+    lo, hi = min(monthly_pct_neg), max(monthly_pct_neg)
+    span = (hi - lo) or 1  # evita división por cero si todos los meses dan igual
+    n = len(monthly_pct_neg)
+    xs = [pad + i * (w - 2 * pad) / (n - 1) for i in range(n)]
+    ys = [pad + (h - 2 * pad) * (1 - (v - lo) / span) for v in monthly_pct_neg]
+    path = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f},{y:.1f}" for i, (x, y) in enumerate(zip(xs, ys)))
+    dot_color = {"trend-good": "var(--good)", "trend-bad": "var(--bad)", "trend-flat": "var(--muted)"}[trend_class]
+    return f'''
+    <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, últimos {n} meses">
+      <path d="{path}" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+      <circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="4" fill="{dot_color}" stroke="var(--surface)" stroke-width="2" />
+    </svg>
+    '''
+
+
 def build_recency_comparison(reviews: pd.DataFrame) -> str:
     """
-    Responde "¿cómo vienen las reseñas últimamente respecto de siempre?" de
-    forma directa: últimos N meses vs. histórico completo, con un chip que dice
-    explícitamente si mejoró o empeoró (en vez de un gráfico de línea donde
-    "sube" es ambiguo — ¿sube el % de negativas, que es malo, o sube el
-    rating, que es bueno? — confuso incluso con eje bien etiquetado).
+    Responde "¿cómo vienen las reseñas últimamente respecto de siempre?" con
+    UN solo número titular (% negativas de los últimos N meses) + el delta
+    contra el histórico + un sparkline de la tendencia mensual — en vez de 4
+    números sueltos en 2 cards. El sparkline grafica una sola métrica
+    (% negativas) de punta a punta, así "sube" tiene un solo significado
+    posible (nunca mezcla con rating, que subiría por motivos opuestos).
     """
     if reviews is None or reviews.empty or "date" not in reviews.columns:
         return ""
@@ -377,27 +415,26 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     delta = recent_s["pct_neg"] - all_s["pct_neg"]  # positivo = empeoró (más % negativas)
 
     if delta <= -TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-good", f"Mejorando: {abs(delta):.1f} puntos porcentuales menos reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-good", f"{abs(delta):.1f} puntos menos que el histórico ({all_s['pct_neg']}%)"
     elif delta >= TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-bad", f"Empeorando: {delta:.1f} puntos porcentuales más reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-bad", f"{delta:.1f} puntos más que el histórico ({all_s['pct_neg']}%)"
     else:
-        trend_class, trend_label = "trend-flat", "Estable respecto del histórico"
+        trend_class, trend_label = "trend-flat", f"Estable respecto del histórico ({all_s['pct_neg']}%)"
+
+    monthly = (reviews.assign(_neg=(reviews["sentiment"] == "NEG"))
+               .groupby("month")["_neg"].mean().mul(100).round(1))
+    monthly = monthly.sort_index().tail(12)
+    sparkline_html = build_sparkline_svg(monthly.tolist(), trend_class)
 
     return f'''
-    <div class="recency-grid">
-      <div class="recency-card">
-        <div class="recency-label">Histórico completo</div>
-        <div class="recency-value">{all_s["rating"]}★</div>
-        <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
+    <div class="trend-tile">
+      <div class="trend-tile-main">
+        <div class="recency-label">Negativas, últimos {RECENT_MONTHS} meses ({recent_s["n"]} reseñas)</div>
+        <div class="recency-value">{recent_s["pct_neg"]}%</div>
+        <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
       </div>
-      <div class="recency-arrow">vs.</div>
-      <div class="recency-card">
-        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
-        <div class="recency-value">{recent_s["rating"]}★</div>
-        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
-      </div>
+      {sparkline_html}
     </div>
-    <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
     '''
 
 
@@ -497,10 +534,6 @@ TEMPLATE = """<!doctype html>
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
     <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
-      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
-    </div>
     {composition_html}
     {competitor_section}
   </div>
@@ -509,10 +542,6 @@ TEMPLATE = """<!doctype html>
     <div class="part-eyebrow">Parte 2</div>
     <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
-    </div>
     <div class="subsection">{trend_html}</div>
 
     {categories_section}
@@ -593,7 +622,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     ios_cap_note = build_ios_cap_note(reviews, store_ratings)
-    composition_html = build_composition_bar(official, stats["total_n"], ios_cap_note)
+    composition_html = build_composition_bar(official, stats["total_n"], stats["pct_neg"], ios_cap_note)
     categories = build_categories(summary)
     categories_section = render_categories_html(categories, build_category_topics(summary))
     findings = build_findings(summary, reviews)
@@ -648,7 +677,6 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
-        official_count_num=f'{official["count"]:,}'.replace(",", ".") if official else "N/D",
         total_n=stats["total_n"],
         total_n_fmt=f'{stats["total_n"]:,}'.replace(",", "."),
         pct_neg=stats["pct_neg"],
