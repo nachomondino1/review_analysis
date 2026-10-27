@@ -79,24 +79,31 @@ site/
 data/
   <empresa>/
     02_data_understanding/
-      ios_<empresa>.parquet              # fuente 1: reseñas crudas de App Store
-      android_<empresa>.parquet          # fuente 2: reseñas crudas de Google Play
-      store_ratings_<empresa>.json       # fuente 3: rating oficial agregado por tienda (score + cantidad de calificaciones)
-      <fuente>_description.{md,json}     # describe_data.py, una por fuente
+      collect_initial_data/
+        ios_<empresa>.parquet              # fuente 1: reseñas crudas de App Store
+        android_<empresa>.parquet          # fuente 2: reseñas crudas de Google Play
+        store_ratings_<empresa>.json       # fuente 3: rating oficial agregado por tienda (score + cantidad de calificaciones)
+      describe_data/
+        <fuente>_description.{md,json}     # describe_data.py, una por fuente
     03_data_preparation/
       integrated_<empresa>.parquet   # ios_reviews + android_reviews integradas, identificadas por "store" (store_ratings no entra)
       constructed_<empresa>.parquet # + month, text_length, rating_bucket
       reviews_clean.parquet         # reseñas filtradas, insumo del modelado
     04_modeling/
-      reviews_enriched.parquet  # reseñas + sentimiento + tópico + sentiment_mismatch
-      reviews_enriched.csv      # idem, para abrir en Excel
-      topics_summary.csv        # resumen por tópico; topics_enrich.py le agrega name/summary/severity/recommendation
-      topic_samples.json        # keywords + muestras por tópico, insumo para el nombrado
-      topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
-      sentiment_by_month.csv    # tendencia mensual de sentimiento por store
-      store_comparison.csv      # comparación agregada iOS vs Android
-      version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
+      topics/     # "de qué hablan las reseñas y qué tan grave es cada tema"
+        reviews_enriched.parquet  # reseñas + sentimiento + tópico + sentiment_mismatch (+ sentiment_confidence si se corrió add_sentiment_confidence.py)
+        reviews_enriched.csv      # idem, para abrir en Excel
+        topics_summary.csv        # resumen por tópico; refine_topic_sentiment.py afina pct_neg, topics_enrich.py agrega name/summary/severity/recommendation
+        topic_samples.json        # keywords + muestras por tópico, insumo para el nombrado
+        topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
+        review_audit.md           # detalle por reseña (texto, oraciones, categoría y sentimiento de cada una) para QA manual — export_review_audit.py
+      trends/     # "cómo viene cambiando en el tiempo" (independiente de topics/, ambos leen reviews_enriched.parquet)
+        sentiment_by_month.csv    # tendencia mensual de sentimiento por store
+        store_comparison.csv      # comparación agregada iOS vs Android
+        version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
 ```
+
+Orden de scripts en `04_modeling/` (por qué hay tantos): `analyze_sentiment_topics.py` (clustering + sentimiento rápido por reseña) → `refine_topic_sentiment.py` (afina `pct_neg` por oración, sin re-clusterizar) → `topics_enrich.py export` → Claude nombra los tópicos → `topics_enrich.py merge`. Opcionales, en cualquier momento después del primer paso: `trends.py`, `version_breakout.py`, `add_sentiment_confidence.py`, `export_review_audit.py`.
 
 `01_business_understanding/` y `05_evaluation/` no generan nada en `data/<empresa>/` — son documentos de proceso, no fases con output por empresa.
 

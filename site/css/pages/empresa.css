@@ -95,6 +95,7 @@
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
   padding: 10px 12px; font-size: 0.85rem; line-height: 1.5; color: var(--muted);
 }
+.cat-detail-date { color: var(--muted-soft); font-size: 0.68rem; font-weight: 700; margin-bottom: 4px; }
 .cat-detail-list mark {
   background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--text);
   padding: 0 2px; border-radius: 3px;

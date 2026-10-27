@@ -27,29 +27,47 @@ class Paths:
         self.preparation_dir = self.base / "03_data_preparation"
         self.modeling_dir = self.base / "04_modeling"
 
+        # 02_data_understanding se divide en dos carpetas (mismo criterio que
+        # los scripts: collect_initial_data/ ya existe como carpeta de
+        # scripts, acá es su contraparte de datos; describe_data/ para lo que
+        # describe_data.py documenta sobre esos datos crudos).
+        self.collect_dir = self.understanding_dir / "collect_initial_data"
+        self.describe_dir = self.understanding_dir / "describe_data"
+
         # Una fuente = un archivo, nombrado "<fuente>_<empresa>.<formato>" (ver
         # 02_data_understanding/collect_*.py): cada script de collect toca un
         # solo archivo, nunca pisa el de otra fuente.
-        self.ios_reviews = self.understanding_dir / f"ios_{self.slug}.parquet"
-        self.android_reviews = self.understanding_dir / f"android_{self.slug}.parquet"
-        self.store_ratings_json = self.understanding_dir / f"store_ratings_{self.slug}.json"
+        self.ios_reviews = self.collect_dir / f"ios_{self.slug}.parquet"
+        self.android_reviews = self.collect_dir / f"android_{self.slug}.parquet"
+        self.store_ratings_json = self.collect_dir / f"store_ratings_{self.slug}.json"
 
-        # 03_data_preparation, en orden de pipeline:
+        # 03_data_preparation, en orden de pipeline (flat: son solo 3 archivos
+        # con nombres ya bien descriptivos, no hace falta subdividir):
         self.integrated = self.preparation_dir / f"integrated_{self.slug}.parquet"    # ios_reviews + android_reviews juntas (integrate_data.py)
         self.constructed = self.preparation_dir / f"constructed_{self.slug}.parquet"  # + month/text_length/rating_bucket (construct_data.py)
         self.reviews_clean = self.preparation_dir / "reviews_clean.parquet"           # constructed sin reseñas sin señal real (clean_reviews.py)
-        self.reviews_enriched_parquet = self.modeling_dir / "reviews_enriched.parquet"
-        self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
-        self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
-        # Hallazgos derivados del modelo (nombrado de tópicos, tendencia, quiebre
-        # de versión): siguen operando sobre la salida de analyze_sentiment_topics.py, no evalúan
-        # nada contra un criterio de negocio — por eso viven en 04_modeling, no
-        # en una fase "04_evaluation" que terminaba sin nada propio adentro.
-        self.topic_samples_json = self.modeling_dir / "topic_samples.json"
-        self.topics_named_json = self.modeling_dir / "topics_named.json"
-        self.sentiment_by_month_csv = self.modeling_dir / "sentiment_by_month.csv"
-        self.store_comparison_csv = self.modeling_dir / "store_comparison.csv"
-        self.version_breakout_json = self.modeling_dir / "version_breakout.json"
+
+        # 04_modeling se divide en dos carpetas según qué pregunta responden:
+        # topics/ = "de qué hablan las reseñas y qué tan grave es cada tema"
+        # (analyze_sentiment_topics.py -> refine_topic_sentiment.py ->
+        # topics_enrich.py export/merge, en ese orden); trends/ = "cómo viene
+        # cambiando en el tiempo" (trends.py, version_breakout.py — ambos
+        # opcionales y leen reviews_enriched.parquet, no dependen de
+        # topics_enrich.py). Ningún otro criterio de corte (por tipo de
+        # archivo, por fecha) separa tan bien "qué" de "cuándo".
+        self.topics_dir = self.modeling_dir / "topics"
+        self.trends_dir = self.modeling_dir / "trends"
+
+        self.reviews_enriched_parquet = self.topics_dir / "reviews_enriched.parquet"
+        self.reviews_enriched_csv = self.topics_dir / "reviews_enriched.csv"
+        self.topics_summary_csv = self.topics_dir / "topics_summary.csv"
+        self.topic_samples_json = self.topics_dir / "topic_samples.json"
+        self.topics_named_json = self.topics_dir / "topics_named.json"
+        self.review_audit_md = self.topics_dir / "review_audit.md"  # para QA manual (ver export_review_audit.py)
+
+        self.sentiment_by_month_csv = self.trends_dir / "sentiment_by_month.csv"
+        self.store_comparison_csv = self.trends_dir / "store_comparison.csv"
+        self.version_breakout_json = self.trends_dir / "version_breakout.json"
 
         # En la raíz del repo (no bajo 06_deployment/) porque GitHub Pages
         # "clásico" (deploy from branch) solo sirve desde la raíz o /docs,
@@ -58,7 +76,7 @@ class Paths:
         self.site_html = self.site_dir / f"{self.slug}.html"
 
     def ensure_dirs(self):
-        for d in (self.understanding_dir, self.preparation_dir, self.modeling_dir):
+        for d in (self.collect_dir, self.describe_dir, self.preparation_dir, self.topics_dir, self.trends_dir):
             d.mkdir(parents=True, exist_ok=True)
 
     def ensure_site_dir(self):

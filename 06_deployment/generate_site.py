@@ -366,16 +366,30 @@ def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame)
     if real.empty:
         return ""
 
+    has_confidence = "sentiment_confidence" in reviews.columns
+    RECENT_POOL = 10  # entre las más recientes, se eligen las de clasificación más confiable
+
     panels = []
     for category, group in real.groupby("category"):
         cat_reviews = reviews[reviews["topic"].isin(group["topic"])]
         keywords = [kw for name in group["Name"].dropna() for kw in topic_keywords(name)]
 
         def render_side(label: str, sentiment: str, css: str) -> str:
-            sub = cat_reviews[cat_reviews["sentiment"] == sentiment]["text"].dropna().head(SAMPLES_PER_BUBBLE)
+            sub = cat_reviews[cat_reviews["sentiment"] == sentiment].dropna(subset=["text"])
             if sub.empty:
                 return f'<div class="cat-detail-col"><h4 class="cat-detail-col-title {css}">{label}</h4><p class="empty">Sin ejemplos.</p></div>'
-            items = "".join(f"<li>{highlight_relevant_sentence(t, keywords)}</li>" for t in sub)
+            # Entre las más recientes, priorizar las que el modelo clasificó con más
+            # confianza (y más texto: una reseña de una palabra da poco contexto para
+            # confiar en su sentimiento) — no ordenar solo por fecha, porque la reseña
+            # más nueva puede ser la más ambigua de todas.
+            recent = sub.sort_values("date", ascending=False).head(RECENT_POOL)
+            sort_cols = ["sentiment_confidence", "text_length"] if has_confidence else ["text_length"]
+            recent = recent.sort_values(sort_cols, ascending=False).head(SAMPLES_PER_BUBBLE)
+            items = "".join(
+                f'<li><div class="cat-detail-date">{pd.to_datetime(row["date"]).strftime("%d/%m/%Y")}</div>'
+                f'{highlight_relevant_sentence(row["text"], keywords)}</li>'
+                for _, row in recent.iterrows()
+            )
             return f'<div class="cat-detail-col"><h4 class="cat-detail-col-title {css}">{label}</h4><ul class="cat-detail-list">{items}</ul></div>'
 
         panels.append(f'''
