@@ -159,11 +159,13 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 .split-arrow { font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
 .split-branch--text .split-arrow { color: var(--warn); }
 .split-branch--notext .split-arrow { color: var(--muted-soft); }
+.split-branch-num { flex-shrink: 0; text-align: center; }
+.split-branch-body { flex: 1 1 auto; }
 .split-branch-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
 .split-branch--text .split-branch-value { color: var(--warn); }
 .split-branch--notext .split-branch-value { color: var(--muted-soft); }
 .split-branch-unit { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-.split-branch-label { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+.split-branch-label { color: var(--muted); font-size: 0.85rem; }
 .split-branch--text .split-branch-label strong { color: var(--warn); }
 .split-branch--notext .split-branch-label strong { color: var(--muted-soft); }
 .split-branch-sub { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }

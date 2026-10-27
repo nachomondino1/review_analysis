@@ -125,18 +125,22 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
         <div class="split-branches">
           <div class="split-branch split-branch--text">
             <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-body">
+            <div class="split-branch-num">
               <div class="split-branch-value">{total_n_fmt}</div>
               <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
               <div class="split-branch-label"><strong>Con texto</strong> · {pct_text}% del total</div>
               {neg_sub}
             </div>
           </div>
           <div class="split-branch split-branch--notext">
             <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-body">
+            <div class="split-branch-num">
               <div class="split-branch-value">{n_no_text_fmt}</div>
               <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
               <div class="split-branch-label"><strong>Solo estrellas</strong> · {pct_no_text}% del total</div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
             </div>
