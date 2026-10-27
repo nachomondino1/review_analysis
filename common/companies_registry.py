@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-COMPANIES_CSV = ROOT / "common" / "companies.csv"
+COMPANIES_CSV = ROOT / "data" / "companies.csv"
 COLUMNS = ["name", "app_ios", "pkg"]
 
 

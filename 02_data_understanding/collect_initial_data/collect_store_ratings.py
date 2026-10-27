@@ -17,7 +17,7 @@ from google_play_scraper import app as gp_app
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
-import companies  # noqa: E402
+import companies_registry as companies  # noqa: E402
 
 
 def fetch_store_ratings(app_ios: int | None, pkg: str | None, country="ar", lang="es") -> dict:
@@ -37,7 +37,7 @@ def fetch_store_ratings(app_ios: int | None, pkg: str | None, country="ar", lang
 
 def parse_args():
     p = argparse.ArgumentParser(description="Descarga el rating oficial agregado por tienda para una empresa.")
-    p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe tener app_ios y/o pkg en common/companies.csv)")
+    p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe tener app_ios y/o pkg en data/companies.csv)")
     return p.parse_args()
 
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     known = companies.lookup(args.name)
     if known is None:
-        raise SystemExit(f"No conozco a '{args.name}' en common/companies.csv. Correr primero collect_ios_reviews.py o collect_android_reviews.py.")
+        raise SystemExit(f"No conozco a '{args.name}' en data/companies.csv. Correr primero collect_ios_reviews.py o collect_android_reviews.py.")
 
     paths = Paths(args.name)
     paths.ensure_dirs()

@@ -3,14 +3,14 @@
 Fase 5 de CRISP-DM. Tampoco tiene scripts propios: a diferencia de las fases
 anteriores, estas 3 tareas son juicio humano sobre los resultados de
 `04_modeling/`, no cálculos — no hay nada que un script pueda decidir solo.
-Se responde esto **antes de correr `06_deployment/dashboard.py`** para una
+Se responde esto **antes de correr `06_deployment/generate_site.py`** para una
 empresa.
 
 ## 5.1 Evaluate results
 
 ¿Los hallazgos cumplen el criterio de negocio de `01_business_understanding`
 ("al menos 1 hallazgo accionable con volumen/severidad suficientes")?
-Chequear con los números que ya imprime `04_modeling/model.py`:
+Chequear con los números que ya imprime `04_modeling/analyze_sentiment_topics.py`:
 
 - **`% outliers`** (tópico `-1` de BERTopic): si es muy alto, el modelo no
   separó bien el corpus — desconfiar de los tópicos que sí formó.
@@ -44,7 +44,7 @@ reseñas de esa versión; se cuestionó la muestra y, con el método corregido
 
 Con 5.1 y 5.2 resueltos, decidir una de tres:
 
-- **Deploy**: correr `06_deployment/dashboard.py` y publicar.
+- **Deploy**: correr `06_deployment/generate_site.py` y publicar.
 - **Iterar**: volver a una fase anterior (ej. ajustar `min_topic_size`,
   revisar `clean_reviews.py`, pedir más volumen de reseñas) antes de publicar.
 - **Nuevo proyecto/análisis**: la empresa no tiene suficiente volumen de

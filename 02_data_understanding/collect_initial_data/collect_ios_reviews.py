@@ -14,7 +14,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
-import companies  # noqa: E402
+import companies_registry as companies  # noqa: E402
 
 
 def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:
@@ -57,7 +57,7 @@ def update(paths: Paths, app_ios: int) -> pd.DataFrame:
 def parse_args():
     p = argparse.ArgumentParser(description="Descarga reseñas de App Store para una empresa.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (define la carpeta data/<name>/)")
-    p.add_argument("--app-ios", type=int, default=None, help="id numérico de la app en App Store (omitir si ya está en common/companies.csv)")
+    p.add_argument("--app-ios", type=int, default=None, help="id numérico de la app en App Store (omitir si ya está en data/companies.csv)")
     return p.parse_args()
 
 

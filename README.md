@@ -12,7 +12,7 @@ El sitio (`site/*.html` + `index.html`) es HTML estático autocontenido — no h
 python3 -m http.server 8000
 ```
 
-Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el listado de empresas) o directo `http://localhost:8000/site/<empresa>.html`. Si todavía no corriste `06_deployment/dashboard.py --name <empresa>` para esa empresa, `site/` no va a tener su HTML — ver paso 12 de "Uso" más abajo.
+Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el listado de empresas) o directo `http://localhost:8000/site/<empresa>.html`. Si todavía no corriste `06_deployment/generate_site.py --name <empresa>` para esa empresa, `site/` no va a tener su HTML — ver paso 12 de "Uso" más abajo.
 
 ## Qué hace
 
@@ -22,19 +22,19 @@ Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el
    - `collect_android_reviews.py`: reseñas de Google Play (`google-play-scraper`) → `android_<empresa>.parquet`.
    - `collect_store_ratings.py`: **rating oficial agregado** de cada tienda (API de iTunes + ficha de Google Play) → `store_ratings_<empresa>.json` — ver nota de metodología más abajo, es importante.
 
-   Las dos primeras deduplican contra lo ya guardado. Los ids de App Store/Google Play se guardan en `common/companies.csv`: una empresa que ya se corrió antes no necesita pasarlos de nuevo, y una empresa sin presencia en una de las dos tiendas (ej. solo Android) funciona sin problema sin correr el script de la tienda que le falta.
+   Las dos primeras deduplican contra lo ya guardado. Los ids de App Store/Google Play se guardan en `data/companies.csv`: una empresa que ya se corrió antes no necesita pasarlos de nuevo, y una empresa sin presencia en una de las dos tiendas (ej. solo Android) funciona sin problema sin correr el script de la tienda que le falta.
 3. **Descripción de datos** (`02_data_understanding/describe_data.py`): documenta formato, tamaño, variables y disponibilidad de cada fuente por separado (una `<fuente>_description.md` por fuente, ya que cada una tiene su propio esquema/grano) — tarea de "Data Description" de CRISP-DM, no transforma nada.
 4. **Integración** (`03_data_preparation/integrate_data.py`): junta las fuentes de reseñas con texto (ios_reviews + android_reviews) en un solo dataset por empresa (`integrated_<empresa>.parquet`); la columna `store` que ambas ya traen identifica el origen de cada fila, sin agregar una columna redundante. `store_ratings` queda afuera a propósito: es una fila por tienda (rating agregado), una unidad de análisis distinta a una fila por reseña — se consume directo desde su propio JSON, sin integrar.
 5. **Construcción de variables** (`03_data_preparation/construct_data.py`): deriva `month` (YYYY-MM), `text_length` (largo del texto) y `rating_bucket` (positiva/neutra/negativa a partir de las estrellas, un sentimiento "barato" independiente del modelo NLP) — tarea de "Construct Data" de CRISP-DM.
 5b. **Selección de variables** (`03_data_preparation/select_data.py`, opcional/exploratorio): corre correlación (Pearson/Spearman) o comparación por grupo (Kruskal-Wallis) entre variables, para chequear con números si una variable derivada trae señal real antes de asumirlo (ej. en Ripio, las reseñas negativas duplican en largo a las positivas, diferencia estadísticamente significativa) — tarea de "Select Data" de CRISP-DM.
 6. **Limpieza** (`03_data_preparation/clean_reviews.py`): sobre el dataset con variables derivadas, filtra reseñas sin señal real (muy cortas, tipo "buena app") antes de modelar.
 7. **Modelado** (`04_modeling/`), las 4 tareas de "Modeling" de CRISP-DM — construir los modelos y evaluar si dan resultados confiables, antes de interpretarlos en términos de negocio:
-   - `model.py`: clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español) y agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`), con `nr_topics="auto"` para fusionar tópicos casi idénticos (sin esto, Ripio daba 37 tópicos; con esto, 18). Genera un resumen por tópico (cantidad de reseñas, rating promedio, % de negativas) ordenado por los más problemáticos primero. Imprime dos chequeos de calidad del modelo ("Assess model"): `sentiment_mismatch` (% de reseñas donde el sentimiento del texto discrepa de `rating_bucket`, ej. 5 estrellas con texto que el modelo lee como negativo) y `% outliers` (reseñas que BERTopic no pudo agrupar en ningún tópico, tópico `-1`) — si cualquiera de los dos da alto, conviene desconfiar de los hallazgos antes de reportarlos.
+   - `analyze_sentiment_topics.py`: clasifica el sentimiento de cada reseña (positivo/negativo/neutro) con `pysentimiento` (modelo en español) y agrupa las reseñas en tópicos con `BERTopic` + embeddings multilingües (`sentence-transformers`), con `nr_topics="auto"` para fusionar tópicos casi idénticos (sin esto, Ripio daba 37 tópicos; con esto, 18). Genera un resumen por tópico (cantidad de reseñas, rating promedio, % de negativas) ordenado por los más problemáticos primero. Imprime dos chequeos de calidad del modelo ("Assess model"): `sentiment_mismatch` (% de reseñas donde el sentimiento del texto discrepa de `rating_bucket`, ej. 5 estrellas con texto que el modelo lee como negativo) y `% outliers` (reseñas que BERTopic no pudo agrupar en ningún tópico, tópico `-1`) — si cualquiera de los dos da alto, conviene desconfiar de los hallazgos antes de reportarlos.
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play.
    - `version_breakout.py`: busca si el % de negativas tuvo un quiebre real atado a una versión específica, con test de significancia antes de reportarlo.
-8. **Evaluación** (`05_evaluation/EVALUATION.md`): antes de publicar, responder a mano las 3 tareas de "Evaluation" de CRISP-DM — ¿los hallazgos cumplen el criterio de negocio (5.1)?, ¿se corrió todo bien (5.2)?, ¿deploy, iterar, o no hay suficiente volumen para un análisis serio (5.3)? Tampoco tiene scripts: es un checklist que usa los números que ya imprimió `04_modeling/model.py`.
-9. **Deployment** (`06_deployment/dashboard.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
+8. **Evaluación** (`05_evaluation/EVALUATION.md`): antes de publicar, responder a mano las 3 tareas de "Evaluation" de CRISP-DM — ¿los hallazgos cumplen el criterio de negocio (5.1)?, ¿se corrió todo bien (5.2)?, ¿deploy, iterar, o no hay suficiente volumen para un análisis serio (5.3)? Tampoco tiene scripts: es un checklist que usa los números que ya imprimió `04_modeling/analyze_sentiment_topics.py`.
+9. **Deployment** (`06_deployment/generate_site.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
@@ -43,9 +43,10 @@ Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identi
 ```
 common/
   config.py          # paths por empresa (data/<empresa>/<fase>/...), importado por todas las fases
-  companies.py        # registro de empresas ya analizadas (lookup/upsert de companies.csv)
-  companies.csv        # nombre, app_ios, pkg por empresa — versionado, se edita solo o vía collect_*.py
+  companies_registry.py        # registro de empresas ya analizadas (lookup/upsert de companies.csv)
   check_env.py        # sanity check de que HF_TOKEN está cargado
+data/
+  companies.csv        # nombre, app_ios, pkg por empresa — versionado, se edita solo o vía collect_*.py
 01_business_understanding/
   BUSINESS_UNDERSTANDING.md  # objetivo de negocio, situación, objetivo técnico, criterio de éxito (sin scripts)
 02_data_understanding/
@@ -60,14 +61,14 @@ common/
   select_data.py       # correlación/comparación por grupo entre variables, para chequear señal antes de modelar
   clean_reviews.py     # filtra reseñas sin señal real, sobre el dataset con variables derivadas
 04_modeling/
-  model.py             # sentimiento + topic modeling + resumen + chequeos de calidad del modelo
+  analyze_sentiment_topics.py             # sentimiento + topic modeling + resumen + chequeos de calidad del modelo
   topics_enrich.py    # export de muestras por tópico + merge de nombres/recomendaciones
   trends.py            # tendencia mensual + comparación de stores
   version_breakout.py  # quiebre de % negativas atado a una versión específica
 05_evaluation/
   EVALUATION.md        # checklist de las 3 tareas de Evaluation de CRISP-DM (sin scripts)
 06_deployment/
-  dashboard.py        # genera site/<empresa>.html y regenera index.html (ambos en la raíz, no acá)
+  generate_site.py        # genera site/<empresa>.html y regenera index.html (ambos en la raíz, no acá)
 index.html            # listado de empresas analizadas — home del dominio de GitHub Pages (se regenera solo)
 site/
   <empresa>.html       # web autocontenida de esa empresa para compartir (SÍ versionado — ver "Publicar")
@@ -107,7 +108,7 @@ El repo es **público** y tiene GitHub Pages activado sirviendo `main` desde la 
 https://nachomondino1.github.io/review_analysis/<empresa>.html
 ```
 
-`index.html` (en la raíz) lista todas las empresas analizadas y es lo que se ve en `https://nachomondino1.github.io/review_analysis/` — se regenera automáticamente cada vez que corre `dashboard.py`, escaneando los `.html` existentes en `site/`. Al ser un repo público, de todas formas cualquiera puede encontrar los archivos navegando el código, liste o no el índice. Si en algún momento esto deja de ser aceptable para alguna empresa puntual, la alternativa es no commitear ese `.html` y mandarlo directo como archivo adjunto (ya lo hacíamos así antes de activar Pages).
+`index.html` (en la raíz) lista todas las empresas analizadas y es lo que se ve en `https://nachomondino1.github.io/review_analysis/` — se regenera automáticamente cada vez que corre `generate_site.py`, escaneando los `.html` existentes en `site/`. Al ser un repo público, de todas formas cualquiera puede encontrar los archivos navegando el código, liste o no el índice. Si en algún momento esto deja de ser aceptable para alguna empresa puntual, la alternativa es no commitear ese `.html` y mandarlo directo como archivo adjunto (ya lo hacíamos así antes de activar Pages).
 
 Para publicar un dashboard nuevo:
 
@@ -142,7 +143,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 02_data_understanding/collect_initial_data/collect_store_ratings.py --name spotify
    ```
 
-   La primera vez, los ids quedan guardados en `common/companies.csv`; una corrida posterior solo necesita `--name spotify`, sin repetir los ids. Si la app no está en una de las dos tiendas, se omite el script de esa fuente.
+   La primera vez, los ids quedan guardados en `data/companies.csv`; una corrida posterior solo necesita `--name spotify`, sin repetir los ids. Si la app no está en una de las dos tiendas, se omite el script de esa fuente.
 
 2. (Opcional, documentación) Describir cada fuente:
 
@@ -177,7 +178,7 @@ cp .env.example .env   # y completar HF_TOKEN
 6. Correr el análisis (mismo `--name`):
 
    ```bash
-   python 04_modeling/model.py --name spotify
+   python 04_modeling/analyze_sentiment_topics.py --name spotify
    ```
 
 7. Exportar las muestras para nombrar los tópicos:
@@ -215,12 +216,12 @@ cp .env.example .env   # y completar HF_TOKEN
 12. Generar la web para compartir:
 
    ```bash
-   python 06_deployment/dashboard.py --name spotify --display-name "Spotify"
+   python 06_deployment/generate_site.py --name spotify --display-name "Spotify"
    ```
 
    Esto genera `site/spotify.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, una comparación de "últimos 3 meses vs. histórico completo" y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
 
-   `--competitor <nombre>` (opcional) agrega una sección comparando el rating oficial contra un competidor puntual (sus ids tienen que estar ya cargados en `common/companies.csv`, aunque no se le haya corrido el pipeline completo — alcanza con `app_ios`/`pkg`). Ej.: `--competitor bitso` en el análisis de Ripio. Es trabajo específico para esa empresa (no una plantilla reciclable para cualquier otra), y sirve como evidencia de que el análisis no se hizo en automático para mandárselo a todo el mundo por igual.
+   `--competitor <nombre>` (opcional) agrega una sección comparando el rating oficial contra un competidor puntual (sus ids tienen que estar ya cargados en `data/companies.csv`, aunque no se le haya corrido el pipeline completo — alcanza con `app_ios`/`pkg`). Ej.: `--competitor bitso` en el análisis de Ripio. Es trabajo específico para esa empresa (no una plantilla reciclable para cualquier otra), y sirve como evidencia de que el análisis no se hizo en automático para mandárselo a todo el mundo por igual.
 
 ## ⚠️ Metodología: la muestra de reseñas con texto está sesgada hacia quejas
 

@@ -2,7 +2,7 @@
 Genera un único HTML autocontenido con el análisis de una empresa, para
 compartir por link/archivo (sin backend, sin build step).
 
-Uso: python 06_deployment/dashboard.py --name <empresa>
+Uso: python 06_deployment/generate_site.py --name <empresa>
 Lee los outputs de 04_modeling; escribe site/<empresa>.html
 y regenera index.html en la raíz del repo con el listado de empresas
 (para que GitHub Pages lo muestre como home del dominio).
@@ -19,7 +19,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "02_data_understanding" / "collect_initial_data"))
 from config import Paths, ROOT  # noqa: E402
-import companies  # noqa: E402
+import companies_registry as companies  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
@@ -154,7 +154,7 @@ def build_version_breakout_section(paths: Paths) -> str:
 def build_competitor_section(official: dict | None, empresa_display: str, competitor_name: str) -> str:
     """
     Compara el rating oficial de la empresa contra un competidor puntual
-    (ids ya cargados en common/companies.csv). Es trabajo específico para
+    (ids ya cargados en data/companies.csv). Es trabajo específico para
     esta empresa, no reciclable al toque para otra: justamente por eso sirve
     como evidencia de que el análisis no es una plantilla mandada a todos.
     """
@@ -946,7 +946,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Genera el HTML autocontenido para compartir el análisis.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
     p.add_argument("--display-name", default=None, help="Nombre a mostrar en la web (default: --name tal cual)")
-    p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en common/companies.csv, para comparar rating oficial")
+    p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en data/companies.csv, para comparar rating oficial")
     return p.parse_args()
 
 

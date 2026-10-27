@@ -42,7 +42,7 @@ class Paths:
         self.reviews_enriched_csv = self.modeling_dir / "reviews_enriched.csv"
         self.topics_summary_csv = self.modeling_dir / "topics_summary.csv"
         # Hallazgos derivados del modelo (nombrado de tópicos, tendencia, quiebre
-        # de versión): siguen operando sobre la salida de model.py, no evalúan
+        # de versión): siguen operando sobre la salida de analyze_sentiment_topics.py, no evalúan
         # nada contra un criterio de negocio — por eso viven en 04_modeling, no
         # en una fase "04_evaluation" que terminaba sin nada propio adentro.
         self.topic_samples_json = self.modeling_dir / "topic_samples.json"

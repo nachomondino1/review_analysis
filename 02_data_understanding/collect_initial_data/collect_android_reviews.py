@@ -13,7 +13,7 @@ from google_play_scraper import Sort, reviews_all
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
-import companies  # noqa: E402
+import companies_registry as companies  # noqa: E402
 
 
 def fetch_android(pkg: str, country="ar", lang="es") -> pd.DataFrame:
@@ -45,7 +45,7 @@ def update(paths: Paths, pkg: str) -> pd.DataFrame:
 def parse_args():
     p = argparse.ArgumentParser(description="Descarga reseñas de Google Play para una empresa.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (define la carpeta data/<name>/)")
-    p.add_argument("--pkg", default=None, help="package name de la app en Google Play (omitir si ya está en common/companies.csv)")
+    p.add_argument("--pkg", default=None, help="package name de la app en Google Play (omitir si ya está en data/companies.csv)")
     return p.parse_args()
 
 
