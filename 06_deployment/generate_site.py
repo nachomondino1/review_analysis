@@ -468,6 +468,8 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
 
 
 def build_findings(summary: pd.DataFrame, reviews: pd.DataFrame) -> list[dict]:
+    if "severity" not in summary.columns:
+        return []  # topics_summary.csv nunca pasó por topics_enrich.py merge (ej. 100% outlier, nada para nombrar)
     real = summary[~summary["is_outlier"]].copy()
     real["_priority"] = real["n"] * real["pct_neg"]
     real = real[real["severity"].isin(["alta", "media"])].sort_values("_priority", ascending=False)
@@ -609,11 +611,13 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
 
 def build_table_rows(summary: pd.DataFrame) -> str:
     has_category = "category" in summary.columns
+    has_name = "name" in summary.columns
+    has_severity = "severity" in summary.columns
     ordered = summary.sort_values(["is_outlier", "pct_neg"], ascending=[True, False])
     rows = []
     for _, row in ordered.iterrows():
-        name = row["name"] if pd.notna(row["name"]) and row["name"] else row["Name"]
-        severity = row["severity"] if pd.notna(row["severity"]) and row["severity"] else "-"
+        name = row["name"] if has_name and pd.notna(row["name"]) and row["name"] else row["Name"]
+        severity = row["severity"] if has_severity and pd.notna(row["severity"]) and row["severity"] else "-"
         category_cell = ""
         if has_category:
             category = row["category"] if pd.notna(row["category"]) and row["category"] else "-"

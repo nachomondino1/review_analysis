@@ -42,25 +42,7 @@
       <div class="goal-step-arrow">→</div>
       <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
     </div>
-    <div class="goal-urgent-row">
-        <div class="goal-urgent">
-          <span class="goal-urgent-icon">📂</span>
-          <div>
-            <div class="goal-urgent-label">Categoría más urgente</div>
-            <div class="goal-urgent-name">Interfaz</div>
-            <div class="goal-urgent-meta">70 reseñas · 71.4% negativas</div>
-          </div>
-        </div>
-        
-        <div class="goal-urgent">
-          <span class="goal-urgent-icon">🚨</span>
-          <div>
-            <div class="goal-urgent-label">Tópico más urgente</div>
-            <div class="goal-urgent-name">La app es solo un wrapper del sitio web, con errores</div>
-            <div class="goal-urgent-meta">48 reseñas · 75.0% negativas</div>
-          </div>
-        </div>
-        </div>
+    
   </div>
 
   <div class="part part--store">
@@ -117,75 +99,38 @@
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las 74 reseñas con texto</strong>, no sobre el total de la tienda.</p>
     <div class="subsection"></div>
 
-    <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
-    <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
-      <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
-        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
-      </span>
-    </div>
-    <div class="bubble-chart">
-        <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#da5414;font-size:14px;"
-                 title="Interfaz: 70 reseñas, 71% negativas">
-              Interfaz
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#da5414;">71% negativas</div>
-          <div class="bubble-n">70 reseñas</div>
-        </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Interfaz</dt><dd>La app es solo un wrapper del sitio web, con errores · Redirige a la web y esa web también funciona mal</dd></div></dl></details></div>
+    
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>La app es solo un wrapper del sitio web, con errores</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta"><span class="chip chip-category">Interfaz</span>48 reseñas · 75.0% negativas</p>
-          <p>Usuarios perciben que la app no hace más que redirigir al sitio web (en vez de ser una app nativa), con errores frecuentes y lentitud al cargar contenido.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Evaluar si vale la pena mantener una app nativa real (con reproductor propio, no un simple link) o directamente no ofrecer app y dirigir al sitio web — hoy la app está generando una percepción peor que no tener app.</p>
-          <ul class='samples'><li>“Anda cuando quiere. Tarda mucho y tiene muchísimos errores. Sin contar que la aplicación simplemente tiene el link de la página, lo cual ya de por sí es una gastada.”</li><li>“muy al pedo la creación de esta app, antes podías ver los partidos desde Google y era más práctico. 👎🏼”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Redirige a la web y esa web también funciona mal</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta"><span class="chip chip-category">Interfaz</span>22 reseñas · 63.6% negativas</p>
-          <p>Mismo problema que el tópico 0, enfatizando que además la página web a la que redirige es lenta o se traba.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Mismo frente que el tópico 0: si se decide seguir con el modelo de redirección, el problema de fondo a resolver es la performance de la web, no la app en sí.</p>
-          <ul class='samples'><li>“Al pedo te manda a la pagina y la pagina anda re mal”</li><li>“te envia al link pesimo”</li></ul>
-        </article>
-        
+        <p class="empty">No se detectaron hallazgos negativos relevantes.</p>
       </div>
     </div>
 
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
       <details class="detail-table">
-        <summary>Ver los 3 tópicos detectados</summary>
+        <summary>Ver los 1 tópicos detectados</summary>
         <div class="table-scroll">
           <table class="sortable">
             <thead><tr>
-              <th data-sort="text">Tópico</th><th data-sort="text">Categoría</th>
+              <th data-sort="text">Tópico</th>
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>La app es solo un wrapper del sitio web, con errores</td><td>Interfaz</td><td class='num'>48</td><td class='num'>1.65</td><td class='num'>75.0%</td><td>alta</td></tr><tr><td>Redirige a la web y esa web también funciona mal</td><td>Interfaz</td><td class='num'>22</td><td class='num'>1.41</td><td class='num'>63.6%</td><td>alta</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4</td><td class='num'>3.0</td><td class='num'>25.0%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>-1_la_que_no_de</td><td class='num'>74</td><td class='num'>1.65</td><td class='num'>62.6%</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -194,6 +139,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;

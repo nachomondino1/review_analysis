@@ -87,23 +87,29 @@ def run(paths: Paths):
 
     analyzer = create_analyzer(task="sentiment", lang="es")
 
+    # Primero se arman todas las (review_id, orden, oración) y se predice el
+    # sentimiento en UN solo batch (igual que el resto del pipeline) — llamar
+    # analyzer.predict() oración por oración es muchísimo más lento en
+    # empresas grandes (decenas de miles de oraciones).
+    sentence_rows = [
+        {"review_id": review["review_id"], "sentence_order": order, "sentence": sentence}
+        for _, review in df.iterrows()
+        for order, sentence in enumerate(split_sentences(review["text"]))
+    ]
+    sentences = [r["sentence"] for r in sentence_rows]
+    preds = analyzer.predict(sentences) if sentences else []
+    for r, pred in zip(sentence_rows, preds):
+        r["sentence_sentiment"] = pred.output
+        r["sentence_confidence"] = round(pred.probas[pred.output], 4)
+
     rows = []
-    for _, review in df.iterrows():
-        for order, sentence in enumerate(split_sentences(review["text"])):
-            topics = matching_topics(sentence, keywords_by_topic)
-            pred = analyzer.predict(sentence)
-            base = {
-                "review_id": review["review_id"],
-                "sentence_order": order,
-                "sentence": sentence,
-                "sentence_sentiment": pred.output,
-                "sentence_confidence": round(pred.probas[pred.output], 4),
-            }
-            if topics:
-                for topic in topics:
-                    rows.append({**base, "topic": topic, "category": topic_to_category.get(topic, "")})
-            else:
-                rows.append({**base, "topic": "", "category": ""})
+    for r in sentence_rows:
+        topics = matching_topics(r["sentence"], keywords_by_topic)
+        if topics:
+            for topic in topics:
+                rows.append({**r, "topic": topic, "category": topic_to_category.get(topic, "")})
+        else:
+            rows.append({**r, "topic": "", "category": ""})
 
     out = pd.DataFrame(rows, columns=["review_id", "sentence_order", "sentence", "topic", "category",
                                        "sentence_sentiment", "sentence_confidence"])
