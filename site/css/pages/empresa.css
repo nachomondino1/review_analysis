@@ -148,11 +148,16 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
   background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
   box-shadow: var(--shadow-xs); padding: 12px 16px;
 }
-.split-arrow { font-size: 1.4rem; color: var(--muted-soft); flex-shrink: 0; }
+.split-arrow { font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
+.split-branch--text .split-arrow { color: var(--warn); }
+.split-branch--notext .split-arrow { color: var(--muted-soft); }
 .split-branch-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
 .split-branch--text .split-branch-value { color: var(--warn); }
 .split-branch--notext .split-branch-value { color: var(--muted-soft); }
-.split-branch-label { color: var(--text); font-size: 0.85rem; font-weight: 700; margin-top: 2px; }
+.split-branch-unit { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.split-branch-label { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+.split-branch--text .split-branch-label strong { color: var(--warn); }
+.split-branch--notext .split-branch-label strong { color: var(--muted-soft); }
 .split-branch-sub { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
 .split-branch--text .split-branch-sub { color: var(--text); }
 .split-branch--notext .split-branch-sub { color: var(--muted-soft); font-weight: 400; }
