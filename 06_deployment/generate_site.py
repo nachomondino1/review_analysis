@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "02_data_understanding" / "collect_initial_data"))
 from config import Paths, ROOT  # noqa: E402
 import companies_registry as companies  # noqa: E402
+from keywords import topic_keywords  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
@@ -318,14 +319,6 @@ def split_sentences_simple(text: str) -> list[str]:
     text = text.replace("\n", ". ")
     parts = re.split(r"(?<=[.!?])\s+", text)
     return [p.strip() for p in parts if len(p.strip()) > 2]
-
-
-def topic_keywords(name: str) -> list[str]:
-    """'5_no_deja_me_registrarme' -> ['no','deja','me','registrarme'] (saca el índice numérico inicial)."""
-    if not isinstance(name, str):
-        return []
-    parts = name.split("_")[1:]
-    return [p for p in parts if len(p) > 2]
 
 
 def highlight_relevant_sentence(text: str, keywords: list[str]) -> str:

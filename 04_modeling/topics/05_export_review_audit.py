@@ -50,19 +50,13 @@ from pysentimiento import create_analyzer
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
+from keywords import topic_keywords  # noqa: E402
 
 
 def split_sentences(text: str) -> list[str]:
     text = text.replace("\n", ". ")
     parts = re.split(r"(?<=[.!?])\s+", text)
     return [p.strip() for p in parts if len(p.strip()) > 2]
-
-
-def topic_keywords(name: str) -> list[str]:
-    """'5_no_deja_me_registrarme' -> ['no','deja','me','registrarme'] (saca el índice inicial)."""
-    if not isinstance(name, str):
-        return []
-    return [p for p in name.split("_")[1:] if len(p) > 2]
 
 
 def matching_topics(sentence: str, keywords_by_topic: dict) -> list:
