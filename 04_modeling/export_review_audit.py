@@ -1,10 +1,15 @@
 """
 Exporta una tabla (CSV) con una fila por ORACIÓN/split de cada reseña — no
 una fila por reseña — para poder chequear a ojo si el modelo clasifica bien
-a nivel de detalle real: texto de la oración, categoría que le detectó (por
-las keywords del tópico asignado a la reseña) y sentimiento de esa oración.
-"review_id" identifica a qué reseña pertenece cada oración, para poder
-agrupar y ver cómo quedó partida una reseña puntual.
+a nivel de detalle real: texto de la oración, categoría que le detectó y
+sentimiento de esa oración. "review_id" identifica a qué reseña pertenece
+cada oración, para poder agrupar y ver cómo quedó partida una reseña
+puntual.
+
+Cada oración se compara contra las keywords de TODAS las categorías de la
+empresa, no solo la del tópico que le tocó a su reseña: una reseña puede
+hablar de varios temas (ver topics_named.json), y restringir la búsqueda a
+la categoría dominante de la reseña entera dejaba casi todo sin clasificar.
 
 Si una oración menciona más de una categoría, se emite una fila por cada
 una (no se concatenan en una sola celda) — más fácil de filtrar/pivotear
@@ -46,11 +51,10 @@ def topic_keywords(name: str) -> list[str]:
     return [p for p in name.split("_")[1:] if len(p) > 2]
 
 
-def matching_categories(sentence: str, category: str, keywords: list[str]) -> list[str]:
-    if not keywords:
-        return []
+def matching_categories(sentence: str, keywords_by_category: dict[str, list[str]]) -> list[str]:
     low = sentence.lower()
-    return [category] if any(re.search(rf"\b{re.escape(kw.lower())}", low) for kw in keywords) else []
+    return [cat for cat, kws in keywords_by_category.items()
+            if any(re.search(rf"\b{re.escape(kw.lower())}", low) for kw in kws)]
 
 
 def run(paths: Paths):
@@ -59,18 +63,21 @@ def run(paths: Paths):
     if "category" not in summary.columns:
         raise SystemExit("topics_summary.csv no tiene tópicos nombrados todavía — correr topics_enrich.py merge primero.")
 
-    topic_to_category = summary.set_index("topic")["category"].to_dict()
-    topic_to_keywords = {row["topic"]: topic_keywords(row["Name"]) for _, row in summary.iterrows()}
+    # Keywords de TODAS las categorías de la empresa (unión de las keywords de
+    # cada tópico que cae en esa categoría), para poder buscarlas en cualquier
+    # oración sin importar de qué reseña venga.
+    keywords_by_category: dict[str, list[str]] = {}
+    for _, row in summary.iterrows():
+        if not row["category"]:
+            continue
+        keywords_by_category.setdefault(row["category"], []).extend(topic_keywords(row["Name"]))
 
     analyzer = create_analyzer(task="sentiment", lang="es")
 
     rows = []
     for _, review in df.iterrows():
-        topic = review["topic"]
-        category = topic_to_category.get(topic, "")
-        keywords = topic_to_keywords.get(topic, [])
         for order, sentence in enumerate(split_sentences(review["text"])):
-            cats = matching_categories(sentence, category, keywords)
+            cats = matching_categories(sentence, keywords_by_category)
             pred = analyzer.predict(sentence)
             base = {
                 "review_id": review["review_id"],
