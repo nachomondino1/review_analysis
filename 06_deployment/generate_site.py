@@ -377,25 +377,39 @@ MIN_SAMPLE_FOR_COMPARISON = 5  # con menos reseñas, el % no es confiable para c
 TREND_THRESHOLD_PTS = 3  # diferencia de puntos porcentuales para no llamarlo "estable"
 
 
-def build_sparkline_svg(months: list[str], monthly_pct_neg: list[float], trend_class: str) -> str:
+def build_sparkline_svg(months: list[str], monthly_pct_neg: list[float], trend_class: str,
+                         recent_from_month: str, historical_avg: float) -> str:
     """
     12 puntos (o los que haya) de % negativas por mes, en el tono de
-    "de-énfasis" (--muted-soft) con el punto actual resaltado en el color de
-    la tendencia (good/bad/flat) — mismo color que el chip de abajo, nunca
-    color solo (ver dataviz skill: "status colors... icon + label"). Lleva
-    eje Y (min/max del rango) y eje X (primer/último mes) explícitos — un
-    gráfico sin ejes no se puede leer, solo "intuir".
+    "de-énfasis" (--muted-soft), con eje Y (min/max del rango) y eje X
+    (primer/último mes) explícitos — un gráfico sin ejes no se puede leer,
+    solo "intuir". Dos marcas extra para que el gráfico no "contradiga" al
+    chip de arriba: el chip compara el promedio de los ÚLTIMOS N MESES
+    contra TODO el histórico (años), no mes a mes — sin esto, un mes
+    puntual subiendo al final del gráfico parece desmentir un chip que dice
+    "mejorando" cuando en realidad comparan ventanas distintas. Entonces:
+    (1) los puntos dentro de la ventana "últimos N meses" se marcan en el
+    color de la tendencia, el resto en gris; (2) una línea punteada marca
+    el promedio histórico, para comparar el nivel actual contra esa
+    referencia en vez de contra el mes inmediato anterior.
     """
     if len(monthly_pct_neg) < 2:
         return ""
     w, h, pad = 260, 48, 6
-    lo, hi = min(monthly_pct_neg), max(monthly_pct_neg)
+    values_with_ref = monthly_pct_neg + [historical_avg]
+    lo, hi = min(values_with_ref), max(values_with_ref)
     span = (hi - lo) or 1  # evita división por cero si todos los meses dan igual
     n = len(monthly_pct_neg)
     xs = [pad + i * (w - 2 * pad) / (n - 1) for i in range(n)]
     ys = [pad + (h - 2 * pad) * (1 - (v - lo) / span) for v in monthly_pct_neg]
     path = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f},{y:.1f}" for i, (x, y) in enumerate(zip(xs, ys)))
-    dot_color = {"trend-good": "var(--good)", "trend-bad": "var(--bad)", "trend-flat": "var(--muted)"}[trend_class]
+    ref_y = pad + (h - 2 * pad) * (1 - (historical_avg - lo) / span)
+    trend_color = {"trend-good": "var(--good)", "trend-bad": "var(--bad)", "trend-flat": "var(--muted)"}[trend_class]
+
+    recent_dots = "".join(
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{4 if i == n - 1 else 3}" fill="{trend_color}" stroke="var(--surface)" stroke-width="2" />'
+        for i, (x, y, m) in enumerate(zip(xs, ys, months)) if m >= recent_from_month
+    )
 
     def month_label(m: str) -> str:
         year, month = m.split("-")
@@ -403,12 +417,13 @@ def build_sparkline_svg(months: list[str], monthly_pct_neg: list[float], trend_c
 
     return f'''
     <div class="sparkline-chart">
-      <div class="sparkline-caption">% negativas por mes</div>
+      <div class="sparkline-caption"><span>% negativas por mes</span><span class="sparkline-legend"><span class="sparkline-legend-dot" style="background:{trend_color}"></span>últimos {month_label(recent_from_month)}–{month_label(months[-1])}<span class="sparkline-legend-dash"></span>promedio histórico</span></div>
       <div class="sparkline-row">
-        <div class="sparkline-yaxis"><span>{hi}%</span><span>{lo}%</span></div>
-        <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de {month_label(months[0])} a {month_label(months[-1])}">
+        <div class="sparkline-yaxis"><span>{hi:.1f}%</span><span>{lo:.1f}%</span></div>
+        <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de {month_label(months[0])} a {month_label(months[-1])}; promedio histórico {historical_avg}%">
+          <line x1="{pad}" y1="{ref_y:.1f}" x2="{w - pad}" y2="{ref_y:.1f}" stroke="var(--muted-soft)" stroke-width="1" stroke-dasharray="3,3" />
           <path d="{path}" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-          <circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="4" fill="{dot_color}" stroke="var(--surface)" stroke-width="2" />
+          {recent_dots}
         </svg>
       </div>
       <div class="sparkline-xaxis"><span>{month_label(months[0])}</span><span>{month_label(months[-1])}</span></div>
@@ -454,7 +469,10 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     monthly = (reviews.assign(_neg=(reviews["sentiment"] == "NEG"))
                .groupby("month")["_neg"].mean().mul(100).round(1))
     monthly = monthly.sort_index().tail(12)
-    sparkline_html = build_sparkline_svg(monthly.index.tolist(), monthly.tolist(), trend_class)
+    sparkline_html = build_sparkline_svg(
+        monthly.index.tolist(), monthly.tolist(), trend_class,
+        recent_from_month=cutoff.strftime("%Y-%m"), historical_avg=all_s["pct_neg"],
+    )
 
     return f'''
     <div class="trend-tile">

@@ -121,8 +121,18 @@
   box-shadow: var(--shadow-xs); padding: 18px 20px;
 }
 .trend-tile-main { flex: 1 1 220px; }
-.sparkline-chart { flex: 1 1 240px; max-width: 300px; }
-.sparkline-caption { color: var(--muted-soft); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 4px; }
+.sparkline-chart { flex: 1 1 260px; max-width: 340px; }
+.sparkline-caption {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+  color: var(--muted-soft); font-size: 0.68rem; margin-bottom: 4px;
+}
+.sparkline-caption > :first-child { text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.sparkline-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-weight: 400; }
+.sparkline-legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+.sparkline-legend-dash {
+  display: inline-block; width: 12px; height: 0; border-top: 1px dashed var(--muted-soft);
+  margin: 0 4px 0 10px; vertical-align: middle;
+}
 .sparkline-row { display: flex; align-items: stretch; gap: 8px; }
 .sparkline-yaxis {
   display: flex; flex-direction: column; justify-content: space-between;

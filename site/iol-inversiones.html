@@ -124,12 +124,13 @@
       </div>
       
     <div class="sparkline-chart">
-      <div class="sparkline-caption">% negativas por mes</div>
+      <div class="sparkline-caption"><span>% negativas por mes</span><span class="sparkline-legend"><span class="sparkline-legend-dot" style="background:var(--good)"></span>últimos 07/26–10/26<span class="sparkline-legend-dash"></span>promedio histórico</span></div>
       <div class="sparkline-row">
         <div class="sparkline-yaxis"><span>49.4%</span><span>32.7%</span></div>
-        <svg class="sparkline" viewBox="0 0 260 48" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de 11/25 a 10/26">
+        <svg class="sparkline" viewBox="0 0 260 48" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de 11/25 a 10/26; promedio histórico 46.4%">
+          <line x1="6" y1="12.5" x2="254" y2="12.5" stroke="var(--muted-soft)" stroke-width="1" stroke-dasharray="3,3" />
           <path d="M6.0,27.3 L28.5,31.7 L51.1,28.0 L73.6,29.3 L96.2,13.3 L118.7,6.0 L141.3,24.8 L163.8,32.7 L186.4,32.9 L208.9,29.7 L231.5,42.0 L254.0,26.5" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-          <circle cx="254.0" cy="26.5" r="4" fill="var(--good)" stroke="var(--surface)" stroke-width="2" />
+          <circle cx="186.4" cy="32.9" r="3" fill="var(--good)" stroke="var(--surface)" stroke-width="2" /><circle cx="208.9" cy="29.7" r="3" fill="var(--good)" stroke="var(--surface)" stroke-width="2" /><circle cx="231.5" cy="42.0" r="3" fill="var(--good)" stroke="var(--surface)" stroke-width="2" /><circle cx="254.0" cy="26.5" r="4" fill="var(--good)" stroke="var(--surface)" stroke-width="2" />
         </svg>
       </div>
       <div class="sparkline-xaxis"><span>11/25</span><span>10/26</span></div>
