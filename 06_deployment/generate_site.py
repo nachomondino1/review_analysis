@@ -88,13 +88,14 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
-    como un split visual (total -> dos ramas con flecha), no una barra +
-    números sueltos. La rama "con texto" muestra ahí mismo su rating
-    promedio (★, misma unidad que el "rating oficial" del banner de arriba,
-    para comparar de un vistazo sin tener que mentalmente traducir un % de
-    negativas a estrellas) en vez del % de negativas; la rama "sin texto"
-    no tiene ni texto ni rating propio que mostrar — no son reseñas que este
-    análisis haya podido leer — y lo dice explícito en vez de omitirlo.
+    como un split visual (total + rating oficial -> dos ramas con flecha),
+    no una barra + números sueltos. El número grande de cada rama es la
+    CANTIDAD de reseñas (no el %), para mantener la misma unidad que el
+    "reseñas totales" del origen — el % queda como dato secundario en el
+    label. La rama "con texto" muestra además su rating promedio (★, misma
+    unidad que el rating oficial, para comparar de un vistazo sin traducir
+    mentalmente un % a estrellas); la rama "sin texto" no tiene texto ni
+    rating propio que mostrar y lo dice explícito en vez de omitirlo.
     """
     if not official or not official.get("count"):
         return ""
@@ -111,23 +112,29 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
     <div class="composition">
       <div class="split-flow">
         <div class="split-origin">
-          <div class="split-origin-value">{total_official_fmt}</div>
-          <div class="split-origin-label">Reseñas totales</div>
+          <div class="split-origin-stat">
+            <div class="split-origin-value">{total_official_fmt}</div>
+            <div class="split-origin-label">Reseñas totales</div>
+          </div>
+          <div class="split-origin-stat">
+            <div class="split-origin-value">{official["score"]}★</div>
+            <div class="split-origin-label">Rating oficial</div>
+          </div>
         </div>
         <div class="split-branches">
           <div class="split-branch split-branch--text">
-            <span class="split-arrow">↳</span>
+            <span class="split-arrow" aria-hidden="true">↳📝</span>
             <div class="split-branch-body">
-              <div class="split-branch-value">{pct_text}%</div>
-              <div class="split-branch-label">📝 Con texto · {total_n_fmt} reseñas</div>
+              <div class="split-branch-value">{total_n_fmt}</div>
+              <div class="split-branch-label">Con texto · {pct_text}% del total</div>
               {neg_sub}
             </div>
           </div>
           <div class="split-branch split-branch--notext">
-            <span class="split-arrow">↳</span>
+            <span class="split-arrow" aria-hidden="true">↳⭐</span>
             <div class="split-branch-body">
-              <div class="split-branch-value">{pct_no_text}%</div>
-              <div class="split-branch-label">⭐ Solo estrellas · {n_no_text_fmt} reseñas</div>
+              <div class="split-branch-value">{n_no_text_fmt}</div>
+              <div class="split-branch-label">Solo estrellas · {pct_no_text}% del total</div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
             </div>
           </div>
@@ -517,10 +524,6 @@ TEMPLATE = """<!doctype html>
       <div class="goal-left">
         <div class="goal-eyebrow">{empresa} en Google Play y App Store</div>
         <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
-      </div>
-      <div class="goal-hero">
-        <div class="goal-hero-value">{official_rating}</div>
-        <div class="goal-hero-label">Rating oficial<br>({official_count})</div>
       </div>
     </div>
     <div class="goal-steps">
