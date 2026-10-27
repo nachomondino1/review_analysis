@@ -6,7 +6,7 @@ Organizado en fases al estilo **CRISP-DM**: cada carpeta numerada es una fase. D
 
 ## Ver el sitio en localhost
 
-El sitio (`site/*.html` + `index.html`) es HTML estático autocontenido — no hace falta backend ni build step, solo un servidor simple para que el browser lo sirva por HTTP (abrirlo con `file://` directo también funciona, pero el link entre `index.html` y cada `site/<empresa>.html` es relativo, así que un server evita sorpresas):
+El sitio (`site/*.html` + `index.html`) es HTML estático — no hace falta backend ni build step, solo un servidor simple para que el browser lo sirva por HTTP (abrirlo con `file://` directo también funciona, pero el link entre `index.html` y cada `site/<empresa>.html`, y el `<link>` a `site/styles.css`, son relativos, así que un server evita sorpresas). Todas las páginas comparten un único `site/styles.css` (en vez de tener el CSS embebido en cada HTML): un cambio de diseño se hace una sola vez y se ve en todas las empresas sin tener que regenerar nada — eso sí, ya no son archivos 100% sueltos: abrir un `<empresa>.html` sin su `styles.css` al lado se ve sin estilos.
 
 ```bash
 python3 -m http.server 8000
@@ -34,7 +34,7 @@ Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play.
    - `version_breakout.py`: busca si el % de negativas tuvo un quiebre real atado a una versión específica, con test de significancia antes de reportarlo.
 8. **Evaluación** (`05_evaluation/EVALUATION.md`): antes de publicar, responder a mano las 3 tareas de "Evaluation" de CRISP-DM — ¿los hallazgos cumplen el criterio de negocio (5.1)?, ¿se corrió todo bien (5.2)?, ¿deploy, iterar, o no hay suficiente volumen para un análisis serio (5.3)? Tampoco tiene scripts: es un checklist que usa los números que ya imprimió `04_modeling/analyze_sentiment_topics.py`.
-9. **Deployment** (`06_deployment/generate_site.py`): genera un único HTML autocontenido (`site/<empresa>.html`) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link o archivo adjunto, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
+9. **Deployment** (`06_deployment/generate_site.py`): genera `site/<empresa>.html` (datos embebidos, estilos en `site/styles.css` compartido con todas las empresas) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
 
@@ -71,7 +71,8 @@ data/
   generate_site.py        # genera site/<empresa>.html y regenera index.html (ambos en la raíz, no acá)
 index.html            # listado de empresas analizadas — home del dominio de GitHub Pages (se regenera solo)
 site/
-  <empresa>.html       # web autocontenida de esa empresa para compartir (SÍ versionado — ver "Publicar")
+  <empresa>.html       # web de esa empresa para compartir (SÍ versionado — ver "Publicar")
+  styles.css           # CSS compartido por index.html y todos los <empresa>.html
 data/
   <empresa>/
     02_data_understanding/
@@ -219,7 +220,7 @@ cp .env.example .env   # y completar HF_TOKEN
    python 06_deployment/generate_site.py --name spotify --display-name "Spotify"
    ```
 
-   Esto genera `site/spotify.html`: un único archivo autocontenido (sin backend, sin fetch) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, una comparación de "últimos 3 meses vs. histórico completo" y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador, subir a GitHub Pages, o mandar como adjunto. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
+   Esto genera `site/spotify.html` (sin backend, sin fetch de datos — los datos quedan embebidos en el HTML, solo el CSS viene de `site/styles.css` compartido) con resumen ejecutivo, los hallazgos principales con recomendación y reseñas de ejemplo, una comparación de "últimos 3 meses vs. histórico completo" y el detalle completo en una tabla colapsable. Se puede abrir directo en el navegador o subir a GitHub Pages; para mandarlo como adjunto suelto hay que incluir también `site/styles.css`. `--display-name` es opcional (default: el mismo `--name`) para mostrar un nombre más prolijo que el slug interno.
 
    `--competitor <nombre>` (opcional) agrega una sección comparando el rating oficial contra un competidor puntual (sus ids tienen que estar ya cargados en `data/companies.csv`, aunque no se le haya corrido el pipeline completo — alcanza con `app_ios`/`pkg`). Ej.: `--competitor bitso` en el análisis de Ripio. Es trabajo específico para esa empresa (no una plantilla reciclable para cualquier otra), y sirve como evidencia de que el análisis no se hizo en automático para mandárselo a todo el mundo por igual.
 

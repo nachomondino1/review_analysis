@@ -38,6 +38,7 @@ def fetch_store_ratings(app_ios: int | None, pkg: str | None, country="ar", lang
 def parse_args():
     p = argparse.ArgumentParser(description="Descarga el rating oficial agregado por tienda para una empresa.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe tener app_ios y/o pkg en data/companies.csv)")
+    p.add_argument("--country", default="ar", help="país de la tienda (default: ar). Usar otro si la app no tiene presencia en el store argentino.")
     return p.parse_args()
 
 
@@ -50,7 +51,7 @@ if __name__ == "__main__":
 
     paths = Paths(args.name)
     paths.ensure_dirs()
-    ratings = fetch_store_ratings(known["app_ios"], known["pkg"])
+    ratings = fetch_store_ratings(known["app_ios"], known["pkg"], country=args.country)
     paths.store_ratings_json.write_text(json.dumps(ratings, indent=2))
     print(ratings)
     print(f"Guardado en {paths.store_ratings_json.resolve()}")

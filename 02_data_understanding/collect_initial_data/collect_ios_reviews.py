@@ -43,9 +43,10 @@ def fetch_ios(app_id: int, country="ar", pages=10) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def update(paths: Paths, app_ios: int) -> pd.DataFrame:
-    new = fetch_ios(app_ios)
-    new["date"] = pd.to_datetime(new["date"], utc=True)
+def update(paths: Paths, app_ios: int, country="ar") -> pd.DataFrame:
+    new = fetch_ios(app_ios, country=country)
+    if not new.empty:
+        new["date"] = pd.to_datetime(new["date"], utc=True)
     paths.ensure_dirs()
     if paths.ios_reviews.exists():
         new = pd.concat([pd.read_parquet(paths.ios_reviews), new])
@@ -58,6 +59,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Descarga reseñas de App Store para una empresa.")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (define la carpeta data/<name>/)")
     p.add_argument("--app-ios", type=int, default=None, help="id numérico de la app en App Store (omitir si ya está en data/companies.csv)")
+    p.add_argument("--country", default="ar", help="país del RSS de reseñas (default: ar). Usar otro si la app no tiene reseñas en el store argentino.")
     return p.parse_args()
 
 
@@ -76,5 +78,5 @@ if __name__ == "__main__":
         companies.upsert(args.name, app_ios, known.get("pkg"))
 
     paths = Paths(args.name)
-    df = update(paths, app_ios)
+    df = update(paths, app_ios, country=args.country)
     print(f"{len(df)} reseñas de iOS -> {paths.ios_reviews.resolve()}")

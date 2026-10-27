@@ -1,6 +1,8 @@
 """
-Genera un único HTML autocontenido con el análisis de una empresa, para
-compartir por link/archivo (sin backend, sin build step).
+Genera el HTML con el análisis de una empresa, para compartir por link
+(sin backend, sin build step). Los datos quedan embebidos en el HTML; los
+estilos viven en site/styles.css, compartido por todas las empresas (un
+cambio de diseño no implica regenerar los HTML de todas).
 
 Uso: python 06_deployment/generate_site.py --name <empresa>
 Lee los outputs de 04_modeling; escribe site/<empresa>.html
@@ -459,220 +461,7 @@ TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<style>
-:root {{
-  --bg: #fafaf8;
-  --bg-subtle: #f2f1ed;
-  --surface: #ffffff;
-  --text: #1a1a17;
-  --muted: #6f6d67;
-  --muted-soft: #a19e96;
-  --border: #e4e2dc;
-  --border-soft: #ecebe6;
-  --accent: #2f6f62;
-  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
-  --accent-contrast: #ffffff;
-  --good: #16a34a; --warn: #d97706; --bad: #dc2626; --info: #3f5c8a;
-  --goal-bg: var(--accent);
-  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
-  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
-  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
-  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
-}}
-@media (prefers-color-scheme: dark) {{
-  :root {{
-    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
-    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
-    --border: #2a3342; --border-soft: #212836;
-    --accent: #4f9686; --info: #5ac8fa; --goal-bg: #2f6f62;
-    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
-    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
-  }}
-}}
-* {{ box-sizing: border-box; }}
-body {{
-  margin: 0; background: var(--bg); color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
-}}
-.container {{ max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }}
-@media (max-width: 640px) {{ .container {{ padding: 16px 16px 48px; }} }}
-header.page-head {{
-  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
-  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
-}}
-@media (max-width: 640px) {{ header.page-head {{ padding: 12px 16px; }} }}
-header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
-header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
-h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
-.goal-banner {{
-  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
-  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
-}}
-.goal-badge {{
-  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
-  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
-}}
-.goal-main {{ display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }}
-.goal-left {{ flex: 1 1 320px; }}
-.goal-eyebrow {{
-  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
-}}
-.goal-question {{
-  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
-}}
-@media (max-width: 640px) {{ .goal-question {{ font-size: 1.3rem; }} }}
-.goal-hero {{
-  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
-  padding: 14px 24px; text-align: center; min-width: 150px;
-}}
-.goal-hero-value {{ font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }}
-.goal-hero-label {{ font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }}
-.goal-steps {{
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
-}}
-.goal-step {{
-  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
-  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
-}}
-.goal-step-icon {{ font-size: 0.9rem; }}
-.goal-step-arrow {{ opacity: 0.55; font-weight: 700; }}
-.goal-urgent-row {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }}
-.goal-urgent {{
-  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
-  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
-}}
-.goal-urgent-icon {{ font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }}
-.goal-urgent-label {{
-  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
-}}
-.goal-urgent-name {{ font-weight: 700; font-size: 0.92rem; margin-top: 2px; }}
-.goal-urgent-meta {{ font-size: 0.78rem; color: var(--muted); margin-top: 2px; }}
-.part {{
-  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
-}}
-.part:first-child {{ margin-top: 0; }}
-.part--store {{ border-top: 4px solid var(--info); }}
-.part--text {{ border-top: 4px solid var(--warn); }}
-.part-title .kw {{ font-weight: 800; }}
-.part--store .kw {{ color: var(--info); }}
-.part--text .kw {{ color: var(--warn); }}
-.part-eyebrow {{
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
-}}
-.part-title {{ font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }}
-.part-scope {{ color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }}
-.subsection {{ margin-top: 32px; }}
-.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
-.stat-card {{
-  background: var(--surface); border: 1px solid var(--border-soft);
-  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
-}}
-.stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
-.stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
-.bubble-legend {{
-  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
-}}
-.bubble-legend-scale {{ display: flex; align-items: center; gap: 6px; }}
-.bubble-legend-dot {{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; }}
-.bubble-legend-dot + .bubble-legend-dot {{ margin-left: 10px; }}
-.bubble-chart {{
-  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
-  gap: 20px 16px; padding: 8px 0 4px;
-}}
-.bubble-item {{ display: flex; flex-direction: column; align-items: center; }}
-.bubble-slot {{ display: flex; align-items: flex-end; justify-content: center; }}
-.bubble {{
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
-  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
-  overflow-wrap: break-word; word-break: break-word;
-}}
-.bubble-pct {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
-.bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
-.cat-explain {{ margin-top: 20px; font-size: 0.85rem; }}
-.cat-explain summary {{
-  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
-}}
-.cat-explain summary:hover {{ color: var(--text); }}
-.cat-explain dl {{ margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }}
-.cat-explain-item dt {{ font-weight: 700; font-size: 0.82rem; }}
-.cat-explain-item dd {{ margin: 2px 0 0; color: var(--muted); line-height: 1.5; }}
-.findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
-.finding-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 18px;
-}}
-.finding-head {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }}
-.finding-head h3 {{ font-size: 1rem; font-weight: 700; margin: 0; }}
-.finding-meta {{ color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }}
-.recommendation {{ background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }}
-.samples {{ list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }}
-.samples li {{ padding: 6px 0; border-top: 1px dashed var(--border-soft); }}
-.chip {{
-  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
-  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
-}}
-.sev-alta {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
-.sev-media {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
-.sev-baja {{ background: var(--bg-subtle); color: var(--muted); }}
-.chip-category {{ background: var(--accent-soft); color: var(--accent); margin-right: 8px; }}
-.recency-grid {{ display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }}
-.recency-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
-}}
-.recency-label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }}
-.recency-value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }}
-.recency-sub {{ color: var(--muted); font-size: 0.8rem; margin-top: 4px; }}
-.recency-arrow {{ color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }}
-.trend-banner {{
-  margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 0.85rem; white-space: normal; max-width: 100%;
-}}
-.trend-good {{ background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }}
-.trend-bad {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
-.trend-flat {{ background: var(--bg-subtle); color: var(--muted); }}
-details.detail-table {{ margin-top: 8px; }}
-details.detail-table summary {{ cursor: pointer; font-weight: 600; padding: 8px 0; }}
-.table-scroll {{ overflow-x: auto; margin-top: 8px; }}
-table {{ width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }}
-th {{ background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }}
-td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
-td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
-table.sortable th[data-sort] {{ cursor: pointer; user-select: none; white-space: nowrap; }}
-table.sortable th[data-sort]:hover {{ color: var(--text); }}
-table.sortable th.sorted-asc::after {{ content: " \\25B2"; }}
-table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
-.table-hint {{ color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }}
-footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
-.empty {{ color: var(--muted); text-align: center; padding: 24px; }}
-.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
-.composition {{ margin-top: 20px; }}
-.composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
-.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
-.comp-stat {{ flex: 1 1 160px; }}
-.comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
-.comp-stat--text .comp-pct {{ color: var(--warn); }}
-.comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
-.comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
-.composition-bar {{
-  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
-  border: 1px solid var(--border-soft);
-}}
-.composition-fill {{ height: 100%; }}
-.composition-fill--text {{ background: var(--warn); }}
-.composition-fill--notext {{ background: var(--border-soft); }}
-.composition-callout {{
-  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
-  background: color-mix(in srgb, var(--warn) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
-  font-size: 0.85rem; color: var(--text);
-}}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="page-head">
@@ -892,28 +681,9 @@ INDEX_TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<style>
-:root {{
-  --bg: #fafaf8; --surface: #ffffff; --text: #1a1a17; --muted: #6f6d67;
-  --border-soft: #ecebe6; --accent: #2f6f62; --radius: 12px;
-  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
-}}
-@media (prefers-color-scheme: dark) {{
-  :root {{ --bg: #0f1218; --surface: #181e29; --text: #e6e8ec; --muted: #9aa3b2; --border-soft: #212836; --accent: #4f9686; }}
-}}
-* {{ box-sizing: border-box; }}
-body {{ margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.55; }}
-.container {{ max-width: 640px; margin: 0 auto; padding: 32px 24px 64px; }}
-h1 {{ font-size: 1.3rem; font-weight: 800; }}
-ul {{ list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }}
-a.company-link {{
-  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
-}}
-a.company-link:hover {{ border-color: var(--accent); }}
-</style>
+<link rel="stylesheet" href="site/styles.css">
 </head>
-<body>
+<body class="index-page">
 <div class="container">
   <h1>📊 Análisis de reseñas</h1>
   <ul>
@@ -943,7 +713,7 @@ def build_index(site_dir: Path, root: Path):
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Genera el HTML autocontenido para compartir el análisis.")
+    p = argparse.ArgumentParser(description="Genera el HTML para compartir el análisis (estilos en site/styles.css, compartido).")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
     p.add_argument("--display-name", default=None, help="Nombre a mostrar en la web (default: --name tal cual)")
     p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en data/companies.csv, para comparar rating oficial")
