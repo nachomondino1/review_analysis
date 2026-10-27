@@ -20,10 +20,18 @@ topics_summary.csv): solo lee y arma una tabla aparte. Pensado para correr
 después de refine_topic_sentiment.py y topics_enrich.py merge (necesita la
 categoría y las keywords de cada tópico ya asignadas).
 
+Al final imprime y guarda la cobertura de categorización (cuántas oraciones
+quedaron SIN ninguna categoría asignada y la confianza promedio del
+modelo) — un % de sin-categoría alto es la señal de que las keywords por
+categoría de esta empresa están incompletas, no de que las reseñas no
+hablen de nada puntual.
+
 Uso: python 04_modeling/export_review_audit.py --name <empresa>
 Escribe data/<empresa>/04_modeling/topics/review_audit.csv
+y data/<empresa>/04_modeling/topics/review_audit_stats.json
 """
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -96,6 +104,40 @@ def run(paths: Paths):
                                        "sentence_sentiment", "sentence_confidence"])
     out.to_csv(paths.review_audit_csv, index=False, encoding="utf-8-sig")
     print(f"{len(out)} filas ({df['review_id'].nunique()} reseñas) -> {paths.review_audit_csv.resolve()}")
+
+    # Cobertura a nivel ORACIÓN, no fila (una oración con 2 categorías no debe
+    # contarse 2 veces): una oración "tiene categoría" si al menos una de sus
+    # filas la tiene.
+    has_category = out.groupby(["review_id", "sentence_order"]).agg(
+        has_category=("category", lambda s: bool((s != "").any())),
+        confidence=("sentence_confidence", "first"),
+    )
+    n_sentences = len(has_category)
+    n_with_category = int(has_category["has_category"].sum())
+    pct_with_category = n_with_category / n_sentences if n_sentences else 0.0
+    conf_with = has_category.loc[has_category["has_category"], "confidence"].mean()
+    conf_without = has_category.loc[~has_category["has_category"], "confidence"].mean()
+
+    stats = {
+        "n_sentences": n_sentences,
+        "n_with_category": n_with_category,
+        "n_without_category": n_sentences - n_with_category,
+        "pct_with_category": round(pct_with_category, 4),
+        "avg_confidence_overall": round(float(has_category["confidence"].mean()), 4),
+        "avg_confidence_with_category": round(float(conf_with), 4) if pd.notna(conf_with) else None,
+        "avg_confidence_without_category": round(float(conf_without), 4) if pd.notna(conf_without) else None,
+    }
+    paths.review_audit_stats_json.write_text(json.dumps(stats, indent=2, ensure_ascii=False))
+
+    print(f"\nCobertura de categorización: {n_with_category}/{n_sentences} oraciones ({pct_with_category:.1%}) "
+          f"— confianza promedio {stats['avg_confidence_overall']:.1%} "
+          f"(con categoría {stats['avg_confidence_with_category']:.1%}, "
+          f"sin categoría {stats['avg_confidence_without_category']:.1%})")
+    if pct_with_category < 0.5:
+        print(f"⚠️  Menos de la mitad de las oraciones quedaron sin categoría: revisar las keywords por "
+              f"categoría en topics_summary.csv (columna Name) — probablemente faltan variantes, no que "
+              f"las reseñas no hablen de temas puntuales.")
+    print(f"Guardado en {paths.review_audit_stats_json.resolve()}")
 
 
 def parse_args():

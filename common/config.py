@@ -64,6 +64,7 @@ class Paths:
         self.topic_samples_json = self.topics_dir / "topic_samples.json"
         self.topics_named_json = self.topics_dir / "topics_named.json"
         self.review_audit_csv = self.topics_dir / "review_audit.csv"  # para QA manual (ver export_review_audit.py), una fila por oración
+        self.review_audit_stats_json = self.topics_dir / "review_audit_stats.json"  # cobertura de categorización, mismo script
 
         self.sentiment_by_month_csv = self.trends_dir / "sentiment_by_month.csv"
         self.store_comparison_csv = self.trends_dir / "store_comparison.csv"
