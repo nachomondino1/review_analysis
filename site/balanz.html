@@ -47,8 +47,8 @@
           <span class="goal-urgent-icon">📂</span>
           <div>
             <div class="goal-urgent-label">Categoría más urgente</div>
-            <div class="goal-urgent-name">Acceso</div>
-            <div class="goal-urgent-meta">723 reseñas · 71.5% negativas</div>
+            <div class="goal-urgent-name">Comisiones</div>
+            <div class="goal-urgent-meta">85 reseñas · 42.7% negativas</div>
           </div>
         </div>
         
@@ -56,8 +56,8 @@
           <span class="goal-urgent-icon">🚨</span>
           <div>
             <div class="goal-urgent-label">Tópico más urgente</div>
-            <div class="goal-urgent-name">No puede registrarse o completar el alta de cuenta</div>
-            <div class="goal-urgent-meta">418 reseñas · 72.2% negativas</div>
+            <div class="goal-urgent-name">La app se cierra o falla al verificar identidad (selfie/DNI)</div>
+            <div class="goal-urgent-meta">1506 reseñas · 13.7% negativas</div>
           </div>
         </div>
         </div>
@@ -119,7 +119,7 @@
 
     <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
@@ -127,93 +127,103 @@
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#1da248;font-size:14px;"
-                 title="General: 2352 reseñas, 2% negativas">
-              General
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-interfaz">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:160px;height:160px;background:#40993b;font-size:14px;"
+                   title="Interfaz: 4178 reseñas, 11% negativas">
+                Interfaz
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#1da248;">2% negativas</div>
-          <div class="bubble-n">2352 reseñas</div>
+            <div class="bubble-pct" style="color:#40993b;">11% negativas</div>
+            <div class="bubble-n">4178 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:133px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:133px;height:133px;background:#319d41;font-size:14px;"
-                 title="Interfaz: 1275 reseñas, 7% negativas">
-              Interfaz
+        <div class="bubble-item" style="width:139px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-soporte">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:139px;height:139px;background:#4b9738;font-size:14px;"
+                   title="Soporte: 2660 reseñas, 14% negativas">
+                Soporte
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#319d41;">7% negativas</div>
-          <div class="bubble-n">1275 reseñas</div>
+            <div class="bubble-pct" style="color:#4b9738;">14% negativas</div>
+            <div class="bubble-n">2660 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:119px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:119px;height:119px;background:#1fa147;font-size:14px;"
-                 title="Soporte: 866 reseñas, 2% negativas">
-              Soporte
+        <div class="bubble-item" style="width:127px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-acceso">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:127px;height:127px;background:#778d28;font-size:14px;"
+                   title="Acceso: 1951 reseñas, 25% negativas">
+                Acceso
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#1fa147;">2% negativas</div>
-          <div class="bubble-n">866 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:114px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:114px;height:114px;background:#da5414;font-size:14px;"
-                 title="Acceso: 723 reseñas, 72% negativas">
-              Acceso
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#da5414;">72% negativas</div>
-          <div class="bubble-n">723 reseñas</div>
+            <div class="bubble-pct" style="color:#778d28;">25% negativas</div>
+            <div class="bubble-n">1951 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:68px;height:68px;background:#4c9737;font-size:10px;"
-                 title="Ruido: 29 reseñas, 14% negativas">
-              Ruido
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-comisiones">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:71px;height:71px;background:#bd7d10;font-size:10px;"
+                   title="Comisiones: 85 reseñas, 43% negativas">
+                Comisiones
+              </div>
             </div>
+            <div class="bubble-pct" style="color:#bd7d10;">43% negativas</div>
+            <div class="bubble-n">85 reseñas · ver ejemplos</div>
+          </button>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Interfaz</dt><dd>Actualización reciente rompe el login o la sincronización · Curva de aprendizaje para usuarios nuevos en inversión · Pedidos de mejoras: filtros y más datos de instrumentos · Elogios a mejoras en actualizaciones recientes · Quejas de UX en gráficos y menú tras el rediseño · Cuesta entenderla al principio · Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet · Elogios a la facilidad de uso · Elogios a la agilidad e intuición de la interfaz</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Elogios al servicio y la experiencia en general · Atención por WhatsApp con el asesor, valorada y pedida · Elogios al asesoramiento personalizado</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>Verificación de identidad (foto DNI/selfie) falla técnicamente · No puede registrarse o completar el alta de cuenta · La app se cierra o falla al verificar identidad (selfie/DNI)</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones percibidas como altas</dd></div></dl></details><div class="category-detail-wrap">
+        <div class="category-detail" id="cat-detail-acceso" hidden>
+          <h4 class="category-detail-title">Acceso</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">11/06/2025</div>está muy bien hecho el Home y me parece excelente q puedas cambiar de pesos a USD para ver cómo está el rendimiento en ambas monedas.</li><li><div class="cat-detail-date">01/04/2026</div>Es rápida y accesible,tiene opciones que otras no,en un entorno aceptable. Me agrada mucho</li><li><div class="cat-detail-date">15/04/2026</div><mark>después de probar todas las app de agentes de bolsa es la mejor lejos por el orden, la operativa dentro de la app , la agilidad y disponibilidad del dinero sin tener q esperar días hábiles o 24hs .</mark> todo muy profesional aunque no sea la mas barata pero funciona y es lo q importa .</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">09/07/2026</div><mark>una porqueria hace una semana que estoy esperando que me habiliten la cuenta para el depósito de 15 millones de pesos argentinos</mark></li><li><div class="cat-detail-date">01/07/2026</div><mark>imposible cargar las fotos del dni todo el tiempo la app de la rechaza....</mark></li><li><div class="cat-detail-date">19/06/2026</div>es una bosta, te ponen interés anual de 50% y no te da nada plata, es más te saca. puse en un fondo y el primer día me saco 40 mil pesos</li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#4c9737;">14% negativas</div>
-          <div class="bubble-n">29 reseñas</div>
         </div>
         
-        <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:66px;height:66px;background:#d97308;font-size:10px;"
-                 title="Comisiones: 21 reseñas, 52% negativas">
-              Comisiones
-            </div>
+        <div class="category-detail" id="cat-detail-comisiones" hidden>
+          <h4 class="category-detail-title">Comisiones</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">16/06/2023</div><mark>Exelente bajar comisiones</mark></li><li><div class="cat-detail-date">13/06/2022</div><mark>Facilidad de uso Una genialidad bajas comisiones</mark></li><li><div class="cat-detail-date">13/04/2021</div><mark>Buena con comisiones altas</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">27/10/2025</div>Lunes post elecciones legislativas y siendo 10.45 am totalmente caída la página? <mark>Mamita, te cobran comisiones altísimas y no les anda ni por web ni por app; paguen para optimizar</mark></li><li><div class="cat-detail-date">13/06/2025</div><mark>sistema obsoleto y comisiones carísimas</mark></li><li><div class="cat-detail-date">20/03/2025</div><mark>malisima, comisiones re altas</mark></li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#d97308;">52% negativas</div>
-          <div class="bubble-n">21 reseñas</div>
         </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Conformidad general hasta el momento, con alguna traba · Elogios como mejor broker de Argentina · Recomendación general de Balanz · Elogios como mejor broker · Elogios generales, conformidad reciente · Elogios a la confiabilidad y rapidez en general · Elogios generales a la app de inversión · Satisfacción como herramienta de inversión · Elogios a la información clara y completa · Confirmaciones de que no tuvieron problemas · Elogios &quot;10 puntos&quot; y buena atención · &quot;Funciona bien&quot;/perfecto, sin más detalle</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>Actualización reciente rompe el login o la sincronización · Quejas de UX en gráficos y menú tras el rediseño · Pedidos de mejoras: filtros y más datos de instrumentos · Cuesta entenderla al principio · Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet · Elogios a la facilidad de uso · Elogios a la agilidad e intuición de la interfaz · Curva de aprendizaje para usuarios nuevos en inversión · Elogios a mejoras en actualizaciones recientes</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Atención por WhatsApp con el asesor, valorada y pedida · Elogios al servicio y la experiencia en general · Elogios al asesoramiento personalizado</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>Verificación de identidad (foto DNI/selfie) falla técnicamente · No puede registrarse o completar el alta de cuenta · La app se cierra o falla al verificar identidad (selfie/DNI)</dd></div><div class="cat-explain-item"><dt>Ruido</dt><dd>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones percibidas como altas</dd></div></dl></details></div>
+        
+        <div class="category-detail" id="cat-detail-interfaz" hidden>
+          <h4 class="category-detail-title">Interfaz</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">19/10/2026</div><mark>muy buena, sencilla de usar !!</mark></li><li><div class="cat-detail-date">06/10/2026</div><mark>Es tan práctica y fácil de usar!!!</mark> Se ve toda la info de manera clara</li><li><div class="cat-detail-date">24/09/2026</div><mark>Es intuitiva, y me gusta que tenga un seguimiento bastante claro y con la informacion justa sobre los instrumentos.</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">26/12/2025</div><mark>Qué pasó con la función &quot;ranking de instrumentos&quot;?</mark> Era sumamente útil y hace varias semanas que no funciona. Si quieren hacer la diferencia con otros Brokers, dejen que quitar funciones</li><li><div class="cat-detail-date">06/10/2026</div><mark>Estoy muy acostumbrado a la de IOL, la de Balanza no es muy amigable y es bastante complicada para operar.</mark> Para mí gusto debería ser más sencilla, demasiada info que confunde</li><li><div class="cat-detail-date">15/09/2026</div>Buena. Util. Pero los graficos no son fidedignos los al comparalos con otras aplicaciones. Mejorenlos por favor.</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-soporte" hidden>
+          <h4 class="category-detail-title">Soporte</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">15/09/2026</div><mark>muy buena un asesoramiento buenísimo mut facil de usar y de entender</mark></li><li><div class="cat-detail-date">15/09/2026</div><mark>Es súper fácil y los asesores son lo mas</mark></li><li><div class="cat-detail-date">07/09/2026</div><mark>Es simple de utilizar, confiable, la atención de los asesores es muy buena también</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">04/01/2024</div>Deja que desear..no figura contacto para ayuda..es muy poco intuitiva ni figura ayudas</li><li><div class="cat-detail-date">03/08/2026</div><mark>servicios muy caros</mark></li><li><div class="cat-detail-date">17/10/2023</div><mark>Te contactan por WhatsApp y además del DNI, cuit, domicilio legal, piden los últimos 3 recibos de sueldo...</mark> raro. No se si es una estafa de alguien que chupo los datos. Prefiero no seguir con la activación de la cuenta.</li></ul></div>
+          </div>
+        </div>
+        </div></div>
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
         
         <article class="finding-card">
           <div class="finding-head">
-            <h3>No puede registrarse o completar el alta de cuenta</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta"><span class="chip chip-category">Acceso</span>418 reseñas · 72.2% negativas</p>
-          <p>La app no inicia tras poner usuario/contraseña, el registro queda colgado &quot;en proceso&quot; por semanas, o directamente no permite registrarse.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de alta de cuenta (418 reseñas, 72.2% negativas) — afecta la entrada de usuarios nuevos antes de que lleguen a usar el producto.</p>
-          <ul class='samples'><li>“Es imposible registrarse.”</li><li>“Hace más de 15 días que mandé todo para dar de alta la cuenta y sigo esperando.”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
             <h3>La app se cierra o falla al verificar identidad (selfie/DNI)</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta"><span class="chip chip-category">Acceso</span>218 reseñas · 60.1% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>1506 reseñas · 13.7% negativas</p>
           <p>La app se cierra sola al informar un depósito o al tomar la selfie de verificación, o no reconoce el DNI; mezclado con alguna queja de mala atención.</p>
           <p class="recommendation"><strong>Recomendación:</strong> Mismo frente que el tópico 13 (verificación de identidad) — revisar estabilidad de la app en esos flujos (218 reseñas, 60.1% negativas).</p>
           <ul class='samples'><li>“Se cierra la App al querer informar un depósito”</li><li>“Me tira error siempre cuando me tengo q sacar una selfi! Ya receiete el teléfono y la app y no funciona!”</li></ul>
@@ -221,10 +231,21 @@
         
         <article class="finding-card">
           <div class="finding-head">
+            <h3>No puede registrarse o completar el alta de cuenta</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>329 reseñas · 54.5% negativas</p>
+          <p>La app no inicia tras poner usuario/contraseña, el registro queda colgado &quot;en proceso&quot; por semanas, o directamente no permite registrarse.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de alta de cuenta (418 reseñas, 72.2% negativas) — afecta la entrada de usuarios nuevos antes de que lleguen a usar el producto.</p>
+          <ul class='samples'><li>“Es imposible registrarse.”</li><li>“Hace más de 15 días que mandé todo para dar de alta la cuenta y sigo esperando.”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
             <h3>Verificación de identidad (foto DNI/selfie) falla técnicamente</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta"><span class="chip chip-category">Acceso</span>87 reseñas · 96.6% negativas</p>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>116 reseñas · 85.5% negativas</p>
           <p>La selfie o la foto del DNI fallan repetidamente con error de conexión al servidor, obligando a reintentar muchas veces (hasta 25 intentos reportados).</p>
           <p class="recommendation"><strong>Recomendación:</strong> Revisar la estabilidad técnica del flujo de verificación biométrica (87 reseñas, 96.6% negativas, la más negativa de la app) — bloquea completar el alta de cuenta.</p>
           <ul class='samples'><li>“Falla al tomar la selfie en iPhone 6s”</li><li>“Ayudenme o arreglen el tema de la foto del dni, dice qué hay un problema para establecer conexión con el servidor.”</li></ul>
@@ -246,12 +267,13 @@
               <th class="num" data-sort="num">% negativas</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>Verificación de identidad (foto DNI/selfie) falla técnicamente</td><td>Acceso</td><td class='num'>87</td><td class='num'>1.61</td><td class='num'>96.6%</td><td>alta</td></tr><tr><td>Actualización reciente rompe el login o la sincronización</td><td>Interfaz</td><td class='num'>20</td><td class='num'>2.25</td><td class='num'>90.0%</td><td>media</td></tr><tr><td>No puede registrarse o completar el alta de cuenta</td><td>Acceso</td><td class='num'>418</td><td class='num'>2.34</td><td class='num'>72.2%</td><td>alta</td></tr><tr><td>La app se cierra o falla al verificar identidad (selfie/DNI)</td><td>Acceso</td><td class='num'>218</td><td class='num'>3.02</td><td class='num'>60.1%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas</td><td>Comisiones</td><td class='num'>21</td><td class='num'>3.14</td><td class='num'>52.4%</td><td>media</td></tr><tr><td>Quejas de UX en gráficos y menú tras el rediseño</td><td>Interfaz</td><td class='num'>23</td><td class='num'>3.61</td><td class='num'>39.1%</td><td>media</td></tr><tr><td>Pedidos de mejoras: filtros y más datos de instrumentos</td><td>Interfaz</td><td class='num'>42</td><td class='num'>3.95</td><td class='num'>26.2%</td><td>baja</td></tr><tr><td>Conformidad general hasta el momento, con alguna traba</td><td>General</td><td class='num'>47</td><td class='num'>4.09</td><td class='num'>25.5%</td><td>media</td></tr><tr><td>Atención por WhatsApp con el asesor, valorada y pedida</td><td>Soporte</td><td class='num'>25</td><td class='num'>3.88</td><td class='num'>24.0%</td><td>baja</td></tr><tr><td>Cuesta entenderla al principio</td><td>Interfaz</td><td class='num'>27</td><td class='num'>3.7</td><td class='num'>22.2%</td><td>baja</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>29</td><td class='num'>4.21</td><td class='num'>13.8%</td><td>baja</td></tr><tr><td>Elogios como mejor broker de Argentina</td><td>General</td><td class='num'>32</td><td class='num'>4.84</td><td class='num'>6.2%</td><td>baja</td></tr><tr><td>Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet</td><td>Interfaz</td><td class='num'>138</td><td class='num'>4.66</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>774</td><td class='num'>4.88</td><td class='num'>4.0%</td><td>baja</td></tr><tr><td>Recomendación general de Balanz</td><td>General</td><td class='num'>55</td><td class='num'>4.75</td><td class='num'>3.6%</td><td>baja</td></tr><tr><td>Elogios al servicio y la experiencia en general</td><td>Soporte</td><td class='num'>112</td><td class='num'>4.84</td><td class='num'>2.7%</td><td>baja</td></tr><tr><td>Elogios a la agilidad e intuición de la interfaz</td><td>Interfaz</td><td class='num'>113</td><td class='num'>4.8</td><td class='num'>2.7%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>119</td><td class='num'>4.89</td><td class='num'>2.5%</td><td>baja</td></tr><tr><td>Curva de aprendizaje para usuarios nuevos en inversión</td><td>Interfaz</td><td class='num'>42</td><td class='num'>4.43</td><td class='num'>2.4%</td><td>baja</td></tr><tr><td>Elogios a mejoras en actualizaciones recientes</td><td>Interfaz</td><td class='num'>96</td><td class='num'>4.58</td><td class='num'>2.1%</td><td>baja</td></tr><tr><td>Elogios generales, conformidad reciente</td><td>General</td><td class='num'>264</td><td class='num'>4.82</td><td class='num'>1.9%</td><td>baja</td></tr><tr><td>Elogios a la confiabilidad y rapidez en general</td><td>General</td><td class='num'>449</td><td class='num'>4.88</td><td class='num'>1.8%</td><td>baja</td></tr><tr><td>Elogios al asesoramiento personalizado</td><td>Soporte</td><td class='num'>729</td><td class='num'>4.85</td><td class='num'>1.5%</td><td>baja</td></tr><tr><td>Elogios generales a la app de inversión</td><td>General</td><td class='num'>1007</td><td class='num'>4.85</td><td class='num'>0.6%</td><td>baja</td></tr><tr><td>Satisfacción como herramienta de inversión</td><td>General</td><td class='num'>199</td><td class='num'>4.9</td><td class='num'>0.5%</td><td>baja</td></tr><tr><td>Elogios a la información clara y completa</td><td>General</td><td class='num'>39</td><td class='num'>4.9</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>46</td><td class='num'>4.78</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Elogios &quot;10 puntos&quot; y buena atención</td><td>General</td><td class='num'>22</td><td class='num'>4.91</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot;/perfecto, sin más detalle</td><td>General</td><td class='num'>73</td><td class='num'>4.89</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2487</td><td class='num'>4.28</td><td class='num'>15.7%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>Verificación de identidad (foto DNI/selfie) falla técnicamente</td><td>Acceso</td><td class='num'>116</td><td class='num'>1.55</td><td class='num'>85.5%</td><td>alta</td></tr><tr><td>Actualización reciente rompe el login o la sincronización</td><td>Interfaz</td><td class='num'>171</td><td class='num'>3.01</td><td class='num'>57.1%</td><td>media</td></tr><tr><td>No puede registrarse o completar el alta de cuenta</td><td>Acceso</td><td class='num'>329</td><td class='num'>2.71</td><td class='num'>54.5%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas</td><td>Comisiones</td><td class='num'>85</td><td class='num'>3.69</td><td class='num'>42.7%</td><td>media</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>420</td><td class='num'>3.69</td><td class='num'>38.9%</td><td>baja</td></tr><tr><td>Curva de aprendizaje para usuarios nuevos en inversión</td><td>Interfaz</td><td class='num'>377</td><td class='num'>3.99</td><td class='num'>26.2%</td><td>baja</td></tr><tr><td>Elogios &quot;10 puntos&quot; y buena atención</td><td>General</td><td class='num'>103</td><td class='num'>4.14</td><td class='num'>24.8%</td><td>baja</td></tr><tr><td>Pedidos de mejoras: filtros y más datos de instrumentos</td><td>Interfaz</td><td class='num'>80</td><td class='num'>4.14</td><td class='num'>23.8%</td><td>baja</td></tr><tr><td>Recomendación general de Balanz</td><td>General</td><td class='num'>198</td><td class='num'>4.15</td><td class='num'>23.7%</td><td>baja</td></tr><tr><td>Elogios a mejoras en actualizaciones recientes</td><td>Interfaz</td><td class='num'>243</td><td class='num'>3.92</td><td class='num'>21.5%</td><td>baja</td></tr><tr><td>Quejas de UX en gráficos y menú tras el rediseño</td><td>Interfaz</td><td class='num'>90</td><td class='num'>3.71</td><td class='num'>18.7%</td><td>media</td></tr><tr><td>Elogios al servicio y la experiencia en general</td><td>Soporte</td><td class='num'>382</td><td class='num'>4.41</td><td class='num'>16.3%</td><td>baja</td></tr><tr><td>La app se cierra o falla al verificar identidad (selfie/DNI)</td><td>Acceso</td><td class='num'>1506</td><td class='num'>4.34</td><td class='num'>13.7%</td><td>alta</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>74</td><td class='num'>3.92</td><td class='num'>13.5%</td><td>baja</td></tr><tr><td>Atención por WhatsApp con el asesor, valorada y pedida</td><td>Soporte</td><td class='num'>1066</td><td class='num'>4.48</td><td class='num'>13.0%</td><td>baja</td></tr><tr><td>Elogios al asesoramiento personalizado</td><td>Soporte</td><td class='num'>1212</td><td class='num'>4.51</td><td class='num'>13.0%</td><td>baja</td></tr><tr><td>Cuesta entenderla al principio</td><td>Interfaz</td><td class='num'>186</td><td class='num'>4.59</td><td class='num'>12.9%</td><td>baja</td></tr><tr><td>Elogios generales a la app de inversión</td><td>General</td><td class='num'>2062</td><td class='num'>4.38</td><td class='num'>12.9%</td><td>baja</td></tr><tr><td>Conformidad general hasta el momento, con alguna traba</td><td>General</td><td class='num'>219</td><td class='num'>4.26</td><td class='num'>12.5%</td><td>media</td></tr><tr><td>Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet</td><td>Interfaz</td><td class='num'>316</td><td class='num'>4.39</td><td class='num'>11.9%</td><td>baja</td></tr><tr><td>Elogios a la información clara y completa</td><td>General</td><td class='num'>761</td><td class='num'>4.5</td><td class='num'>10.3%</td><td>baja</td></tr><tr><td>Satisfacción como herramienta de inversión</td><td>General</td><td class='num'>588</td><td class='num'>4.58</td><td class='num'>8.6%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot;/perfecto, sin más detalle</td><td>General</td><td class='num'>670</td><td class='num'>4.47</td><td class='num'>7.0%</td><td>baja</td></tr><tr><td>Elogios como mejor broker de Argentina</td><td>General</td><td class='num'>760</td><td class='num'>4.42</td><td class='num'>6.9%</td><td>baja</td></tr><tr><td>Elogios generales, conformidad reciente</td><td>General</td><td class='num'>3482</td><td class='num'>4.67</td><td class='num'>4.9%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>1570</td><td class='num'>4.79</td><td class='num'>4.7%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>2452</td><td class='num'>4.57</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Elogios a la agilidad e intuición de la interfaz</td><td>Interfaz</td><td class='num'>1145</td><td class='num'>4.75</td><td class='num'>2.7%</td><td>baja</td></tr><tr><td>Elogios a la confiabilidad y rapidez en general</td><td>General</td><td class='num'>890</td><td class='num'>4.81</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2487</td><td class='num'>4.28</td><td class='num'>17.6%</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -260,6 +282,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;

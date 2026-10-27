@@ -48,7 +48,7 @@
           <div>
             <div class="goal-urgent-label">Categoría más urgente</div>
             <div class="goal-urgent-name">Acceso</div>
-            <div class="goal-urgent-meta">824 reseñas · 91.5% negativas</div>
+            <div class="goal-urgent-meta">2636 reseñas · 84.6% negativas</div>
           </div>
         </div>
         
@@ -56,8 +56,8 @@
           <span class="goal-urgent-icon">🚨</span>
           <div>
             <div class="goal-urgent-label">Tópico más urgente</div>
-            <div class="goal-urgent-name">Bugs genéricos y soporte que no responde</div>
-            <div class="goal-urgent-meta">465 reseñas · 95.9% negativas</div>
+            <div class="goal-urgent-name">Cuenta bloqueada con dinero adentro, sin justificación clara</div>
+            <div class="goal-urgent-meta">1642 reseñas · 80.3% negativas</div>
           </div>
         </div>
         </div>
@@ -119,7 +119,7 @@
 
     <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
@@ -127,96 +127,128 @@
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#9a851c;font-size:14px;"
-                 title="General: 1676 reseñas, 34% negativas">
-              General
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-pagos">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:160px;height:160px;background:#d96f09;font-size:14px;"
+                   title="Pagos: 3597 reseñas, 55% negativas">
+                Pagos
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#9a851c;">34% negativas</div>
-          <div class="bubble-n">1676 reseñas</div>
+            <div class="bubble-pct" style="color:#d96f09;">55% negativas</div>
+            <div class="bubble-n">3597 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:140px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:140px;height:140px;background:#d96f09;font-size:14px;"
-                 title="Pagos: 1098 reseñas, 55% negativas">
-              Pagos
+        <div class="bubble-item" style="width:145px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-acceso">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:145px;height:145px;background:#db3f1c;font-size:14px;"
+                   title="Acceso: 2636 reseñas, 85% negativas">
+                Acceso
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#d96f09;">55% negativas</div>
-          <div class="bubble-n">1098 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:129px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:129px;height:129px;background:#db3421;font-size:14px;"
-                 title="Acceso: 824 reseñas, 92% negativas">
-              Acceso
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#db3421;">92% negativas</div>
-          <div class="bubble-n">824 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:117px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:117px;height:117px;background:#98861d;font-size:14px;"
-                 title="Interfaz: 577 reseñas, 33% negativas">
-              Interfaz
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#98861d;">33% negativas</div>
-          <div class="bubble-n">577 reseñas</div>
+            <div class="bubble-pct" style="color:#db3f1c;">85% negativas</div>
+            <div class="bubble-n">2636 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:84px;height:84px;background:#848a24;font-size:10px;"
-                 title="Ruido: 120 reseñas, 28% negativas">
-              Ruido
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-interfaz">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:85px;height:85px;background:#db4918;font-size:11px;"
+                   title="Interfaz: 289 reseñas, 78% negativas">
+                Interfaz
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#848a24;">28% negativas</div>
-          <div class="bubble-n">120 reseñas</div>
+            <div class="bubble-pct" style="color:#db4918;">78% negativas</div>
+            <div class="bubble-n">289 reseñas · ver ejemplos</div>
+          </button>
         </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Bugs genéricos y soporte que no responde · Quejas de confiabilidad general: deja de funcionar sin aviso · Reclamos genéricos enfáticos (bloqueos, lentitud, promesas incumplidas) · Satisfacción general con la billetera digital · Elogios generales a la app · &quot;Funciona bien&quot; / conformidad general sin detalle · Agradecimientos y recomendaciones genéricas · Primeras impresiones, aún evaluando · Primera operación exitosa (depósito, transferencia)</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Transferencias que tardan mucho o se pierden · Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte · Problemas para obtener o vincular la tarjeta (física/virtual) · Operar con pesos argentinos (error al ingresar / conversión para pagar afuera) · Compras en Steam: valoradas cuando funcionan, quejas si se discontinúan · Comprar/vender cripto fácil, con pedidos de más staking · Elogios por pagar en Brasil con Pix usando pesos argentinos</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>El mail de verificación entra en loop y no permite ingresar · Verificación de identidad demorada (extranjeros) · Verificación de identidad (foto/video) demorada o sin aprobar · Verificación manual de cuenta demora semanas · Verificación o bloqueo de cuenta deja sin acceso al dinero viajando en Brasil · No puede registrarse o se desloguea constantemente</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>Incompatibilidad con ciertos modelos Android · Quejas por actualizaciones muy frecuentes · La app no instala o descarga correctamente · Elogios a la rapidez y practicidad · Elogios a la facilidad de uso</dd></div><div class="cat-explain-item"><dt>Ruido</dt><dd>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;) · Comentarios breves y dispersos sin un tema único</dd></div></dl></details></div>
+        
+        <div class="bubble-item" style="width:90px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-comisiones">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:74px;height:74px;background:#d97507;font-size:10px;"
+                   title="Comisiones: 103 reseñas, 51% negativas">
+                Comisiones
+              </div>
+            </div>
+            <div class="bubble-pct" style="color:#d97507;">51% negativas</div>
+            <div class="bubble-n">103 reseñas · ver ejemplos</div>
+          </button>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Pagos</dt><dd>Transferencias demoradas o perdidas, sin solución · La app no funciona y el dinero queda bloqueado, sin respuesta de soporte · Problemas para conseguir o usar la tarjeta física/virtual · Fallas puntuales en pagos y funciones no disponibles · Compras en Steam, mayormente satisfactorias con alguna demora · Satisfacción operando con criptomonedas, con sugerencias de mejora · Problemas al operar o verificar identidad durante viajes a Brasil</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>No se puede completar el registro, queda trabado · Verificación de identidad demorada o falla, con dinero atrapado · Cuenta bloqueada con dinero adentro, sin justificación clara</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>Actualizaciones muy frecuentes molestan a los usuarios</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Cashback percibido como menor al publicitado</dd></div></dl></details><div class="category-detail-wrap">
+        <div class="category-detail" id="cat-detail-acceso" hidden>
+          <h4 class="category-detail-title">Acceso</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">29/09/2022</div>muy buena la verdad un día nunca pensé poder tener plata para mí vacaciones c:</li><li><div class="cat-detail-date">27/11/2021</div>Listooo! Tenía un error al loguearme pero lo corrigieron al toque. De 10</li><li><div class="cat-detail-date">10/03/2022</div>para en poco difícil todo se puede nunca Rendirse</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">28/09/2026</div><mark>se me tilda y no me deja hacer nada</mark></li><li><div class="cat-detail-date">28/07/2026</div>me robaron casi 3pesos, muy mala 3 de 10</li><li><div class="cat-detail-date">02/08/2026</div><mark>Pésima,me he olvidado la clave y no me deja ingresa.</mark></li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-comisiones" hidden>
+          <h4 class="category-detail-title">Comisiones</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">26/01/2023</div><mark>Despues de un 1 mes y medio, me dieron los 21% de Cashback...</mark> Muy buena y simple de entender.</li><li><div class="cat-detail-date">02/02/2025</div>Cuando funciona, anda de 10. No le pongo las 5 estrellas porque ofrece un cambio bajo en relación a las otras billeteras.</li><li><div class="cat-detail-date">16/06/2022</div><mark>funciona siempre bien, lo unico es que el cashback hasta ahora siempre fue de 2÷ y lo utilice muchisimas veces, compro todo con belo pero nunca me toco mas que ese ÷</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">28/04/2023</div><mark>Quitaron el cashback por pagar en pesos...</mark> Pésima idea!!</li><li><div class="cat-detail-date">07/03/2023</div><mark>De poca utilidad luego que le quitaron el cashback original de como era en un principio</mark></li><li><div class="cat-detail-date">02/03/2023</div><mark>Una lástima la nueva actualización, estaba muy por encima de la competencia pero ahora con el cashback solo en pagos con cryptos ya todos mis conocidos se pasaron a la competencia ojalá lo reviertan.</mark> Por lo demás siempre me anduvo muy bien, una lastima las últimas ideas</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-interfaz" hidden>
+          <h4 class="category-detail-title">Interfaz</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">29/11/2022</div><mark>funciona bien buena respuesta en atención al cliente y espero que con la nueva actualización siga asi</mark></li><li><div class="cat-detail-date">11/09/2026</div><mark>cambio de opinión ahora está súper la app con esta actualización 🤠 quedo de maravilla</mark></li><li><div class="cat-detail-date">23/10/2023</div>Buena App la estoy usando hace poco y me sirve muchísimo. <mark>El único punto malo a destacar es que requiere mucha actualizaciones.</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">06/05/2026</div><mark>En el peor momento siempre pide actualizar, y no te deja usar la app si no lo haces, y esto no es una vez cada tanto.</mark> <mark>Después de la actualización encima te pide todos los datos de login de nuevo, un embole!</mark></li><li><div class="cat-detail-date">09/06/2026</div><mark>está fallando con la última actualización 😢</mark></li><li><div class="cat-detail-date">19/12/2025</div><mark>está funcionando mal , la actualización y verificación no funcionan como debería ser.</mark></li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-pagos" hidden>
+          <h4 class="category-detail-title">Pagos</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">22/10/2026</div><mark>excelente aplicación me gusta mucho lo que ofrece para mi país colombia me gustaría en un futuro se puede comprar acciones de estado unidos</mark></li><li><div class="cat-detail-date">02/08/2026</div><mark>Muy buen medio de pago en Brasil, sin necesidad de cambiar personalmente, muy práctico</mark></li><li><div class="cat-detail-date">13/06/2026</div><mark>soy venezolano estoy en Brasil y aquí descubrí está aplicación que me recomendó nada más y nada menos que geminis la descargue y he echo operaciones tanto para Brasil como para otros países incluyendo Venezuela y de verdad es buenísima, el dinero cae inmediatamente y convierte las monedas a muy bajo costo...</mark> de verdad la recomiendo hasta ahora no me ha fallado.... felicitaciones y honor para sus creadores🙏</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><div class="cat-detail-date">22/09/2026</div>la peor aplicación de billeteras virtuales. Me descontaron como &quot;Ajuste&quot; Ing Brutos sin avisarme ni estar de acuerdo. son de lo peor. no es la primera vez que tengo problemas con que me comen plata de depósitos que me hacen. <mark>elegí eliminar la app.</mark> LES SUGIERO TAMBIEN LA DESINSTALEN. LADRONES.</li><li><div class="cat-detail-date">20/09/2026</div>No puedo recibir ni retirar mi dinero porque hoy me pausaron la cuenta sin explicaciones. <mark>La app es buena pero este tipo de inconvenientes son la razon por la cual me había cambiado a esta app y ahora me salen con esto.</mark> Deberían tratar a nosotros sus clientes que pagan comisiones a diario con mas atencion y no tratarnos como estafadores en potencia. no todos necesitan verificaciones como si fueran narcos o terroristas, la mayoría solo quiere trabajar para ganarse el pan diario.</li><li><div class="cat-detail-date">10/10/2026</div><mark>se me salio la billetera de mi movíl y tenía dinero como puedo sacar mi dinero si no me deja descargar la app nuevamente.</mark></li></ul></div>
+          </div>
+        </div>
+        </div></div>
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
         
         <article class="finding-card">
           <div class="finding-head">
-            <h3>Bugs genéricos y soporte que no responde</h3>
+            <h3>Cuenta bloqueada con dinero adentro, sin justificación clara</h3>
             <span class="chip sev-alta">Alta</span>
           </div>
-          <p class="finding-meta"><span class="chip chip-category">General</span>465 reseñas · 95.9% negativas</p>
-          <p>Fallas técnicas variadas (secciones que no cargan, monedas que desaparecen de la lista) combinadas con soporte que no contesta ni por la app ni por mail.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Volumen alto y poco específico (465 reseñas, 95.9% negativas) — cruzar con los tópicos más concretos (registro, dinero, verificación) antes de priorizar una acción puntual; el patrón de soporte sin respuesta se repite en casi todos los tópicos negativos.</p>
-          <ul class='samples'><li>“Abro la app y no está en el listado mi moneda. No puedo ver el detalle. Algo está fallando porque están todas. Es intermitente. Hace años que la tengo y nunca pasó. Por favor arreglen ésto. THETHER USD.”</li><li>“Ni el soporte de la app ni el mail responden.”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>No puede registrarse o se desloguea constantemente</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta"><span class="chip chip-category">Acceso</span>361 reseñas · 90.0% negativas</p>
-          <p>El registro queda trabado al cargar la dirección con un error poco descriptivo, y usuarios ya registrados deben volver a iniciar sesión todo el tiempo sin poder recuperar el PIN.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Revisar el flujo de alta de cuenta y la persistencia de sesión (361 reseñas, 90% negativas) — afecta tanto la entrada de usuarios nuevos como la retención de los que ya están.</p>
-          <ul class='samples'><li>“Arreglen eso porque es infumable tener que iniciar sesion todo el tiempo”</li><li>“No recuerdo el PIN!!! Qué complicado restablecerlo!!! Necesito AYUDA 🤬”</li></ul>
-        </article>
-        
-        <article class="finding-card">
-          <div class="finding-head">
-            <h3>Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte</h3>
-            <span class="chip sev-alta">Alta</span>
-          </div>
-          <p class="finding-meta"><span class="chip chip-category">Pagos</span>357 reseñas · 86.0% negativas</p>
-          <p>Cuentas bloqueadas por compliance con dinero adentro tras pedir justificación de fondos repetidamente, depósitos y pagos a comercios que no se acreditan, sin respuesta clara de soporte.</p>
-          <p class="recommendation"><strong>Recomendación:</strong> Es uno de los tópicos más graves (357 reseñas, 86% negativas, menciones de &quot;estafa&quot; y denuncias) — auditar el criterio de bloqueo por compliance y el SLA de soporte cuando hay dinero retenido.</p>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>1642 reseñas · 80.3% negativas</p>
+          <p>Bloqueos de cuenta tras pedidos de comprobantes/justificación de origen de fondos, con el dinero inaccesible mientras tanto.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> 780 reseñas, 78.4% negativas: comunicar con más claridad qué comprobantes se piden y por qué, y dar plazos concretos de resolución.</p>
           <ul class='samples'><li>“Muy mala, soy un estudiante realice transacciones por 700.000 pesos para organizar un evento con amigos me bloquearon la cuenta y nunca mas pude usarla. Ademas actualizan constantemente no la recomiendo para nada”</li><li>“Hice una compra por 600 reales y al vendedor no le llegó nunca el pago,me mandó foto y videos de sus movimientos en el banco y no estaba pero a mi si me lo debitaron”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>La app no funciona y el dinero queda bloqueado, sin respuesta de soporte</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Pagos</span>1607 reseñas · 60.2% negativas</p>
+          <p>Reclamos de dinero retenido, cuentas restringidas sin aviso claro y soporte que no responde por ningún canal.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> El tópico más grande de la muestra (1153 reseñas, 75.3% negativas, rating 1.58★): revisar los criterios de restricción automática de cuentas y garantizar un canal de soporte que responda en tiempo razonable.</p>
+          <ul class='samples'><li>“Este aplicativo me robó 35 mil pesos y aun no me dan una respuesta”</li><li>“Nose si es un error de la app o no se que están haciendo pero de golpe me tiene la cuenta restringida , nunca pase montos mayores a 100mil pesos y eso que con la afip es hasta 700mil aprox por mes para poder justificar . Y encima la uso cada dos por tres . Raro no? Después piden justificación … prefiero no dar datos cuando yo ya había mandado cuando me registre ..”</li></ul>
+        </article>
+        
+        <article class="finding-card">
+          <div class="finding-head">
+            <h3>No se puede completar el registro, queda trabado</h3>
+            <span class="chip sev-alta">Alta</span>
+          </div>
+          <p class="finding-meta"><span class="chip chip-category">Acceso</span>751 reseñas · 94.7% negativas</p>
+          <p>El alta de cuenta se traba en algún paso (dirección, bucle de pantallas) sin un mensaje de error claro.</p>
+          <p class="recommendation"><strong>Recomendación:</strong> 303 reseñas, 85% negativas, el peor rating de todos los tópicos (1.58★): revisar el flujo de onboarding paso a paso para encontrar dónde se traba.</p>
+          <ul class='samples'><li>“Arreglen eso porque es infumable tener que iniciar sesion todo el tiempo”</li><li>“Se queda en la parte de cargar dirección y muestra un mensaje de error poco descriptivo y no avanza a terminar el registro”</li></ul>
         </article>
         
       </div>
@@ -225,7 +257,7 @@
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
       <details class="detail-table">
-        <summary>Ver los 30 tópicos detectados</summary>
+        <summary>Ver los 18 tópicos detectados</summary>
         <div class="table-scroll">
           <table class="sortable">
             <thead><tr>
@@ -235,12 +267,13 @@
               <th class="num" data-sort="num">% negativas</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>Bugs genéricos y soporte que no responde</td><td>General</td><td class='num'>465</td><td class='num'>1.6</td><td class='num'>95.9%</td><td>alta</td></tr><tr><td>Incompatibilidad con ciertos modelos Android</td><td>Interfaz</td><td class='num'>44</td><td class='num'>2.23</td><td class='num'>95.5%</td><td>media</td></tr><tr><td>El mail de verificación entra en loop y no permite ingresar</td><td>Acceso</td><td class='num'>125</td><td class='num'>1.41</td><td class='num'>94.4%</td><td>alta</td></tr><tr><td>Verificación de identidad demorada (extranjeros)</td><td>Acceso</td><td class='num'>49</td><td class='num'>1.63</td><td class='num'>93.9%</td><td>media</td></tr><tr><td>Verificación de identidad (foto/video) demorada o sin aprobar</td><td>Acceso</td><td class='num'>119</td><td class='num'>1.29</td><td class='num'>93.3%</td><td>alta</td></tr><tr><td>Verificación manual de cuenta demora semanas</td><td>Acceso</td><td class='num'>27</td><td class='num'>1.26</td><td class='num'>92.6%</td><td>media</td></tr><tr><td>Transferencias que tardan mucho o se pierden</td><td>Pagos</td><td class='num'>84</td><td class='num'>1.76</td><td class='num'>90.5%</td><td>media</td></tr><tr><td>Verificación o bloqueo de cuenta deja sin acceso al dinero viajando en Brasil</td><td>Acceso</td><td class='num'>143</td><td class='num'>1.62</td><td class='num'>90.2%</td><td>alta</td></tr><tr><td>No puede registrarse o se desloguea constantemente</td><td>Acceso</td><td class='num'>361</td><td class='num'>1.69</td><td class='num'>90.0%</td><td>alta</td></tr><tr><td>Quejas de confiabilidad general: deja de funcionar sin aviso</td><td>General</td><td class='num'>65</td><td class='num'>1.88</td><td class='num'>89.2%</td><td>media</td></tr><tr><td>Cuentas bloqueadas o dinero no acreditado, sin respuesta de soporte</td><td>Pagos</td><td class='num'>357</td><td class='num'>1.57</td><td class='num'>86.0%</td><td>alta</td></tr><tr><td>Quejas por actualizaciones muy frecuentes</td><td>Interfaz</td><td class='num'>151</td><td class='num'>2.38</td><td class='num'>82.1%</td><td>media</td></tr><tr><td>La app no instala o descarga correctamente</td><td>Interfaz</td><td class='num'>25</td><td class='num'>1.88</td><td class='num'>76.0%</td><td>media</td></tr><tr><td>Reclamos genéricos enfáticos (bloqueos, lentitud, promesas incumplidas)</td><td>General</td><td class='num'>52</td><td class='num'>2.25</td><td class='num'>73.1%</td><td>media</td></tr><tr><td>Problemas para obtener o vincular la tarjeta (física/virtual)</td><td>Pagos</td><td class='num'>136</td><td class='num'>2.44</td><td class='num'>71.3%</td><td>alta</td></tr><tr><td>Operar con pesos argentinos (error al ingresar / conversión para pagar afuera)</td><td>Pagos</td><td class='num'>61</td><td class='num'>2.69</td><td class='num'>62.3%</td><td>media</td></tr><tr><td>Compras en Steam: valoradas cuando funcionan, quejas si se discontinúan</td><td>Pagos</td><td class='num'>51</td><td class='num'>2.76</td><td class='num'>58.8%</td><td>baja</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>60</td><td class='num'>2.58</td><td class='num'>36.7%</td><td>baja</td></tr><tr><td>Comprar/vender cripto fácil, con pedidos de más staking</td><td>Pagos</td><td class='num'>161</td><td class='num'>3.78</td><td class='num'>27.3%</td><td>baja</td></tr><tr><td>Comentarios breves y dispersos sin un tema único</td><td>Ruido</td><td class='num'>60</td><td class='num'>3.78</td><td class='num'>20.0%</td><td>baja</td></tr><tr><td>Satisfacción general con la billetera digital</td><td>General</td><td class='num'>142</td><td class='num'>4.63</td><td class='num'>5.6%</td><td>baja</td></tr><tr><td>Elogios por pagar en Brasil con Pix usando pesos argentinos</td><td>Pagos</td><td class='num'>248</td><td class='num'>4.69</td><td class='num'>4.8%</td><td>baja</td></tr><tr><td>Elogios generales a la app</td><td>General</td><td class='num'>589</td><td class='num'>4.73</td><td class='num'>2.9%</td><td>baja</td></tr><tr><td>Elogios a la rapidez y practicidad</td><td>Interfaz</td><td class='num'>107</td><td class='num'>4.79</td><td class='num'>2.8%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>250</td><td class='num'>4.87</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot; / conformidad general sin detalle</td><td>General</td><td class='num'>130</td><td class='num'>4.66</td><td class='num'>0.8%</td><td>baja</td></tr><tr><td>Agradecimientos y recomendaciones genéricas</td><td>General</td><td class='num'>155</td><td class='num'>4.87</td><td class='num'>0.6%</td><td>baja</td></tr><tr><td>Primeras impresiones, aún evaluando</td><td>General</td><td class='num'>52</td><td class='num'>4.0</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Primera operación exitosa (depósito, transferencia)</td><td>General</td><td class='num'>26</td><td class='num'>4.58</td><td class='num'>0.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2635</td><td class='num'>2.4</td><td class='num'>66.9%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>No se puede completar el registro, queda trabado</td><td>Acceso</td><td class='num'>751</td><td class='num'>1.5</td><td class='num'>94.7%</td><td>alta</td></tr><tr><td>Verificación de identidad demorada o falla, con dinero atrapado</td><td>Acceso</td><td class='num'>243</td><td class='num'>1.31</td><td class='num'>81.9%</td><td>alta</td></tr><tr><td>Cuenta bloqueada con dinero adentro, sin justificación clara</td><td>Acceso</td><td class='num'>1642</td><td class='num'>1.59</td><td class='num'>80.3%</td><td>alta</td></tr><tr><td>Actualizaciones muy frecuentes molestan a los usuarios</td><td>Interfaz</td><td class='num'>289</td><td class='num'>2.21</td><td class='num'>78.5%</td><td>media</td></tr><tr><td>Transferencias demoradas o perdidas, sin solución</td><td>Pagos</td><td class='num'>338</td><td class='num'>2.22</td><td class='num'>65.4%</td><td>alta</td></tr><tr><td>La app no funciona y el dinero queda bloqueado, sin respuesta de soporte</td><td>Pagos</td><td class='num'>1607</td><td class='num'>2.49</td><td class='num'>60.2%</td><td>alta</td></tr><tr><td>Elogios a la app para traer dinero del exterior</td><td>General</td><td class='num'>1607</td><td class='num'>2.49</td><td class='num'>60.2%</td><td>baja</td></tr><tr><td>Elogios generales a la app</td><td>General</td><td class='num'>2293</td><td class='num'>2.63</td><td class='num'>58.2%</td><td>baja</td></tr><tr><td>Problemas para conseguir o usar la tarjeta física/virtual</td><td>Pagos</td><td class='num'>289</td><td class='num'>2.59</td><td class='num'>57.3%</td><td>media</td></tr><tr><td>Fallas puntuales en pagos y funciones no disponibles</td><td>Pagos</td><td class='num'>493</td><td class='num'>2.41</td><td class='num'>57.1%</td><td>media</td></tr><tr><td>Compras en Steam, mayormente satisfactorias con alguna demora</td><td>Pagos</td><td class='num'>187</td><td class='num'>2.75</td><td class='num'>56.0%</td><td>baja</td></tr><tr><td>Elogios a la billetera y a pagar con Belo</td><td>General</td><td class='num'>534</td><td class='num'>2.83</td><td class='num'>51.7%</td><td>baja</td></tr><tr><td>Cashback percibido como menor al publicitado</td><td>Comisiones</td><td class='num'>103</td><td class='num'>2.64</td><td class='num'>51.3%</td><td>media</td></tr><tr><td>Reseñas de puntaje condicionado (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>230</td><td class='num'>2.4</td><td class='num'>43.8%</td><td>baja</td></tr><tr><td>Satisfacción operando con criptomonedas, con sugerencias de mejora</td><td>Pagos</td><td class='num'>173</td><td class='num'>3.17</td><td class='num'>41.2%</td><td>baja</td></tr><tr><td>Problemas al operar o verificar identidad durante viajes a Brasil</td><td>Pagos</td><td class='num'>510</td><td class='num'>3.48</td><td class='num'>31.1%</td><td>media</td></tr><tr><td>Elogios generales a la app, fácil y rápida</td><td>General</td><td class='num'>276</td><td class='num'>4.7</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>1646</td><td class='num'>2.09</td><td class='num'>65.1%</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -249,6 +282,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;

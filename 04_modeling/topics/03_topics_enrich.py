@@ -5,7 +5,7 @@ en la sesión que te está ayudando (no hay API key de Anthropic disponible),
 a partir de las muestras que exporta este script.
 
 Uso:
-  1) python 04_modeling/topics_enrich.py export --name <empresa>
+  1) python 04_modeling/topics/03_topics_enrich.py export --name <empresa>
      -> genera data/<empresa>/04_modeling/topic_samples.json con keywords +
         reseñas de muestra por tópico, priorizado por severidad
         (volumen * % negativas). El tópico -1 (outlier) se incluye al final,
@@ -30,7 +30,7 @@ Uso:
      entiende el tema o el sentimiento (texto ilegible, rating condicionado
      sin desarrollar), es "Ruido".
 
-  3) python 04_modeling/topics_enrich.py merge --name <empresa>
+  3) python 04_modeling/topics/03_topics_enrich.py merge --name <empresa>
      -> vuelca esas columnas a topics_summary.csv (sobrescribe el archivo,
         agregando name/summary/severity/recommendation/category).
 """
@@ -41,7 +41,7 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 from categories import allowed as allowed_categories  # noqa: E402
 

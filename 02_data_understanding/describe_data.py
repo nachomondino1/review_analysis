@@ -175,11 +175,12 @@ if __name__ == "__main__":
     for desc in sources:
         print_summary(args.name, desc)
 
-        json_path = paths.understanding_dir / f"{desc['fuente']}_description.json"
+        paths.describe_dir.mkdir(parents=True, exist_ok=True)
+        json_path = paths.describe_dir / f"{desc['fuente']}_description.json"
         json_path.write_text(json.dumps({"empresa": args.name, **desc}, indent=2, ensure_ascii=False, default=str))
 
         md_lines += build_source_section(desc) + [""]
 
-    md_path = paths.understanding_dir / "data_description.md"
+    md_path = paths.describe_dir / "data_description.md"
     md_path.write_text("\n".join(md_lines).rstrip() + "\n")
     print(f"\nGuardado en {md_path.resolve()} (unificado, para leer)")

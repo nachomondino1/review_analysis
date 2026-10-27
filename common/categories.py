@@ -1,5 +1,5 @@
 """
-Taxonomías de categorías para agrupar tópicos (ver topics_enrich.py).
+Taxonomías de categorías para agrupar tópicos (ver 03_topics_enrich.py).
 
 Un solo eje: "¿qué área funcional del producto está en juego en este
 tópico?" — no mezclar con otros ejes (severidad, sentimiento, volumen: esos
@@ -35,6 +35,20 @@ CATEGORIES_BY_DOMAIN = {
                     "específica: satisfacción o lealtad general, recomendación, \"funciona bien\"/\"no funciona "
                     "nada\" sin más detalle. Si el comentario sí señala una función puntual (pagos, acceso, etc.) "
                     "va en esa categoría aunque sea breve, no acá.",
+        "Ruido": "Reseñas sin contenido interpretable para el negocio: calificación condicionada a algo puntual "
+                 "sin desarrollarlo, texto demasiado corto o con palabras sueltas sin sentido claro.",
+    },
+    "catalogo-hobby": {
+        "Sincronización y datos": "Sync con servicios externos (ej. BoardGameGeek), backups, pérdida o "
+                                   "duplicación de la colección/listas guardadas, falta de respaldo en la nube.",
+        "Cuenta": "Login, registro, crear usuario, compartir colección con otros usuarios.",
+        "Estabilidad": "Crashes, freezes, bloqueos, publicidad intrusiva que interrumpe el uso.",
+        "Localización": "Idioma de la app o de los resultados de búsqueda, traducciones faltantes o parciales.",
+        "Funcionalidad": "Features faltantes o pedidos de mejora (filtros, escaneo de código de barras, fotos "
+                          "de portada, bitácora de partidas, contadores, etc.), UI/UX puntual de una pantalla.",
+        "General": "Opinión (positiva o negativa) sobre la app en su conjunto, sin apuntar a una función "
+                   "específica: satisfacción o lealtad general, \"muy útil\"/\"no me gustó\" sin más detalle. "
+                   "Si el comentario sí señala una función puntual, va en esa categoría aunque sea breve, no acá.",
         "Ruido": "Reseñas sin contenido interpretable para el negocio: calificación condicionada a algo puntual "
                  "sin desarrollarlo, texto demasiado corto o con palabras sueltas sin sentido claro.",
     },

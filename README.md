@@ -33,7 +33,7 @@ Después abrir [http://localhost:8000](http://localhost:8000) (el índice con el
    - `topics_enrich.py`: como no hay API key de Anthropic disponible, el nombrado de tópicos no es 100% automático — el script exporta keywords + reseñas de muestra por tópico (`export`), un LLM (hoy, Claude en una sesión de Claude Code) escribe nombre/resumen/severidad/recomendación por tópico, y el script vuelca eso a `topics_summary.csv` (`merge`).
    - `trends.py`: sentimiento por mes y comparación entre App Store y Google Play.
    - `version_breakout.py`: busca si el % de negativas tuvo un quiebre real atado a una versión específica, con test de significancia antes de reportarlo.
-8. **Evaluación** (`05_evaluation/EVALUATION.md`): antes de publicar, responder a mano las 3 tareas de "Evaluation" de CRISP-DM — ¿los hallazgos cumplen el criterio de negocio (5.1)?, ¿se corrió todo bien (5.2)?, ¿deploy, iterar, o no hay suficiente volumen para un análisis serio (5.3)? Tampoco tiene scripts: es un checklist que usa los números que ya imprimió `04_modeling/analyze_sentiment_topics.py`.
+8. **Evaluación** (`05_evaluation/EVALUATION.md`): antes de publicar, responder a mano las 3 tareas de "Evaluation" de CRISP-DM — ¿los hallazgos cumplen el criterio de negocio (5.1)?, ¿se corrió todo bien (5.2)?, ¿deploy, iterar, o no hay suficiente volumen para un análisis serio (5.3)? Tampoco tiene scripts: es un checklist que usa los números que ya imprimió `04_modeling/topics/01_analyze_sentiment_topics.py`.
 9. **Deployment** (`06_deployment/generate_site.py`): genera `site/<empresa>.html` (datos embebidos, estilos en `site/css/` compartidos con todas las empresas) con resumen ejecutivo, los hallazgos principales (con recomendación y reseñas de ejemplo), una comparación de "últimos 3 meses vs. histórico completo" (con un chip de Mejorando/Empeorando/Estable) y el detalle completo en una tabla colapsable — listo para compartir por link, sin backend ni build step. También regenera `index.html` en la raíz del repo (home del dominio de GitHub Pages), con el listado de empresas analizadas.
 
 Cada empresa/app analizada vive en su propia carpeta (`data/<empresa>/`), identificada por el `--name` que le pases a los scripts. Dentro, los archivos están organizados por fase (mismo esquema CRISP-DM que el resto del repo), no todos sueltos en una sola carpeta `output/`: así agregar una empresa nueva, o una fase nueva en el futuro, no satura una carpeta compartida.
@@ -79,24 +79,42 @@ site/
 data/
   <empresa>/
     02_data_understanding/
-      ios_<empresa>.parquet              # fuente 1: reseñas crudas de App Store
-      android_<empresa>.parquet          # fuente 2: reseñas crudas de Google Play
-      store_ratings_<empresa>.json       # fuente 3: rating oficial agregado por tienda (score + cantidad de calificaciones)
-      <fuente>_description.{md,json}     # describe_data.py, una por fuente
+      collect_initial_data/
+        ios_<empresa>.parquet              # fuente 1: reseñas crudas de App Store
+        android_<empresa>.parquet          # fuente 2: reseñas crudas de Google Play
+        store_ratings_<empresa>.json       # fuente 3: rating oficial agregado por tienda (score + cantidad de calificaciones)
+      describe_data/
+        <fuente>_description.{md,json}     # describe_data.py, una por fuente
     03_data_preparation/
       integrated_<empresa>.parquet   # ios_reviews + android_reviews integradas, identificadas por "store" (store_ratings no entra)
       constructed_<empresa>.parquet # + month, text_length, rating_bucket
       reviews_clean.parquet         # reseñas filtradas, insumo del modelado
     04_modeling/
-      reviews_enriched.parquet  # reseñas + sentimiento + tópico + sentiment_mismatch
-      reviews_enriched.csv      # idem, para abrir en Excel
-      topics_summary.csv        # resumen por tópico; topics_enrich.py le agrega name/summary/severity/recommendation
-      topic_samples.json        # keywords + muestras por tópico, insumo para el nombrado
-      topics_named.json         # nombre/resumen/severidad/recomendación por tópico (lo escribe el LLM)
-      sentiment_by_month.csv    # tendencia mensual de sentimiento por store
-      store_comparison.csv      # comparación agregada iOS vs Android
-      version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
+      topics/     # "de qué hablan las reseñas y qué tan grave es cada tema"
+        reviews_enriched.parquet   # reseñas + sentimiento + tópico + sentiment_mismatch (+ sentiment_confidence si se corrió 04_add_sentiment_confidence.py)
+        reviews_enriched.csv       # idem, para abrir en Excel
+        topics_summary.csv         # resumen por tópico; 02_refine_topic_sentiment.py afina pct_neg, 03_topics_enrich.py agrega name/summary/severity/recommendation/category, 06_summarize_category_sentiment.py afina n/pct_neg/rating por categoría + agrega avg_confidence
+        topic_samples.json         # keywords + muestras por tópico, insumo para el nombrado
+        topics_named.json          # nombre/resumen/severidad/recomendación/categoría por tópico (lo escribe el LLM)
+        review_audit.csv           # QA manual: una fila por oración/split (review_id, categoría detectada, sentimiento, confianza) — 05_export_review_audit.py
+        review_audit_stats.json    # cobertura de categorización (% de oraciones sin categoría) y confianza promedio, mismo script
+      trends/     # "cómo viene cambiando en el tiempo" (independiente de topics/, ambos leen reviews_enriched.parquet)
+        sentiment_by_month.csv    # tendencia mensual de sentimiento por store
+        store_comparison.csv      # comparación agregada iOS vs Android
+        version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
 ```
+
+Scripts de `04_modeling/topics/`, numerados por orden de ejecución (por qué hay tantos y en qué orden van). `01` y `03` se corren **una sola vez** por empresa (descubren tópicos y los nombran); de ahí en adelante la clasificación de cada oración es por keywords, determinística, sin volver a tocar BERTopic:
+1. `01_analyze_sentiment_topics.py` — clustering (BERTopic) + sentimiento rápido por reseña entera. Obligatorio, primer paso, una sola vez.
+2. `02_refine_topic_sentiment.py` — **superado por 05+06** (ver su docstring); se mantiene por si hace falta un cálculo rápido sin pasar por keywords.
+3. `03_topics_enrich.py export` → Claude nombra los tópicos en `topics_named.json` → `03_topics_enrich.py merge`. Necesario para tener `category`/`severity`/`name` en el sitio. Una sola vez (volver a correr requeriría `01` de nuevo).
+4. `04_add_sentiment_confidence.py` (opcional) — agrega confianza del modelo por reseña.
+5. `05_export_review_audit.py` — clasifica cada oración por keywords contra TODOS los tópicos (tabla `review_audit.csv`, una fila por oración); imprime la cobertura de categorización. Re-corrible en cualquier momento, sin tocar BERTopic.
+6. `06_summarize_category_sentiment.py` (necesita el paso 5) — recalcula `n`/`pct_neg`/`rating`/`avg_confidence` por TÓPICO a partir de las menciones reales por oración en `review_audit.csv`, más preciso que contar todas las oraciones de las reseñas de ese tópico en bloque (lo que hacía `02`).
+
+`04_modeling/trends/` (ambos opcionales, en cualquier momento después del paso 1, no dependen de `topics/`): `trends.py`, `version_breakout.py`.
+
+`04_modeling/assess_model.py` (fuera de `topics/`/`trends/`: evalúa TODAS las empresas, no una puntual) — tópicos, categorías, cobertura de categorización y sentimiento promedio por empresa, para detectar de un vistazo cuál necesita más trabajo de keywords antes de confiar en sus hallazgos. Imprime un assessment y guarda `data/model_assessment.md`.
 
 `01_business_understanding/` y `05_evaluation/` no generan nada en `data/<empresa>/` — son documentos de proceso, no fases con output por empresa.
 
@@ -182,38 +200,54 @@ cp .env.example .env   # y completar HF_TOKEN
 6. Correr el análisis (mismo `--name`):
 
    ```bash
-   python 04_modeling/analyze_sentiment_topics.py --name spotify
+   python 04_modeling/topics/01_analyze_sentiment_topics.py --name spotify
+   ```
+
+6b. (Opcional pero recomendado) Afinar el `% negativas` de cada tópico a nivel oración en vez de reseña entera — no re-clusteriza, así que no pisa nombres ya curados si se corre de nuevo más adelante:
+
+   ```bash
+   python 04_modeling/topics/02_refine_topic_sentiment.py --name spotify
    ```
 
 7. Exportar las muestras para nombrar los tópicos:
 
    ```bash
-   python 04_modeling/topics_enrich.py export --name spotify
+   python 04_modeling/topics/03_topics_enrich.py export --name spotify
    ```
 
-   Esto genera `data/spotify/04_modeling/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/04_modeling/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
+   Esto genera `data/spotify/04_modeling/topics/topic_samples.json`. Pedirle a Claude (en una sesión de Claude Code, con este repo abierto) que lo lea y escriba `data/spotify/04_modeling/topics/topics_named.json` con `name`/`summary`/`severity`/`recommendation` por cada tópico no outlier.
 
 8. Mergear esos nombres al resumen:
 
    ```bash
-   python 04_modeling/topics_enrich.py merge --name spotify
+   python 04_modeling/topics/03_topics_enrich.py merge --name spotify
    ```
+
+8b. (Opcional) QA manual de la clasificación por categoría: agregar confianza del modelo por reseña, exportar la tabla por oración y recalcular `n`/`pct_neg`/`rating`/`avg_confidence` por categoría a partir de las menciones reales (no de la reseña completa):
+
+   ```bash
+   python 04_modeling/topics/04_add_sentiment_confidence.py --name spotify
+   python 04_modeling/topics/05_export_review_audit.py --name spotify
+   python 04_modeling/topics/06_summarize_category_sentiment.py --name spotify
+   ```
+
+   `05_export_review_audit.py` imprime la cobertura de categorización (% de oraciones sin ninguna categoría asignada) y avisa si da baja — señal de que faltan keywords por categoría en `topics_summary.csv` (columna `Name`), no de que las reseñas no hablen de temas puntuales.
 
 9. (Opcional) Tendencias temporales y comparación de stores:
 
    ```bash
-   python 04_modeling/trends.py --name spotify
+   python 04_modeling/trends/trends.py --name spotify
    ```
 
 9b. (Opcional) Buscar si hay un quiebre de % negativas atado a una versión específica (ej. "se rompió en la v5.45.0"), no solo una tendencia de calendario:
 
    ```bash
-   python 04_modeling/version_breakout.py --name spotify
+   python 04_modeling/trends/version_breakout.py --name spotify
    ```
 
    Compara "desde esa versión en adelante" contra "antes" (exige que la caída se sostenga en las versiones siguientes, no un pico de una sola versión), y solo reporta un quiebre si además pasa un test de significancia de dos proporciones (p < 0.05) — no alcanza con un salto grande de puntos porcentuales si la muestra es chica.
 
-10. Revisar `data/spotify/04_modeling/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
+10. Revisar `data/spotify/04_modeling/topics/topics_summary.csv`: ya viene ordenado por severidad (volumen × % negativas) con nombre y recomendación legibles. Las filas con `is_outlier=True` son reseñas sin patrón claro, no un tema real.
 
 11. **Evaluar** con el checklist de [`05_evaluation/EVALUATION.md`](05_evaluation/EVALUATION.md) antes de publicar: ¿los hallazgos tienen volumen/severidad suficientes?, ¿`% outliers`/`% sentiment_mismatch` dan razonables?, ¿deploy, iterar, o no da para un análisis serio?
 
