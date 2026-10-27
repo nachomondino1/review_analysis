@@ -104,15 +104,17 @@ data/
         version_breakout.json     # quiebre de % negativas por versión, si hay uno real (null si no)
 ```
 
-Scripts de `04_modeling/topics/`, numerados por orden de ejecución (por qué hay tantos y en qué orden van):
-1. `01_analyze_sentiment_topics.py` — clustering (BERTopic) + sentimiento rápido por reseña entera. Obligatorio, primer paso.
-2. `02_refine_topic_sentiment.py` — afina `pct_neg` por oración en vez de por reseña entera, sin re-clusterizar (opcional pero recomendado: re-correr el paso 1 pisa los nombres ya curados, ver su docstring).
-3. `03_topics_enrich.py export` → Claude nombra los tópicos en `topics_named.json` → `03_topics_enrich.py merge`. Necesario para tener `category`/`severity`/`name` en el sitio.
+Scripts de `04_modeling/topics/`, numerados por orden de ejecución (por qué hay tantos y en qué orden van). `01` y `03` se corren **una sola vez** por empresa (descubren tópicos y los nombran); de ahí en adelante la clasificación de cada oración es por keywords, determinística, sin volver a tocar BERTopic:
+1. `01_analyze_sentiment_topics.py` — clustering (BERTopic) + sentimiento rápido por reseña entera. Obligatorio, primer paso, una sola vez.
+2. `02_refine_topic_sentiment.py` — **superado por 05+06** (ver su docstring); se mantiene por si hace falta un cálculo rápido sin pasar por keywords.
+3. `03_topics_enrich.py export` → Claude nombra los tópicos en `topics_named.json` → `03_topics_enrich.py merge`. Necesario para tener `category`/`severity`/`name` en el sitio. Una sola vez (volver a correr requeriría `01` de nuevo).
 4. `04_add_sentiment_confidence.py` (opcional) — agrega confianza del modelo por reseña.
-5. `05_export_review_audit.py` (opcional, QA) — tabla por oración para revisar a ojo si el modelo clasifica bien; imprime la cobertura de categorización.
-6. `06_summarize_category_sentiment.py` (opcional, necesita el paso 5) — recalcula `n`/`pct_neg`/`rating`/`avg_confidence` por categoría a partir de las menciones reales por oración, más preciso que agregar por tópico/reseña completa.
+5. `05_export_review_audit.py` — clasifica cada oración por keywords contra TODOS los tópicos (tabla `review_audit.csv`, una fila por oración); imprime la cobertura de categorización. Re-corrible en cualquier momento, sin tocar BERTopic.
+6. `06_summarize_category_sentiment.py` (necesita el paso 5) — recalcula `n`/`pct_neg`/`rating`/`avg_confidence` por TÓPICO a partir de las menciones reales por oración en `review_audit.csv`, más preciso que contar todas las oraciones de las reseñas de ese tópico en bloque (lo que hacía `02`).
 
 `04_modeling/trends/` (ambos opcionales, en cualquier momento después del paso 1, no dependen de `topics/`): `trends.py`, `version_breakout.py`.
+
+`04_modeling/assess_model.py` (fuera de `topics/`/`trends/`: evalúa TODAS las empresas, no una puntual) — tópicos, categorías, cobertura de categorización y sentimiento promedio por empresa, para detectar de un vistazo cuál necesita más trabajo de keywords antes de confiar en sus hallazgos. Imprime un assessment y guarda `data/model_assessment.md`.
 
 `01_business_understanding/` y `05_evaluation/` no generan nada en `data/<empresa>/` — son documentos de proceso, no fases con output por empresa.
 
