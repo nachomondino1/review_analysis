@@ -225,9 +225,16 @@ def build_competitor_section(official: dict | None, empresa_display: str, compet
     return html_out.replace(",", ".")  # miles con punto, consistente con el resto del dashboard
 
 
-def build_summary_stats(summary: pd.DataFrame) -> dict:
-    total_n = int(summary["n"].sum())
-    pct_neg = round(float((summary["pct_neg"] * summary["n"]).sum() / total_n * 100), 1)
+def build_summary_stats(reviews: pd.DataFrame) -> dict:
+    """
+    Total de reseñas con texto y su % de negativas, calculado directo sobre
+    `reviews` (no sumando "n" por tópico): si los tópicos no son mutuamente
+    excluyentes (ej. categorización por aspecto, donde una reseña puede
+    mencionar más de un tema), sumar "n" por tópico cuenta reseñas más de
+    una vez y da un total inflado.
+    """
+    total_n = int(len(reviews))
+    pct_neg = round(float((reviews["sentiment"] == "NEG").mean() * 100), 1) if total_n else 0.0
     return {
         "total_n": total_n,
         "pct_neg": pct_neg,
@@ -664,7 +671,7 @@ TEMPLATE = """<!doctype html>
 
 def render(paths: Paths, empresa_display: str, competitor: str | None = None) -> str:
     summary, reviews, store_ratings = load_data(paths)
-    stats = build_summary_stats(summary)
+    stats = build_summary_stats(reviews)
     official = build_official_rating(store_ratings)
     ios_cap_note = build_ios_cap_note(reviews, store_ratings)
     avg_rating_text = round(float(reviews["rating"].mean()), 2) if reviews is not None and not reviews.empty else None
