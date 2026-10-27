@@ -74,23 +74,12 @@
             <div class="split-origin-value">62.767</div>
             <div class="split-origin-label">Reseñas totales</div>
           </div>
-          <div class="split-origin-stat">
-            <div class="split-origin-value">4.61★</div>
+          <div class="split-origin-stat split-origin-stat--secondary">
+            <div class="split-origin-value split-origin-value--small">4.61★</div>
             <div class="split-origin-label">Rating oficial</div>
           </div>
         </div>
         <div class="split-branches">
-          <div class="split-branch split-branch--text">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">12.098</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Con texto</strong> · 19.3% del total</div>
-              <div class="split-branch-sub">Promedio: 2.28★</div>
-            </div>
-          </div>
           <div class="split-branch split-branch--notext">
             <span class="split-arrow" aria-hidden="true">↳</span>
             <div class="split-branch-num">
@@ -99,7 +88,20 @@
             </div>
             <div class="split-branch-body">
               <div class="split-branch-label"><strong>Solo estrellas</strong> · 80.7% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--notext" style="width:80.7%"></div></div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">12.098</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Con texto</strong> · 19.3% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--text" style="width:19.3%"></div></div>
+              <div class="split-branch-sub">Promedio: 2.28★</div>
             </div>
           </div>
         </div>
@@ -143,8 +145,8 @@
     <div class="bubble-legend">
       <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
-        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Positiva
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Negativa
       </span>
     </div>
     <div class="bubble-chart">
@@ -254,9 +256,9 @@
         </div>
         </div></div>
 
-    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+    <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
          ejemplos por categoría (debajo del bubble chart) — el código que arma
-         findings_html/table_rows sigue intacto, solo no se renderiza acá.
+         findings_html sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -296,6 +298,7 @@
         
       </div>
     </div>
+    -->
 
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
@@ -308,15 +311,15 @@
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
+              <th class="num" data-sort="num">Confianza</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>Errores genéricos, &quot;no funciona nada&quot;</td><td>General</td><td class='num'>1365</td><td class='num'>1.47</td><td class='num'>95.2%</td><td>alta</td></tr><tr><td>Publicidad agresiva o engañosa</td><td>Interfaz</td><td class='num'>266</td><td class='num'>1.11</td><td class='num'>92.1%</td><td>media</td></tr><tr><td>No puede iniciar sesión tras actualizar</td><td>Interfaz</td><td class='num'>1686</td><td class='num'>1.66</td><td class='num'>88.7%</td><td>alta</td></tr><tr><td>SMS de verificación no llega</td><td>Acceso</td><td class='num'>618</td><td class='num'>1.63</td><td class='num'>86.6%</td><td>alta</td></tr><tr><td>&quot;Ripio code&quot; (2FA) no llega</td><td>Acceso</td><td class='num'>859</td><td class='num'>1.48</td><td class='num'>85.9%</td><td>alta</td></tr><tr><td>App lenta en general (carga, depósitos, retiros)</td><td>Interfaz</td><td class='num'>201</td><td class='num'>1.89</td><td class='num'>85.8%</td><td>media</td></tr><tr><td>Dinero depositado/transferido que no se acredita, sin respuesta de soporte</td><td>Pagos</td><td class='num'>2624</td><td class='num'>1.51</td><td class='num'>85.0%</td><td>alta</td></tr><tr><td>No se puede crear la cuenta o el login está roto</td><td>Acceso</td><td class='num'>2815</td><td class='num'>1.53</td><td class='num'>84.4%</td><td>alta</td></tr><tr><td>Recuperación de 2FA vía video no funciona</td><td>Acceso</td><td class='num'>446</td><td class='num'>1.65</td><td class='num'>81.8%</td><td>alta</td></tr><tr><td>Foto de DNI cierra la app o no permite validar identidad</td><td>Acceso</td><td class='num'>246</td><td class='num'>1.67</td><td class='num'>81.5%</td><td>alta</td></tr><tr><td>Actualización rompe el login o deja botones sin funcionar</td><td>Interfaz</td><td class='num'>781</td><td class='num'>1.86</td><td class='num'>79.6%</td><td>alta</td></tr><tr><td>Transferencias y acreditación bancaria lentas</td><td>Pagos</td><td class='num'>253</td><td class='num'>1.97</td><td class='num'>76.9%</td><td>media</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>164</td><td class='num'>2.06</td><td class='num'>70.5%</td><td>baja</td></tr><tr><td>Elogios a la última actualización (con una función removida)</td><td>Interfaz</td><td class='num'>166</td><td class='num'>2.31</td><td class='num'>69.4%</td><td>baja</td></tr><tr><td>Comisiones percibidas como muy altas</td><td>Comisiones</td><td class='num'>453</td><td class='num'>1.88</td><td class='num'>68.9%</td><td>media</td></tr><tr><td>La app no carga o queda colgada al ingresar</td><td>Acceso</td><td class='num'>2834</td><td class='num'>2.24</td><td class='num'>64.9%</td><td>alta</td></tr><tr><td>Elogios generales a la app</td><td>General</td><td class='num'>2834</td><td class='num'>2.24</td><td class='num'>64.9%</td><td>baja</td></tr><tr><td>Satisfacción con la compra y gestión de Bitcoin</td><td>Pagos</td><td class='num'>668</td><td class='num'>2.26</td><td class='num'>59.0%</td><td>baja</td></tr><tr><td>Comisiones altas y trabas al comprar o mantener bitcoin</td><td>Pagos</td><td class='num'>617</td><td class='num'>2.43</td><td class='num'>54.1%</td><td>media</td></tr><tr><td>Compras de cripto rechazadas o reembolsos que no llegan</td><td>Pagos</td><td class='num'>692</td><td class='num'>2.51</td><td class='num'>52.7%</td><td>media</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>420</td><td class='num'>2.18</td><td class='num'>51.5%</td><td>baja</td></tr><tr><td>Fricciones de costo operando desde o hacia Argentina</td><td>Comisiones</td><td class='num'>196</td><td class='num'>2.47</td><td class='num'>50.5%</td><td>media</td></tr><tr><td>Comentarios dispersos sin un tema único</td><td>Ruido</td><td class='num'>248</td><td class='num'>2.5</td><td class='num'>50.4%</td><td>baja</td></tr><tr><td>Satisfacción usando la app para inversión y pagos</td><td>Pagos</td><td class='num'>194</td><td class='num'>2.62</td><td class='num'>50.3%</td><td>baja</td></tr><tr><td>Comentarios cortos genéricamente positivos</td><td>General</td><td class='num'>752</td><td class='num'>2.92</td><td class='num'>42.1%</td><td>baja</td></tr><tr><td>Satisfacción con la billetera, con pedidos de más monedas y notificaciones</td><td>Pagos</td><td class='num'>970</td><td class='num'>2.71</td><td class='num'>40.2%</td><td>baja</td></tr><tr><td>Agradecimientos por soporte que resolvió un problema</td><td>Soporte</td><td class='num'>117</td><td class='num'>3.41</td><td class='num'>39.3%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>872</td><td class='num'>3.22</td><td class='num'>38.3%</td><td>baja</td></tr><tr><td>Elogios al servicio en general</td><td>Soporte</td><td class='num'>1717</td><td class='num'>3.55</td><td class='num'>28.5%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4920</td><td class='num'>2.25</td><td class='num'>61.2%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>Errores genéricos, &quot;no funciona nada&quot;</td><td>General</td><td class='num'>1365</td><td class='num'>1.47</td><td class='num'>95.2%</td><td class='num'>88.0%</td><td>alta</td></tr><tr><td>Publicidad agresiva o engañosa</td><td>Interfaz</td><td class='num'>266</td><td class='num'>1.11</td><td class='num'>92.1%</td><td class='num'>89.4%</td><td>media</td></tr><tr><td>No puede iniciar sesión tras actualizar</td><td>Interfaz</td><td class='num'>1686</td><td class='num'>1.66</td><td class='num'>88.7%</td><td class='num'>85.1%</td><td>alta</td></tr><tr><td>SMS de verificación no llega</td><td>Acceso</td><td class='num'>618</td><td class='num'>1.63</td><td class='num'>86.6%</td><td class='num'>83.5%</td><td>alta</td></tr><tr><td>&quot;Ripio code&quot; (2FA) no llega</td><td>Acceso</td><td class='num'>859</td><td class='num'>1.48</td><td class='num'>85.9%</td><td class='num'>83.8%</td><td>alta</td></tr><tr><td>App lenta en general (carga, depósitos, retiros)</td><td>Interfaz</td><td class='num'>201</td><td class='num'>1.89</td><td class='num'>85.8%</td><td class='num'>88.8%</td><td>media</td></tr><tr><td>Dinero depositado/transferido que no se acredita, sin respuesta de soporte</td><td>Pagos</td><td class='num'>2624</td><td class='num'>1.51</td><td class='num'>85.0%</td><td class='num'>83.7%</td><td>alta</td></tr><tr><td>No se puede crear la cuenta o el login está roto</td><td>Acceso</td><td class='num'>2815</td><td class='num'>1.53</td><td class='num'>84.4%</td><td class='num'>83.6%</td><td>alta</td></tr><tr><td>Recuperación de 2FA vía video no funciona</td><td>Acceso</td><td class='num'>446</td><td class='num'>1.65</td><td class='num'>81.8%</td><td class='num'>84.1%</td><td>alta</td></tr><tr><td>Foto de DNI cierra la app o no permite validar identidad</td><td>Acceso</td><td class='num'>246</td><td class='num'>1.67</td><td class='num'>81.5%</td><td class='num'>82.2%</td><td>alta</td></tr><tr><td>Actualización rompe el login o deja botones sin funcionar</td><td>Interfaz</td><td class='num'>781</td><td class='num'>1.86</td><td class='num'>79.6%</td><td class='num'>82.3%</td><td>alta</td></tr><tr><td>Transferencias y acreditación bancaria lentas</td><td>Pagos</td><td class='num'>253</td><td class='num'>1.97</td><td class='num'>76.9%</td><td class='num'>85.2%</td><td>media</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>164</td><td class='num'>2.06</td><td class='num'>70.5%</td><td class='num'>84.7%</td><td>baja</td></tr><tr><td>Elogios a la última actualización (con una función removida)</td><td>Interfaz</td><td class='num'>166</td><td class='num'>2.31</td><td class='num'>69.4%</td><td class='num'>83.9%</td><td>baja</td></tr><tr><td>Comisiones percibidas como muy altas</td><td>Comisiones</td><td class='num'>453</td><td class='num'>1.88</td><td class='num'>68.9%</td><td class='num'>81.5%</td><td>media</td></tr><tr><td>La app no carga o queda colgada al ingresar</td><td>Acceso</td><td class='num'>2834</td><td class='num'>2.24</td><td class='num'>64.9%</td><td class='num'>85.6%</td><td>alta</td></tr><tr><td>Elogios generales a la app</td><td>General</td><td class='num'>2834</td><td class='num'>2.24</td><td class='num'>64.9%</td><td class='num'>85.6%</td><td>baja</td></tr><tr><td>Satisfacción con la compra y gestión de Bitcoin</td><td>Pagos</td><td class='num'>668</td><td class='num'>2.26</td><td class='num'>59.0%</td><td class='num'>82.1%</td><td>baja</td></tr><tr><td>Comisiones altas y trabas al comprar o mantener bitcoin</td><td>Pagos</td><td class='num'>617</td><td class='num'>2.43</td><td class='num'>54.1%</td><td class='num'>80.0%</td><td>media</td></tr><tr><td>Compras de cripto rechazadas o reembolsos que no llegan</td><td>Pagos</td><td class='num'>692</td><td class='num'>2.51</td><td class='num'>52.7%</td><td class='num'>81.4%</td><td>media</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>420</td><td class='num'>2.18</td><td class='num'>51.5%</td><td class='num'>78.4%</td><td>baja</td></tr><tr><td>Fricciones de costo operando desde o hacia Argentina</td><td>Comisiones</td><td class='num'>196</td><td class='num'>2.47</td><td class='num'>50.5%</td><td class='num'>78.5%</td><td>media</td></tr><tr><td>Comentarios dispersos sin un tema único</td><td>Ruido</td><td class='num'>248</td><td class='num'>2.5</td><td class='num'>50.4%</td><td class='num'>-</td><td>baja</td></tr><tr><td>Satisfacción usando la app para inversión y pagos</td><td>Pagos</td><td class='num'>194</td><td class='num'>2.62</td><td class='num'>50.3%</td><td class='num'>83.9%</td><td>baja</td></tr><tr><td>Comentarios cortos genéricamente positivos</td><td>General</td><td class='num'>752</td><td class='num'>2.92</td><td class='num'>42.1%</td><td class='num'>79.4%</td><td>baja</td></tr><tr><td>Satisfacción con la billetera, con pedidos de más monedas y notificaciones</td><td>Pagos</td><td class='num'>970</td><td class='num'>2.71</td><td class='num'>40.2%</td><td class='num'>79.6%</td><td>baja</td></tr><tr><td>Agradecimientos por soporte que resolvió un problema</td><td>Soporte</td><td class='num'>117</td><td class='num'>3.41</td><td class='num'>39.3%</td><td class='num'>75.5%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>872</td><td class='num'>3.22</td><td class='num'>38.3%</td><td class='num'>80.3%</td><td>baja</td></tr><tr><td>Elogios al servicio en general</td><td>Soporte</td><td class='num'>1717</td><td class='num'>3.55</td><td class='num'>28.5%</td><td class='num'>84.1%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4920</td><td class='num'>2.25</td><td class='num'>61.2%</td><td class='num'>-</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
-    -->
   </div>
 
   <footer>

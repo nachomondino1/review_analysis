@@ -118,23 +118,12 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
             <div class="split-origin-value">{total_official_fmt}</div>
             <div class="split-origin-label">Reseñas totales</div>
           </div>
-          <div class="split-origin-stat">
-            <div class="split-origin-value">{official["score"]}★</div>
+          <div class="split-origin-stat split-origin-stat--secondary">
+            <div class="split-origin-value split-origin-value--small">{official["score"]}★</div>
             <div class="split-origin-label">Rating oficial</div>
           </div>
         </div>
         <div class="split-branches">
-          <div class="split-branch split-branch--text">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">{total_n_fmt}</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Con texto</strong> · {pct_text}% del total</div>
-              {neg_sub}
-            </div>
-          </div>
           <div class="split-branch split-branch--notext">
             <span class="split-arrow" aria-hidden="true">↳</span>
             <div class="split-branch-num">
@@ -143,7 +132,20 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
             </div>
             <div class="split-branch-body">
               <div class="split-branch-label"><strong>Solo estrellas</strong> · {pct_no_text}% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--notext" style="width:{pct_no_text}%"></div></div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">{total_n_fmt}</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Con texto</strong> · {pct_text}% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--text" style="width:{pct_text}%"></div></div>
+              {neg_sub}
             </div>
           </div>
         </div>
@@ -429,8 +431,8 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
     <div class="bubble-legend">
       <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Menos negativas
-        <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Más negativas
+        <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Positiva
+        <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Negativa
       </span>
     </div>
     '''
@@ -606,6 +608,7 @@ def build_table_rows(summary: pd.DataFrame) -> str:
     has_category = "category" in summary.columns
     has_name = "name" in summary.columns
     has_severity = "severity" in summary.columns
+    has_confidence = "avg_confidence" in summary.columns
     ordered = summary.sort_values(["is_outlier", "pct_neg"], ascending=[True, False])
     rows = []
     for _, row in ordered.iterrows():
@@ -615,10 +618,15 @@ def build_table_rows(summary: pd.DataFrame) -> str:
         if has_category:
             category = row["category"] if pd.notna(row["category"]) and row["category"] else "-"
             category_cell = f"<td>{esc(category)}</td>"
+        confidence_cell = (
+            f"<td class='num'>{round(float(row['avg_confidence']) * 100, 1)}%</td>"
+            if has_confidence and pd.notna(row["avg_confidence"]) else "<td class='num'>-</td>"
+        )
         rows.append(
             f"<tr><td>{esc(name)}</td>{category_cell}<td class='num'>{int(row['n'])}</td>"
             f"<td class='num'>{round(float(row['rating']), 2)}</td>"
             f"<td class='num'>{round(float(row['pct_neg']) * 100, 1)}%</td>"
+            f"{confidence_cell}"
             f"<td>{esc(severity)}</td></tr>"
         )
     return "".join(rows)
@@ -709,15 +717,16 @@ TEMPLATE = """<!doctype html>
 
     {categories_section}
 
-    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+    <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
          ejemplos por categoría (debajo del bubble chart) — el código que arma
-         findings_html/table_rows sigue intacto, solo no se renderiza acá.
+         findings_html sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
         {findings_html}
       </div>
     </div>
+    -->
 
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
@@ -730,6 +739,7 @@ TEMPLATE = """<!doctype html>
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
+              <th class="num" data-sort="num">Confianza</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
             <tbody>{table_rows}</tbody>
@@ -738,7 +748,6 @@ TEMPLATE = """<!doctype html>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
-    -->
   </div>
 
   <footer>

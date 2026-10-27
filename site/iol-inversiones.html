@@ -74,23 +74,12 @@
             <div class="split-origin-value">276.508</div>
             <div class="split-origin-label">Reseñas totales</div>
           </div>
-          <div class="split-origin-stat">
-            <div class="split-origin-value">4.74★</div>
+          <div class="split-origin-stat split-origin-stat--secondary">
+            <div class="split-origin-value split-origin-value--small">4.74★</div>
             <div class="split-origin-label">Rating oficial</div>
           </div>
         </div>
         <div class="split-branches">
-          <div class="split-branch split-branch--text">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">14.201</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Con texto</strong> · 5.1% del total</div>
-              <div class="split-branch-sub">Promedio: 3.19★</div>
-            </div>
-          </div>
           <div class="split-branch split-branch--notext">
             <span class="split-arrow" aria-hidden="true">↳</span>
             <div class="split-branch-num">
@@ -99,7 +88,20 @@
             </div>
             <div class="split-branch-body">
               <div class="split-branch-label"><strong>Solo estrellas</strong> · 94.9% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--notext" style="width:94.9%"></div></div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">14.201</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Con texto</strong> · 5.1% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--text" style="width:5.1%"></div></div>
+              <div class="split-branch-sub">Promedio: 3.19★</div>
             </div>
           </div>
         </div>
@@ -143,8 +145,8 @@
     <div class="bubble-legend">
       <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
-        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Positiva
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Negativa
       </span>
     </div>
     <div class="bubble-chart">
@@ -254,9 +256,9 @@
         </div>
         </div></div>
 
-    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+    <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
          ejemplos por categoría (debajo del bubble chart) — el código que arma
-         findings_html/table_rows sigue intacto, solo no se renderiza acá.
+         findings_html sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -298,6 +300,7 @@ UNA VERGÜENZA IOL 🤬🤬🤬🤬🤬🤬🤬”</li><li>“NO DEJA RETIRAR EL
         
       </div>
     </div>
+    -->
 
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
@@ -310,15 +313,15 @@ UNA VERGÜENZA IOL 🤬🤬🤬🤬🤬🤬🤬”</li><li>“NO DEJA RETIRAR EL
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
+              <th class="num" data-sort="num">Confianza</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>La app se tilda constantemente</td><td>Interfaz</td><td class='num'>165</td><td class='num'>1.75</td><td class='num'>90.4%</td><td>alta</td></tr><tr><td>Error 404/403 al ingresar</td><td>Interfaz</td><td class='num'>463</td><td class='num'>1.8</td><td class='num'>88.6%</td><td>alta</td></tr><tr><td>Verificación de identidad (foto DNI) falla técnicamente</td><td>Acceso</td><td class='num'>541</td><td class='num'>1.4</td><td class='num'>85.0%</td><td>alta</td></tr><tr><td>Publicidad percibida como engañosa y exceso de notificaciones</td><td>Interfaz</td><td class='num'>142</td><td class='num'>1.52</td><td class='num'>81.6%</td><td>media</td></tr><tr><td>App lenta o se cuelga al operar</td><td>Interfaz</td><td class='num'>631</td><td class='num'>2.71</td><td class='num'>70.2%</td><td>alta</td></tr><tr><td>App no abre, no carga o no deja operar</td><td>Interfaz</td><td class='num'>4791</td><td class='num'>2.4</td><td class='num'>61.9%</td><td>alta</td></tr><tr><td>Discrepancias en compras de CEDEARs y dinero retenido</td><td>Pagos</td><td class='num'>4791</td><td class='num'>2.4</td><td class='num'>61.9%</td><td>alta</td></tr><tr><td>Soporte sin canal de atención efectivo</td><td>Soporte</td><td class='num'>3300</td><td class='num'>2.73</td><td class='num'>53.9%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas y poco transparentes</td><td>Comisiones</td><td class='num'>182</td><td class='num'>2.69</td><td class='num'>52.6%</td><td>media</td></tr><tr><td>Confirmaciones de uso sin problemas por años</td><td>General</td><td class='num'>142</td><td class='num'>2.84</td><td class='num'>51.0%</td><td>baja</td></tr><tr><td>Usuarios nuevos aprendiendo a invertir</td><td>General</td><td class='num'>1343</td><td class='num'>2.91</td><td class='num'>48.7%</td><td>baja</td></tr><tr><td>Reseñas de puntaje condicionadas a que resuelvan un problema puntual</td><td>Ruido</td><td class='num'>346</td><td class='num'>2.56</td><td class='num'>44.3%</td><td>media</td></tr><tr><td>Comisiones altas y problemas al transferir criptomonedas</td><td>Comisiones</td><td class='num'>90</td><td class='num'>3.1</td><td class='num'>43.9%</td><td>media</td></tr><tr><td>Faltan gráficos y herramientas de análisis técnico</td><td>Interfaz</td><td class='num'>462</td><td class='num'>3.19</td><td class='num'>38.2%</td><td>media</td></tr><tr><td>Elogios como mejor app de inversión en Argentina</td><td>General</td><td class='num'>812</td><td class='num'>3.6</td><td class='num'>18.3%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>3029</td><td class='num'>4.01</td><td class='num'>14.8%</td><td>baja</td></tr><tr><td>Elogios generales a la facilidad de uso</td><td>General</td><td class='num'>1207</td><td class='num'>4.69</td><td class='num'>6.9%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4325</td><td class='num'>3.17</td><td class='num'>45.5%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>La app se tilda constantemente</td><td>Interfaz</td><td class='num'>165</td><td class='num'>1.75</td><td class='num'>90.4%</td><td class='num'>87.3%</td><td>alta</td></tr><tr><td>Error 404/403 al ingresar</td><td>Interfaz</td><td class='num'>463</td><td class='num'>1.8</td><td class='num'>88.6%</td><td class='num'>83.6%</td><td>alta</td></tr><tr><td>Verificación de identidad (foto DNI) falla técnicamente</td><td>Acceso</td><td class='num'>541</td><td class='num'>1.4</td><td class='num'>85.0%</td><td class='num'>83.6%</td><td>alta</td></tr><tr><td>Publicidad percibida como engañosa y exceso de notificaciones</td><td>Interfaz</td><td class='num'>142</td><td class='num'>1.52</td><td class='num'>81.6%</td><td class='num'>87.3%</td><td>media</td></tr><tr><td>App lenta o se cuelga al operar</td><td>Interfaz</td><td class='num'>631</td><td class='num'>2.71</td><td class='num'>70.2%</td><td class='num'>82.1%</td><td>alta</td></tr><tr><td>App no abre, no carga o no deja operar</td><td>Interfaz</td><td class='num'>4791</td><td class='num'>2.4</td><td class='num'>61.9%</td><td class='num'>81.2%</td><td>alta</td></tr><tr><td>Discrepancias en compras de CEDEARs y dinero retenido</td><td>Pagos</td><td class='num'>4791</td><td class='num'>2.4</td><td class='num'>61.9%</td><td class='num'>81.2%</td><td>alta</td></tr><tr><td>Soporte sin canal de atención efectivo</td><td>Soporte</td><td class='num'>3300</td><td class='num'>2.73</td><td class='num'>53.9%</td><td class='num'>81.4%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas y poco transparentes</td><td>Comisiones</td><td class='num'>182</td><td class='num'>2.69</td><td class='num'>52.6%</td><td class='num'>79.4%</td><td>media</td></tr><tr><td>Confirmaciones de uso sin problemas por años</td><td>General</td><td class='num'>142</td><td class='num'>2.84</td><td class='num'>51.0%</td><td class='num'>80.6%</td><td>baja</td></tr><tr><td>Usuarios nuevos aprendiendo a invertir</td><td>General</td><td class='num'>1343</td><td class='num'>2.91</td><td class='num'>48.7%</td><td class='num'>82.1%</td><td>baja</td></tr><tr><td>Reseñas de puntaje condicionadas a que resuelvan un problema puntual</td><td>Ruido</td><td class='num'>346</td><td class='num'>2.56</td><td class='num'>44.3%</td><td class='num'>77.5%</td><td>media</td></tr><tr><td>Comisiones altas y problemas al transferir criptomonedas</td><td>Comisiones</td><td class='num'>90</td><td class='num'>3.1</td><td class='num'>43.9%</td><td class='num'>78.2%</td><td>media</td></tr><tr><td>Faltan gráficos y herramientas de análisis técnico</td><td>Interfaz</td><td class='num'>462</td><td class='num'>3.19</td><td class='num'>38.2%</td><td class='num'>77.1%</td><td>media</td></tr><tr><td>Elogios como mejor app de inversión en Argentina</td><td>General</td><td class='num'>812</td><td class='num'>3.6</td><td class='num'>18.3%</td><td class='num'>79.7%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>3029</td><td class='num'>4.01</td><td class='num'>14.8%</td><td class='num'>83.5%</td><td>baja</td></tr><tr><td>Elogios generales a la facilidad de uso</td><td>General</td><td class='num'>1207</td><td class='num'>4.69</td><td class='num'>6.9%</td><td class='num'>76.8%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>4325</td><td class='num'>3.17</td><td class='num'>45.5%</td><td class='num'>-</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
-    -->
   </div>
 
   <footer>

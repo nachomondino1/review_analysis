@@ -187,6 +187,7 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 .split-origin { display: flex; flex-direction: column; gap: 14px; flex: 0 0 auto; }
 .split-origin-stat { text-align: center; }
 .split-origin-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.split-origin-value--small { font-size: 1.15rem; color: var(--muted); }
 .split-origin-label { color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }
 .split-branches { display: flex; flex-direction: column; gap: 10px; flex: 1 1 320px; }
 .split-branch {
@@ -206,6 +207,10 @@ table.sortable th.sorted-desc::after { content: " \25BC"; }
 .split-branch-label { color: var(--muted); font-size: 0.85rem; }
 .split-branch--text .split-branch-label strong { color: var(--warn); }
 .split-branch--notext .split-branch-label strong { color: var(--muted-soft); }
+.split-branch-bar { height: 6px; border-radius: 999px; background: var(--bg-subtle); margin-top: 6px; overflow: hidden; }
+.split-branch-bar-fill { height: 100%; border-radius: 999px; }
+.split-branch-bar-fill--text { background: var(--warn); }
+.split-branch-bar-fill--notext { background: var(--muted-soft); }
 .split-branch-sub { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
 .split-branch--text .split-branch-sub { color: var(--text); }
 .split-branch--notext .split-branch-sub { color: var(--muted-soft); font-weight: 400; }

@@ -74,23 +74,12 @@
             <div class="split-origin-value">31.046</div>
             <div class="split-origin-label">Reseñas totales</div>
           </div>
-          <div class="split-origin-stat">
-            <div class="split-origin-value">4.72★</div>
+          <div class="split-origin-stat split-origin-stat--secondary">
+            <div class="split-origin-value split-origin-value--small">4.72★</div>
             <div class="split-origin-label">Rating oficial</div>
           </div>
         </div>
         <div class="split-branches">
-          <div class="split-branch split-branch--text">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">7.753</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Con texto</strong> · 25.0% del total</div>
-              <div class="split-branch-sub">Promedio: 4.41★</div>
-            </div>
-          </div>
           <div class="split-branch split-branch--notext">
             <span class="split-arrow" aria-hidden="true">↳</span>
             <div class="split-branch-num">
@@ -99,7 +88,20 @@
             </div>
             <div class="split-branch-body">
               <div class="split-branch-label"><strong>Solo estrellas</strong> · 75.0% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--notext" style="width:75.0%"></div></div>
               <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">7.753</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Con texto</strong> · 25.0% del total</div>
+              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--text" style="width:25.0%"></div></div>
+              <div class="split-branch-sub">Promedio: 4.41★</div>
             </div>
           </div>
         </div>
@@ -121,8 +123,8 @@
     <div class="bubble-legend">
       <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
-        <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
+        <span class="bubble-legend-dot" style="background:#16a34a"></span>Positiva
+        <span class="bubble-legend-dot" style="background:#dc2626"></span>Negativa
       </span>
     </div>
     <div class="bubble-chart">
@@ -211,9 +213,9 @@
         </div>
         </div></div>
 
-    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+    <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
          ejemplos por categoría (debajo del bubble chart) — el código que arma
-         findings_html/table_rows sigue intacto, solo no se renderiza acá.
+         findings_html sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -253,6 +255,7 @@
         
       </div>
     </div>
+    -->
 
     <div class="subsection">
       <h3>¿Qué dice cada tópico en detalle?</h3>
@@ -265,15 +268,15 @@
               <th class="num" data-sort="num">N</th>
               <th class="num" data-sort="num">Rating</th>
               <th class="num" data-sort="num">% negativas</th>
+              <th class="num" data-sort="num">Confianza</th>
               <th data-sort="text">Severidad</th>
             </tr></thead>
-            <tbody><tr><td>Verificación de identidad (foto DNI/selfie) falla técnicamente</td><td>Acceso</td><td class='num'>116</td><td class='num'>1.55</td><td class='num'>85.5%</td><td>alta</td></tr><tr><td>Actualización reciente rompe el login o la sincronización</td><td>Interfaz</td><td class='num'>171</td><td class='num'>3.01</td><td class='num'>57.1%</td><td>media</td></tr><tr><td>No puede registrarse o completar el alta de cuenta</td><td>Acceso</td><td class='num'>329</td><td class='num'>2.71</td><td class='num'>54.5%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas</td><td>Comisiones</td><td class='num'>85</td><td class='num'>3.69</td><td class='num'>42.7%</td><td>media</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>420</td><td class='num'>3.69</td><td class='num'>38.9%</td><td>baja</td></tr><tr><td>Curva de aprendizaje para usuarios nuevos en inversión</td><td>Interfaz</td><td class='num'>377</td><td class='num'>3.99</td><td class='num'>26.2%</td><td>baja</td></tr><tr><td>Elogios &quot;10 puntos&quot; y buena atención</td><td>General</td><td class='num'>103</td><td class='num'>4.14</td><td class='num'>24.8%</td><td>baja</td></tr><tr><td>Pedidos de mejoras: filtros y más datos de instrumentos</td><td>Interfaz</td><td class='num'>80</td><td class='num'>4.14</td><td class='num'>23.8%</td><td>baja</td></tr><tr><td>Recomendación general de Balanz</td><td>General</td><td class='num'>198</td><td class='num'>4.15</td><td class='num'>23.7%</td><td>baja</td></tr><tr><td>Elogios a mejoras en actualizaciones recientes</td><td>Interfaz</td><td class='num'>243</td><td class='num'>3.92</td><td class='num'>21.5%</td><td>baja</td></tr><tr><td>Quejas de UX en gráficos y menú tras el rediseño</td><td>Interfaz</td><td class='num'>90</td><td class='num'>3.71</td><td class='num'>18.7%</td><td>media</td></tr><tr><td>Elogios al servicio y la experiencia en general</td><td>Soporte</td><td class='num'>382</td><td class='num'>4.41</td><td class='num'>16.3%</td><td>baja</td></tr><tr><td>La app se cierra o falla al verificar identidad (selfie/DNI)</td><td>Acceso</td><td class='num'>1506</td><td class='num'>4.34</td><td class='num'>13.7%</td><td>alta</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>74</td><td class='num'>3.92</td><td class='num'>13.5%</td><td>baja</td></tr><tr><td>Atención por WhatsApp con el asesor, valorada y pedida</td><td>Soporte</td><td class='num'>1066</td><td class='num'>4.48</td><td class='num'>13.0%</td><td>baja</td></tr><tr><td>Elogios al asesoramiento personalizado</td><td>Soporte</td><td class='num'>1212</td><td class='num'>4.51</td><td class='num'>13.0%</td><td>baja</td></tr><tr><td>Cuesta entenderla al principio</td><td>Interfaz</td><td class='num'>186</td><td class='num'>4.59</td><td class='num'>12.9%</td><td>baja</td></tr><tr><td>Elogios generales a la app de inversión</td><td>General</td><td class='num'>2062</td><td class='num'>4.38</td><td class='num'>12.9%</td><td>baja</td></tr><tr><td>Conformidad general hasta el momento, con alguna traba</td><td>General</td><td class='num'>219</td><td class='num'>4.26</td><td class='num'>12.5%</td><td>media</td></tr><tr><td>Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet</td><td>Interfaz</td><td class='num'>316</td><td class='num'>4.39</td><td class='num'>11.9%</td><td>baja</td></tr><tr><td>Elogios a la información clara y completa</td><td>General</td><td class='num'>761</td><td class='num'>4.5</td><td class='num'>10.3%</td><td>baja</td></tr><tr><td>Satisfacción como herramienta de inversión</td><td>General</td><td class='num'>588</td><td class='num'>4.58</td><td class='num'>8.6%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot;/perfecto, sin más detalle</td><td>General</td><td class='num'>670</td><td class='num'>4.47</td><td class='num'>7.0%</td><td>baja</td></tr><tr><td>Elogios como mejor broker de Argentina</td><td>General</td><td class='num'>760</td><td class='num'>4.42</td><td class='num'>6.9%</td><td>baja</td></tr><tr><td>Elogios generales, conformidad reciente</td><td>General</td><td class='num'>3482</td><td class='num'>4.67</td><td class='num'>4.9%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>1570</td><td class='num'>4.79</td><td class='num'>4.7%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>2452</td><td class='num'>4.57</td><td class='num'>4.3%</td><td>baja</td></tr><tr><td>Elogios a la agilidad e intuición de la interfaz</td><td>Interfaz</td><td class='num'>1145</td><td class='num'>4.75</td><td class='num'>2.7%</td><td>baja</td></tr><tr><td>Elogios a la confiabilidad y rapidez en general</td><td>General</td><td class='num'>890</td><td class='num'>4.81</td><td class='num'>2.0%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2487</td><td class='num'>4.28</td><td class='num'>17.6%</td><td>-</td></tr></tbody>
+            <tbody><tr><td>Verificación de identidad (foto DNI/selfie) falla técnicamente</td><td>Acceso</td><td class='num'>116</td><td class='num'>1.55</td><td class='num'>85.5%</td><td class='num'>82.7%</td><td>alta</td></tr><tr><td>Actualización reciente rompe el login o la sincronización</td><td>Interfaz</td><td class='num'>171</td><td class='num'>3.01</td><td class='num'>57.1%</td><td class='num'>81.4%</td><td>media</td></tr><tr><td>No puede registrarse o completar el alta de cuenta</td><td>Acceso</td><td class='num'>329</td><td class='num'>2.71</td><td class='num'>54.5%</td><td class='num'>80.6%</td><td>alta</td></tr><tr><td>Comisiones percibidas como altas</td><td>Comisiones</td><td class='num'>85</td><td class='num'>3.69</td><td class='num'>42.7%</td><td class='num'>78.3%</td><td>media</td></tr><tr><td>Confirmaciones de que no tuvieron problemas</td><td>General</td><td class='num'>420</td><td class='num'>3.69</td><td class='num'>38.9%</td><td class='num'>75.8%</td><td>baja</td></tr><tr><td>Curva de aprendizaje para usuarios nuevos en inversión</td><td>Interfaz</td><td class='num'>377</td><td class='num'>3.99</td><td class='num'>26.2%</td><td class='num'>79.1%</td><td>baja</td></tr><tr><td>Elogios &quot;10 puntos&quot; y buena atención</td><td>General</td><td class='num'>103</td><td class='num'>4.14</td><td class='num'>24.8%</td><td class='num'>79.4%</td><td>baja</td></tr><tr><td>Pedidos de mejoras: filtros y más datos de instrumentos</td><td>Interfaz</td><td class='num'>80</td><td class='num'>4.14</td><td class='num'>23.8%</td><td class='num'>78.1%</td><td>baja</td></tr><tr><td>Recomendación general de Balanz</td><td>General</td><td class='num'>198</td><td class='num'>4.15</td><td class='num'>23.7%</td><td class='num'>82.4%</td><td>baja</td></tr><tr><td>Elogios a mejoras en actualizaciones recientes</td><td>Interfaz</td><td class='num'>243</td><td class='num'>3.92</td><td class='num'>21.5%</td><td class='num'>79.3%</td><td>baja</td></tr><tr><td>Quejas de UX en gráficos y menú tras el rediseño</td><td>Interfaz</td><td class='num'>90</td><td class='num'>3.71</td><td class='num'>18.7%</td><td class='num'>74.6%</td><td>media</td></tr><tr><td>Elogios al servicio y la experiencia en general</td><td>Soporte</td><td class='num'>382</td><td class='num'>4.41</td><td class='num'>16.3%</td><td class='num'>86.6%</td><td>baja</td></tr><tr><td>La app se cierra o falla al verificar identidad (selfie/DNI)</td><td>Acceso</td><td class='num'>1506</td><td class='num'>4.34</td><td class='num'>13.7%</td><td class='num'>85.7%</td><td>alta</td></tr><tr><td>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;)</td><td>Ruido</td><td class='num'>74</td><td class='num'>3.92</td><td class='num'>13.5%</td><td class='num'>76.5%</td><td>baja</td></tr><tr><td>Atención por WhatsApp con el asesor, valorada y pedida</td><td>Soporte</td><td class='num'>1066</td><td class='num'>4.48</td><td class='num'>13.0%</td><td class='num'>85.5%</td><td>baja</td></tr><tr><td>Elogios al asesoramiento personalizado</td><td>Soporte</td><td class='num'>1212</td><td class='num'>4.51</td><td class='num'>13.0%</td><td class='num'>85.8%</td><td>baja</td></tr><tr><td>Cuesta entenderla al principio</td><td>Interfaz</td><td class='num'>186</td><td class='num'>4.59</td><td class='num'>12.9%</td><td class='num'>78.8%</td><td>baja</td></tr><tr><td>Elogios generales a la app de inversión</td><td>General</td><td class='num'>2062</td><td class='num'>4.38</td><td class='num'>12.9%</td><td class='num'>85.7%</td><td>baja</td></tr><tr><td>Conformidad general hasta el momento, con alguna traba</td><td>General</td><td class='num'>219</td><td class='num'>4.26</td><td class='num'>12.5%</td><td class='num'>77.9%</td><td>media</td></tr><tr><td>Elogios a la interfaz, con pedidos de modo oscuro y rotación en tablet</td><td>Interfaz</td><td class='num'>316</td><td class='num'>4.39</td><td class='num'>11.9%</td><td class='num'>85.1%</td><td>baja</td></tr><tr><td>Elogios a la información clara y completa</td><td>General</td><td class='num'>761</td><td class='num'>4.5</td><td class='num'>10.3%</td><td class='num'>80.4%</td><td>baja</td></tr><tr><td>Satisfacción como herramienta de inversión</td><td>General</td><td class='num'>588</td><td class='num'>4.58</td><td class='num'>8.6%</td><td class='num'>83.0%</td><td>baja</td></tr><tr><td>&quot;Funciona bien&quot;/perfecto, sin más detalle</td><td>General</td><td class='num'>670</td><td class='num'>4.47</td><td class='num'>7.0%</td><td class='num'>83.6%</td><td>baja</td></tr><tr><td>Elogios como mejor broker de Argentina</td><td>General</td><td class='num'>760</td><td class='num'>4.42</td><td class='num'>6.9%</td><td class='num'>81.4%</td><td>baja</td></tr><tr><td>Elogios generales, conformidad reciente</td><td>General</td><td class='num'>3482</td><td class='num'>4.67</td><td class='num'>4.9%</td><td class='num'>85.6%</td><td>baja</td></tr><tr><td>Elogios a la facilidad de uso</td><td>Interfaz</td><td class='num'>1570</td><td class='num'>4.79</td><td class='num'>4.7%</td><td class='num'>78.1%</td><td>baja</td></tr><tr><td>Elogios como mejor broker</td><td>General</td><td class='num'>2452</td><td class='num'>4.57</td><td class='num'>4.3%</td><td class='num'>86.5%</td><td>baja</td></tr><tr><td>Elogios a la agilidad e intuición de la interfaz</td><td>Interfaz</td><td class='num'>1145</td><td class='num'>4.75</td><td class='num'>2.7%</td><td class='num'>79.5%</td><td>baja</td></tr><tr><td>Elogios a la confiabilidad y rapidez en general</td><td>General</td><td class='num'>890</td><td class='num'>4.81</td><td class='num'>2.0%</td><td class='num'>79.5%</td><td>baja</td></tr><tr><td>Sin patrón claro</td><td>-</td><td class='num'>2487</td><td class='num'>4.28</td><td class='num'>17.6%</td><td class='num'>-</td><td>-</td></tr></tbody>
           </table>
         </div>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
-    -->
   </div>
 
   <footer>
