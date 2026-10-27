@@ -141,7 +141,7 @@
 
     <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
@@ -149,83 +149,114 @@
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#dc3022;font-size:14px;"
-                 title="Acceso: 2261 reseñas, 94% negativas">
-              Acceso
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-acceso">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:160px;height:160px;background:#dc3022;font-size:14px;"
+                   title="Acceso: 2261 reseñas, 94% negativas">
+                Acceso
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#dc3022;">94% negativas</div>
-          <div class="bubble-n">2261 reseñas</div>
+            <div class="bubble-pct" style="color:#dc3022;">94% negativas</div>
+            <div class="bubble-n">2261 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:151px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:151px;height:151px;background:#db4c17;font-size:14px;"
-                 title="Pagos: 1878 reseñas, 76% negativas">
-              Pagos
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-pagos">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:151px;height:151px;background:#db4c17;font-size:14px;"
+                   title="Pagos: 1878 reseñas, 76% negativas">
+                Pagos
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#db4c17;">76% negativas</div>
-          <div class="bubble-n">1878 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:129px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:129px;height:129px;background:#99851c;font-size:14px;"
-                 title="General: 1119 reseñas, 34% negativas">
-              General
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#99851c;">34% negativas</div>
-          <div class="bubble-n">1119 reseñas</div>
+            <div class="bubble-pct" style="color:#db4c17;">76% negativas</div>
+            <div class="bubble-n">1878 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:128px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:128px;height:128px;background:#d97009;font-size:14px;"
-                 title="Interfaz: 1076 reseñas, 54% negativas">
-              Interfaz
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-interfaz">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:128px;height:128px;background:#d97009;font-size:14px;"
+                   title="Interfaz: 1076 reseñas, 54% negativas">
+                Interfaz
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#d97009;">54% negativas</div>
-          <div class="bubble-n">1076 reseñas</div>
+            <div class="bubble-pct" style="color:#d97009;">54% negativas</div>
+            <div class="bubble-n">1076 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:100px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:100px;height:100px;background:#da600f;font-size:12px;"
-                 title="Comisiones: 399 reseñas, 64% negativas">
-              Comisiones
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-comisiones">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:100px;height:100px;background:#da600f;font-size:12px;"
+                   title="Comisiones: 399 reseñas, 64% negativas">
+                Comisiones
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#da600f;">64% negativas</div>
-          <div class="bubble-n">399 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:97px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:97px;height:97px;background:#d96e0a;font-size:12px;"
-                 title="Ruido: 346 reseñas, 56% negativas">
-              Ruido
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#d96e0a;">56% negativas</div>
-          <div class="bubble-n">346 reseñas</div>
+            <div class="bubble-pct" style="color:#da600f;">64% negativas</div>
+            <div class="bubble-n">399 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:78px;height:78px;background:#399b3e;font-size:10px;"
-                 title="Soporte: 99 reseñas, 9% negativas">
-              Soporte
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-soporte">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:78px;height:78px;background:#399b3e;font-size:10px;"
+                   title="Soporte: 99 reseñas, 9% negativas">
+                Soporte
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#399b3e;">9% negativas</div>
-          <div class="bubble-n">99 reseñas</div>
+            <div class="bubble-pct" style="color:#399b3e;">9% negativas</div>
+            <div class="bubble-n">99 reseñas · ver ejemplos</div>
+          </button>
         </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Acceso</dt><dd>Recuperación de 2FA vía video no funciona · La app no carga o queda colgada al ingresar · Foto de DNI cierra la app o no permite validar identidad · No se puede crear la cuenta o el login está roto · &quot;Ripio code&quot; (2FA) no llega · SMS de verificación no llega</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Dinero depositado/transferido que no se acredita, sin respuesta de soporte · Transferencias y acreditación bancaria lentas · Comisiones altas y trabas al comprar o mantener bitcoin · Compras de cripto rechazadas o reembolsos que no llegan · Satisfacción con la compra y gestión de Bitcoin · Satisfacción con la billetera, con pedidos de más monedas y notificaciones · Satisfacción usando la app para inversión y pagos</dd></div><div class="cat-explain-item"><dt>General</dt><dd>Errores genéricos, &quot;no funciona nada&quot; · Elogios generales a la app · Confirmaciones de que no tuvieron problemas · Comentarios cortos genéricamente positivos</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>No puede iniciar sesión tras actualizar · Publicidad agresiva o engañosa · Actualización rompe el login o deja botones sin funcionar · App lenta en general (carga, depósitos, retiros) · Elogios a la última actualización (con una función removida) · Elogios a la facilidad de uso</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones percibidas como muy altas · Fricciones de costo operando desde o hacia Argentina</dd></div><div class="cat-explain-item"><dt>Ruido</dt><dd>Reseñas de puntaje condicionadas (&quot;le doy X estrellas si...&quot;) · Comentarios dispersos sin un tema único</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Agradecimientos por soporte que resolvió un problema · Elogios al servicio en general</dd></div></dl></details></div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Acceso</dt><dd>Recuperación de 2FA vía video no funciona · La app no carga o queda colgada al ingresar · Foto de DNI cierra la app o no permite validar identidad · No se puede crear la cuenta o el login está roto · &quot;Ripio code&quot; (2FA) no llega · SMS de verificación no llega</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Dinero depositado/transferido que no se acredita, sin respuesta de soporte · Transferencias y acreditación bancaria lentas · Comisiones altas y trabas al comprar o mantener bitcoin · Compras de cripto rechazadas o reembolsos que no llegan · Satisfacción con la compra y gestión de Bitcoin · Satisfacción con la billetera, con pedidos de más monedas y notificaciones · Satisfacción usando la app para inversión y pagos</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>No puede iniciar sesión tras actualizar · Publicidad agresiva o engañosa · Actualización rompe el login o deja botones sin funcionar · App lenta en general (carga, depósitos, retiros) · Elogios a la última actualización (con una función removida) · Elogios a la facilidad de uso</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones percibidas como muy altas · Fricciones de costo operando desde o hacia Argentina</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Agradecimientos por soporte que resolvió un problema · Elogios al servicio en general</dd></div></dl></details><div class="category-detail-wrap">
+        <div class="category-detail" id="cat-detail-acceso" hidden>
+          <h4 class="category-detail-title">Acceso</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Muy buena solo le falta hacer recuperación de contraseña</mark></li><li><mark>Fácil de recuperar contraseña excelente soporte.</mark> Gracias éxito</li><li>Gracias por la ayuda! <mark>Ya pude ingresar a mi cuenta.</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><mark>No puedo crear mi cuenta :(</mark></li><li><mark>No puedo ingresar a la aplicación , queda en blanco o cargando todo el tiempo!!</mark></li><li><mark>No llegan los sms no puedo logearme, más allá de huella tactil, no se qué pasa</mark></li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-comisiones" hidden>
+          <h4 class="category-detail-title">Comisiones</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Ademas de cobrar comisiones carisimas te obligan a que el minimo de compra y venta sea de $1400.</mark> Bitso es mil veces mejor</li><li><mark>Aún sigo aprendiendo a usarla parece una herramienta muy versátil espero sea funcional a pesar de estar en México y que la aplicación sea de Argentina</mark></li><li><mark>Muy buena app, la mejor para operar con btc en Argentina</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>Nunca se puede entrar, se traba todo el tiempo. <mark>Las comisiones son caras.</mark> No la bajen! Busquen cualquier otra aplicación que seguro es mejor</li><li>Hace un tiempo se me frenaba en los videos selfie, ahora al PRINCIPIO!! <mark>elijo el pais (Argentina) y ahi nomas me frena, diciendome “La cuenta no puede ser creada”.</mark> <mark>Prueban las cosas antes de pasarlas a produccion???</mark></li><li>Carísimos!!! <mark>todos los movimientos que hagas aquí adentro, es una casa cara de cambio Argentina.</mark> Una Sarna!!!! Abusivos. <mark>No sirve hay que comprar por afuera y meterlas en las Wallet.</mark> Metes ARS y te comisionan la pasas a una Wallet y te culean!!!!</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-interfaz" hidden>
+          <h4 class="category-detail-title">Interfaz</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Muy intuitiva, fácil de usar, accesible!!!</mark> La uso y la recomiendo!</li><li><mark>Muy buena la actualización ultima</mark></li><li><mark>Muy buena!</mark> <mark>Fácil de usar sobre todo, estaría demasiado interesante si se pudiera comprar ADA.</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><mark>No puedo usarla por mas de 5 sec que se abre nuevamente</mark></li><li><mark>Constantes problemas con el login, actualice a la ultima versión, y no puedo pasar de la pantalla de pin o huella</mark></li><li>Actualicé ayer el ios. <mark>Hoy no puedo entrar.</mark> Se congela.</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-pagos" hidden>
+          <h4 class="category-detail-title">Pagos</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Lo mejor en cripto</mark></li><li><mark>Es una buena aplicación, fácil de usar e intuitiva.</mark> <mark>Solo le agregaría algunas opciones mas de criptos.</mark></li><li>Gracias por la devolución de el dinero , tardo 18 días pero me lo devolvieron</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>El msn llega muy tarde. Tarde horas o incluso al otro día y cuando lo ingreso me dice que no es un código válido.. <mark>A demás para ser una aplicación donde comprar y vender cambia en tiempos muy cortos no debería tardar tanto en acreditar la billetera por que eso cambia la inversión.</mark> Medió floja en eso!</li><li>Teóricamente te acreditan la plata en menos de 24 hs y van 48 hs y nada. Tengo abierto el ticket N 361739 hace un montón de tiempo y nadie se comunica. Muy mal servicio.</li><li>La primera vez que compré me cobraron la comisión y 8 mil pesos de más , mandé una consulta y todavía no me contestaron</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-soporte" hidden>
+          <h4 class="category-detail-title">Soporte</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Excelente servicio!!</mark></li><li><mark>Buen servicio muy bueno</mark></li><li>Son unos genios, me respondieron todas mis dudas, me atendieron muy bien, y son muy prolijos.</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><mark>Un solo problema y me lo solucionaron</mark></li><li><mark>Me solucionaron el inconveniente</mark></li><li>Deposite y todavía no esta reflejado.solucion?</li></ul></div>
+          </div>
+        </div>
+        </div></div>
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -285,6 +316,7 @@
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -293,6 +325,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;

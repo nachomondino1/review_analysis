@@ -1,4 +1,5 @@
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -23,6 +24,37 @@ MIN_TOPIC_SIZE_MAX_RETRIES = 4
 # Mapea la etiqueta de pysentimiento al mismo vocabulario que rating_bucket
 # (construct_data.py), para poder cruzarlas.
 SENTIMENT_TO_BUCKET = {"POS": "positiva", "NEU": "neutra", "NEG": "negativa"}
+
+
+def split_sentences(text: str) -> list[str]:
+    """
+    Partir una reseña en oraciones (por ".", "!", "?"), para poder calcular
+    sentimiento por oración en vez de por reseña entera — una reseña mixta
+    como "Los filtros son buenísimos. Pero se traba al sincronizar." no
+    debería contar entera como un solo sentimiento para el tópico que le
+    tocó (BERTopic asigna un tópico dominante por reseña, no por oración).
+    """
+    text = text.replace("\n", ". ")
+    parts = re.split(r"(?<=[.!?])\s+", text)
+    return [p.strip() for p in parts if len(p.strip()) > 2]
+
+
+def topic_pct_neg_by_sentence(df: pd.DataFrame, sent_analyzer) -> pd.Series:
+    """
+    % de negativas por tópico calculado sobre oraciones, no sobre reseñas
+    enteras: evita que una reseña con sentimiento mixto (parte elogia, parte
+    se queja) se cuente entera hacia el lado que predomina. Cada reseña
+    aporta sus propias oraciones al tópico que BERTopic ya le asignó (no se
+    reasignan oraciones a otros tópicos: esta es una mejora de precisión del
+    % negativas, no una re-categorización por aspecto — ver APRENDIZAJES.md
+    para por qué no se generalizó la versión por keywords/rubro).
+    """
+    rows = [{"topic": topic, "sentence": s}
+            for topic, text in zip(df["topic"], df["text"])
+            for s in split_sentences(text)]
+    sent_df = pd.DataFrame(rows)
+    sent_df["sentiment"] = [p.output for p in sent_analyzer.predict(sent_df["sentence"].tolist())]
+    return sent_df.groupby("topic")["sentiment"].apply(lambda s: (s == "NEG").mean())
 
 
 def min_topic_size_for(n_docs: int) -> int:
@@ -95,8 +127,8 @@ def run(paths: Paths):
 
     # Resumen por tópico (antes se calculaba y se descartaba)
     summary = (df.groupby("topic")
-       .agg(n=("text", "size"), rating=("rating", "mean"),
-            pct_neg=("sentiment", lambda s: (s == "NEG").mean()))
+       .agg(n=("text", "size"), rating=("rating", "mean"))
+       .join(topic_pct_neg_by_sentence(df, sent).rename("pct_neg"))
        .sort_values("pct_neg", ascending=False))
 
     # Agrego keywords para poder nombrar cada tópico

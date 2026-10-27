@@ -141,7 +141,7 @@
 
     <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
@@ -149,83 +149,114 @@
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#24a045;font-size:14px;"
-                 title="General: 4669 reseñas, 4% negativas">
-              General
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-interfaz">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:160px;height:160px;background:#db3d1d;font-size:14px;"
+                   title="Interfaz: 4436 reseñas, 86% negativas">
+                Interfaz
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#24a045;">4% negativas</div>
-          <div class="bubble-n">4669 reseñas</div>
-        </div>
-        
-        <div class="bubble-item" style="width:157px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:157px;height:157px;background:#db3d1d;font-size:14px;"
-                 title="Interfaz: 4436 reseñas, 86% negativas">
-              Interfaz
-            </div>
-          </div>
-          <div class="bubble-pct" style="color:#db3d1d;">86% negativas</div>
-          <div class="bubble-n">4436 reseñas</div>
+            <div class="bubble-pct" style="color:#db3d1d;">86% negativas</div>
+            <div class="bubble-n">4436 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:85px;height:85px;background:#dc3122;font-size:11px;"
-                 title="Acceso: 351 reseñas, 93% negativas">
-              Acceso
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-acceso">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:85px;height:85px;background:#dc3122;font-size:11px;"
+                   title="Acceso: 351 reseñas, 93% negativas">
+                Acceso
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#dc3122;">93% negativas</div>
-          <div class="bubble-n">351 reseñas</div>
+            <div class="bubble-pct" style="color:#dc3122;">93% negativas</div>
+            <div class="bubble-n">351 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:73px;height:73px;background:#c37c0e;font-size:10px;"
-                 title="Comisiones: 122 reseñas, 44% negativas">
-              Comisiones
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-comisiones">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:73px;height:73px;background:#c37c0e;font-size:10px;"
+                   title="Comisiones: 122 reseñas, 44% negativas">
+                Comisiones
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#c37c0e;">44% negativas</div>
-          <div class="bubble-n">122 reseñas</div>
+            <div class="bubble-pct" style="color:#c37c0e;">44% negativas</div>
+            <div class="bubble-n">122 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:73px;height:73px;background:#db4918;font-size:10px;"
-                 title="Soporte: 120 reseñas, 78% negativas">
-              Soporte
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-soporte">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:73px;height:73px;background:#db4918;font-size:10px;"
+                   title="Soporte: 120 reseñas, 78% negativas">
+                Soporte
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#db4918;">78% negativas</div>
-          <div class="bubble-n">120 reseñas</div>
+            <div class="bubble-pct" style="color:#db4918;">78% negativas</div>
+            <div class="bubble-n">120 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
         <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:71px;height:71px;background:#da5713;font-size:10px;"
-                 title="Pagos: 92 reseñas, 70% negativas">
-              Pagos
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-pagos">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:71px;height:71px;background:#da5713;font-size:10px;"
+                   title="Pagos: 92 reseñas, 70% negativas">
+                Pagos
+              </div>
             </div>
+            <div class="bubble-pct" style="color:#da5713;">70% negativas</div>
+            <div class="bubble-n">92 reseñas · ver ejemplos</div>
+          </button>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Interfaz</dt><dd>La app se tilda constantemente · Publicidad percibida como engañosa y exceso de notificaciones · Error 404/403 al ingresar · App no abre, no carga o no deja operar · App lenta o se cuelga al operar · Faltan gráficos y herramientas de análisis técnico</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>Verificación de identidad (foto DNI) falla técnicamente</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones altas y problemas al transferir criptomonedas · Comisiones percibidas como altas y poco transparentes</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Soporte sin canal de atención efectivo</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Discrepancias en compras de CEDEARs y dinero retenido</dd></div></dl></details><div class="category-detail-wrap">
+        <div class="category-detail" id="cat-detail-acceso" hidden>
+          <h4 class="category-detail-title">Acceso</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>me costo sacar la foto,pero logrado</mark></li><li><mark>costo mucho el tema de las fotos, todavía no invertí pero confío en el proceso</mark></li><li>hola como estas te mando msj por acá pq se me apago el celular quería unas kesitas unos 3d unos duritos unos krachitos y nada gracias que tengas linda noche y no te roben y que te compren cosas chau</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><mark>Es mala la calidad del software al usar la cámara, es realmente muy difícil sacar la foto correctamente con este software, y el registro se torna lento y tedioso.</mark></li><li><mark>Es una tortura validar el DNI, la cámara funciona peor que una de 1810</mark></li><li><mark>Baje la app en IOS y cuando tengo que sacar la foto al DNI para abrir cuenta se cierra la app.</mark></li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#da5713;">70% negativas</div>
-          <div class="bubble-n">92 reseñas</div>
         </div>
         
-        <div class="bubble-item" style="width:90px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:70px;height:70px;background:#95861e;font-size:10px;"
-                 title="Ruido: 86 reseñas, 33% negativas">
-              Ruido
-            </div>
+        <div class="category-detail" id="cat-detail-comisiones" hidden>
+          <h4 class="category-detail-title">Comisiones</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Excelente servicio, me gustaría que además de dólares se pudieran meter criptomonedas, sobre todo las que son estables como lo son los USDT y USDC, si agregan esa función les daría 5 estrellas.</mark></li><li><mark>Ya soy IOLer!!!, muy fácil de usar, las comisiones son muy bajas, jamás un problema de conexión, todo el.mundo bursátil en mi celu y en pocos clicks.</mark> Una cosa de locos. <mark>Nada que ver con La de B--- M-----.</mark> La recomiendo no una vez...cien veces</li><li><mark>Está muy buena y más ahora que pusieron cripto sigan asi</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li><mark>Incursionando en cripto veo que cobran mucha comisión para comprar y vender.</mark> Mejoren esto sino es un fracaso</li><li><mark>No puedo transferir mis cripto desde hace semanas .</mark></li><li><mark>Mucha comisión no avisa nada y te rompe el anubis no la recomiendo en absoluto hay mejores y más transparentes</mark></li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#95861e;">33% negativas</div>
-          <div class="bubble-n">86 reseñas</div>
         </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Elogios como mejor app de inversión en Argentina · Elogios como mejor broker · Usuarios nuevos aprendiendo a invertir · Elogios generales a la facilidad de uso · Confirmaciones de uso sin problemas por años</dd></div><div class="cat-explain-item"><dt>Interfaz</dt><dd>La app se tilda constantemente · Publicidad percibida como engañosa y exceso de notificaciones · Error 404/403 al ingresar · App no abre, no carga o no deja operar · App lenta o se cuelga al operar · Faltan gráficos y herramientas de análisis técnico</dd></div><div class="cat-explain-item"><dt>Acceso</dt><dd>Verificación de identidad (foto DNI) falla técnicamente</dd></div><div class="cat-explain-item"><dt>Comisiones</dt><dd>Comisiones altas y problemas al transferir criptomonedas · Comisiones percibidas como altas y poco transparentes</dd></div><div class="cat-explain-item"><dt>Soporte</dt><dd>Soporte sin canal de atención efectivo</dd></div><div class="cat-explain-item"><dt>Pagos</dt><dd>Discrepancias en compras de CEDEARs y dinero retenido</dd></div><div class="cat-explain-item"><dt>Ruido</dt><dd>Reseñas de puntaje condicionadas a que resuelvan un problema puntual</dd></div></dl></details></div>
+        
+        <div class="category-detail" id="cat-detail-interfaz" hidden>
+          <h4 class="category-detail-title">Interfaz</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Siempre la seguridad es lo 1 ero.</mark> <mark>Cuando me robaron el cel fueron muy amables y para recuperar me dio confianza me hicieron una video llamada y me reintegraron la cuenta junto con consejos para más seguridad</mark></li><li>Contento por la llegada de la aplicación. <mark>Pero falta pulirla.</mark> <mark>Por ejemplo los gráficos mensuales y anual no cargan.</mark> <mark>También estaría bueno que agreguen más herramientas para analizar el gráfico.</mark> No revisé pero el modo oscuro también es una buena idea.</li><li>Bueno, esperaba más. <mark>Falta mucha de funciones básicas para observar gráficos y paneles.</mark> <mark>Me quedo con la web que tiene un entorno gráfico más agradable.</mark> <mark>Funciona bien, aunque IOL tiene los recursos para mejorar este producto, que visualmente parece hecho a la apuradas</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>Lo único q se puede criticar de la aplicación a mi entender es q no se pueda ver el saldo en dólares, como te lo permiten en otras aplicaciones. <mark>Despues lo demás está muy bien!</mark></li><li>No funciona. No logro entrar.</li><li><mark>Hace días que no puedo retirar mi dinero, la app da error.</mark> Necesito urgente transferir mi plata. Vendí bitcoins y el dinero disponible no lo puedo mover de la app</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-pagos" hidden>
+          <h4 class="category-detail-title">Pagos</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li>ESTA SUPER PERO LE FALTA MUCHO POR MEJORAR</li><li>MR GUSTA ES FACIL DE USAR MUY CLARA Y SEGURA</li><li>Hasta el momento todo bien !!</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>HAY PROBLEMAS CON LAS COMPRAS DE CEDEARS; UNO COMPRA 10 Y TE APARECEN 9 POR ÚLTIMO TE PAGAN LOS DIVIDENDOS CUANDO SE LES CANTA LA GANAS.. CUANDO LLAMAS PARA RECLAMAR TE ATIENDE UNA MAQUINA Y DESPUÉS TE CORTA.. UNA VERGÜENZA IOL 🤬🤬🤬🤬🤬🤬🤬</li><li><mark>NO DEJA RETIRAR EL DINERO CON LA EXCUSA QUE ESTA PENDIENTE VERIFICAR LA CUENTA DE RETIRO.</mark> !!!</li><li><mark>Solo escribo la realidad.NO SE PUEDE CREER QUE MAS DE 50 FOTOS NO LES GUSTE NINGUNA.</mark> FUERON HORAS PERDIDAS.YA NOS HICIERON PERDER MUCHOS DIAS Y MUCHAS VIDAS.NO ME HAGAN HABLAR. <mark>SI NO ME ACEPTAN HAY OTROS QUE CON 4 FOTOS ME ACEPTARON.</mark> <mark>Viva la libertad de expresion viva la patria.BASTA DE ACAMPAR EN AVENIDAS .LA POBREZA SE SOLUCIONA NO ROBANDO.BASTA DE ÑOQUIS Y ACOMODADOS QUE NO VAN A TRABAJAR ETC MUCHO MAS ORDEN EN LAS CALLES.MEJOR Y MAS RAPIDA ATENCION EN HOSPITALES .BASTA DE ACOMODADOS .ETC....</mark></li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-soporte" hidden>
+          <h4 class="category-detail-title">Soporte</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li><mark>Es la única con un número telefónico donde te atiende un ser humano y te orienta .</mark> Fundamental</li><li><mark>por el momento, todo bien, sin problemas.gracias,Solo quisiera un teléfono para poder hablar con una persona .</mark></li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>No existe la herramienta caución en dólares, llevo días tratadNdo de pasar por el bot de respuestas automáticas al cual le deberían ampliar la cantidad de respuestas por defecto, muy mal servicio</li><li><mark>El telefono no funciona y Si no les decis que vas a hacer una denuncia el chat ni contestan.</mark> Desastre</li><li>No tiene donde recibir algun tipo de atención para reclamos</li></ul></div>
+          </div>
+        </div>
+        </div></div>
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -285,6 +316,7 @@
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -293,6 +325,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;

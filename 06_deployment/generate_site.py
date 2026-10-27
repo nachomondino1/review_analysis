@@ -241,6 +241,9 @@ def build_summary_stats(reviews: pd.DataFrame) -> dict:
     }
 
 
+CATEGORIES_EXCLUDED_FROM_BUBBLES = {"General", "Ruido"}
+
+
 def build_categories(summary: pd.DataFrame) -> list[dict]:
     """
     Agrupa los tópicos (no outlier) en sus categorías de una palabra, asignadas
@@ -248,11 +251,17 @@ def build_categories(summary: pd.DataFrame) -> list[dict]:
     topics_enrich.py) — no hay una cantidad fija de categorías: la raíz
     cuadrada del número de tópicos es solo una guía orientativa de cuántos
     grupos tienen sentido, no una regla que el código fuerce.
+
+    "General" y "Ruido" quedan afuera del bubble chart: no son un área
+    funcional del producto (que es lo que el chart compara), sino "opinión
+    sin apuntar a algo puntual" y "sin contenido interpretable" — mezclarlas
+    con Acceso/Pagos/etc. no ayuda a decidir dónde actuar.
     """
     if "category" not in summary.columns:
         return []
     real = summary[~summary["is_outlier"]].copy()
     real = real[real["category"].notna() & (real["category"] != "")]
+    real = real[~real["category"].isin(CATEGORIES_EXCLUDED_FROM_BUBBLES)]
     if real.empty:
         return []
 
@@ -296,7 +305,93 @@ def build_category_topics(summary: pd.DataFrame) -> dict[str, list[str]]:
     }
 
 
-def render_categories_html(categories: list[dict], category_topics: dict[str, list[str]] | None = None) -> str:
+SAMPLES_PER_BUBBLE = 3
+
+
+def category_slug(category: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", category.lower()).strip("-")
+
+
+def split_sentences_simple(text: str) -> list[str]:
+    """Split liviano para resaltar — ver split_sentences en analyze_sentiment_topics.py (misma idea, duplicado
+    a propósito: generate_site.py no importa del paso de modelado)."""
+    text = text.replace("\n", ". ")
+    parts = re.split(r"(?<=[.!?])\s+", text)
+    return [p.strip() for p in parts if len(p.strip()) > 2]
+
+
+def topic_keywords(name: str) -> list[str]:
+    """'5_no_deja_me_registrarme' -> ['no','deja','me','registrarme'] (saca el índice numérico inicial)."""
+    if not isinstance(name, str):
+        return []
+    parts = name.split("_")[1:]
+    return [p for p in parts if len(p) > 2]
+
+
+def highlight_relevant_sentence(text: str, keywords: list[str]) -> str:
+    """
+    Resalta la primera oración de la reseña que menciona alguna keyword del
+    tópico — una reseña puede hablar de varios temas (ver findings de
+    my-board-game-collection), así que mostrarla entera sin marcar dónde
+    habla de ESTA categoría obliga a releerla entera para encontrar la parte
+    relevante.
+    """
+    sentences = split_sentences_simple(text)
+    if not sentences:
+        return esc(text)
+    low_kws = [k.lower() for k in keywords]
+    out = []
+    for s in sentences:
+        low = s.lower()
+        if any(re.search(rf"\b{re.escape(k)}", low) for k in low_kws):
+            out.append(f"<mark>{esc(s)}</mark>")
+        else:
+            out.append(esc(s))
+    return " ".join(out)
+
+
+def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame) -> str:
+    """
+    Panel oculto por categoría (debajo del bubble chart, no en la burbuja
+    misma): al hacer click en una burbuja, JS muestra el panel de esa
+    categoría y hace scroll hasta acá. Separa ejemplos en positivas/negativas
+    y resalta, dentro de cada reseña, la oración que efectivamente habla de
+    la categoría (puede ser una reseña con varios temas mezclados).
+    """
+    if "category" not in summary.columns:
+        return ""
+    real = summary[~summary["is_outlier"]].copy()
+    real = real[real["category"].notna() & (real["category"] != "")]
+    real = real[~real["category"].isin(CATEGORIES_EXCLUDED_FROM_BUBBLES)]
+    if real.empty:
+        return ""
+
+    panels = []
+    for category, group in real.groupby("category"):
+        cat_reviews = reviews[reviews["topic"].isin(group["topic"])]
+        keywords = [kw for name in group["Name"].dropna() for kw in topic_keywords(name)]
+
+        def render_side(label: str, sentiment: str, css: str) -> str:
+            sub = cat_reviews[cat_reviews["sentiment"] == sentiment]["text"].dropna().head(SAMPLES_PER_BUBBLE)
+            if sub.empty:
+                return f'<div class="cat-detail-col"><h4 class="cat-detail-col-title {css}">{label}</h4><p class="empty">Sin ejemplos.</p></div>'
+            items = "".join(f"<li>{highlight_relevant_sentence(t, keywords)}</li>" for t in sub)
+            return f'<div class="cat-detail-col"><h4 class="cat-detail-col-title {css}">{label}</h4><ul class="cat-detail-list">{items}</ul></div>'
+
+        panels.append(f'''
+        <div class="category-detail" id="cat-detail-{category_slug(category)}" hidden>
+          <h4 class="category-detail-title">{esc(category)}</h4>
+          <div class="cat-detail-cols">
+            {render_side("👍 Positivas", "POS", "cat-detail-col-title--pos")}
+            {render_side("👎 Negativas", "NEG", "cat-detail-col-title--neg")}
+          </div>
+        </div>
+        ''')
+    return "".join(panels)
+
+
+def render_categories_html(categories: list[dict], category_topics: dict[str, list[str]] | None = None,
+                            category_detail_html: str = "") -> str:
     if not categories:
         return ""
     max_n = max(c["n"] for c in categories)
@@ -308,21 +403,24 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
         pct_round = round(c["pct_neg"])
         font_size = max(10, min(14, round(size / 8)))
         item_width = max(size, 90)
+        slug = category_slug(c["category"])
         bubbles.append(f'''
         <div class="bubble-item" style="width:{item_width}px;">
-          <div class="bubble-slot" style="height:{BUBBLE_MAX_PX}px;">
-            <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
-                 title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
-              {esc(c["category"])}
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-{slug}">
+            <div class="bubble-slot" style="height:{BUBBLE_MAX_PX}px;">
+              <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
+                   title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
+                {esc(c["category"])}
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
-          <div class="bubble-n">{c["n"]} reseñas</div>
+            <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
+            <div class="bubble-n">{c["n"]} reseñas · ver ejemplos</div>
+          </button>
         </div>
         ''')
     legend = f'''
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Más negativas
@@ -349,7 +447,9 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
         f'<div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>'
         f'{legend}'
         f'<div class="bubble-chart">{"".join(bubbles)}</div>'
-        f'{explain}</div>'
+        f'{explain}'
+        f'<div class="category-detail-wrap">{category_detail_html}</div>'
+        f'</div>'
     )
 
 
@@ -598,6 +698,9 @@ TEMPLATE = """<!doctype html>
 
     {categories_section}
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -624,6 +727,7 @@ TEMPLATE = """<!doctype html>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -632,6 +736,26 @@ TEMPLATE = """<!doctype html>
 </div>
 <script>
 (function () {{
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {{
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {{
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {{
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      }});
+      if (!open) {{
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({{behavior: reduceMotion ? "auto" : "smooth", block: "start"}});
+      }}
+    }});
+  }});
   document.querySelectorAll("table.sortable").forEach(function (table) {{
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;
@@ -677,7 +801,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     avg_rating_text = round(float(reviews["rating"].mean()), 2) if reviews is not None and not reviews.empty else None
     composition_html = build_composition_bar(official, stats["total_n"], avg_rating_text, ios_cap_note)
     categories = build_categories(summary)
-    categories_section = render_categories_html(categories, build_category_topics(summary))
+    categories_section = render_categories_html(categories, build_category_topics(summary), build_category_detail_sections(summary, reviews))
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
 

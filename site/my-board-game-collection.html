@@ -119,7 +119,7 @@
 
     <div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>
     <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas</span>
+      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
       <span class="bubble-legend-scale">
         <span class="bubble-legend-dot" style="background:#16a34a"></span>Menos negativas
         <span class="bubble-legend-dot" style="background:#dc2626"></span>Más negativas
@@ -127,72 +127,114 @@
     </div>
     <div class="bubble-chart">
         <div class="bubble-item" style="width:160px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:160px;height:160px;background:#479839;font-size:14px;"
-                 title="General: 16 reseñas, 12% negativas">
-              General
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-sincronizaci-n-y-datos">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:160px;height:160px;background:#ac8116;font-size:14px;"
+                   title="Sincronización y datos: 11 reseñas, 38% negativas">
+                Sincronización y datos
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#479839;">12% negativas</div>
-          <div class="bubble-n">16 reseñas</div>
+            <div class="bubble-pct" style="color:#ac8116;">38% negativas</div>
+            <div class="bubble-n">11 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:142px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:142px;height:142px;background:#ac8116;font-size:14px;"
-                 title="Sincronización y datos: 11 reseñas, 38% negativas">
-              Sincronización y datos
+        <div class="bubble-item" style="width:145px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-funcionalidad">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:145px;height:145px;background:#728e2a;font-size:14px;"
+                   title="Funcionalidad: 8 reseñas, 24% negativas">
+                Funcionalidad
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#ac8116;">38% negativas</div>
-          <div class="bubble-n">11 reseñas</div>
+            <div class="bubble-pct" style="color:#728e2a;">24% negativas</div>
+            <div class="bubble-n">8 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:130px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:130px;height:130px;background:#728e2a;font-size:14px;"
-                 title="Funcionalidad: 8 reseñas, 24% negativas">
-              Funcionalidad
+        <div class="bubble-item" style="width:133px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-estabilidad">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:133px;height:133px;background:#da670c;font-size:14px;"
+                   title="Estabilidad: 6 reseñas, 60% negativas">
+                Estabilidad
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#728e2a;">24% negativas</div>
-          <div class="bubble-n">8 reseñas</div>
+            <div class="bubble-pct" style="color:#da670c;">60% negativas</div>
+            <div class="bubble-n">6 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:120px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:120px;height:120px;background:#da670c;font-size:14px;"
-                 title="Estabilidad: 6 reseñas, 60% negativas">
-              Estabilidad
+        <div class="bubble-item" style="width:110px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-cuenta">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:110px;height:110px;background:#dc2626;font-size:14px;"
+                   title="Cuenta: 3 reseñas, 100% negativas">
+                Cuenta
+              </div>
             </div>
-          </div>
-          <div class="bubble-pct" style="color:#da670c;">60% negativas</div>
-          <div class="bubble-n">6 reseñas</div>
+            <div class="bubble-pct" style="color:#dc2626;">100% negativas</div>
+            <div class="bubble-n">3 reseñas · ver ejemplos</div>
+          </button>
         </div>
         
-        <div class="bubble-item" style="width:101px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:101px;height:101px;background:#dc2626;font-size:13px;"
-                 title="Cuenta: 3 reseñas, 100% negativas">
-              Cuenta
+        <div class="bubble-item" style="width:110px;">
+          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-localizaci-n">
+            <div class="bubble-slot" style="height:160px;">
+              <div class="bubble" style="width:110px;height:110px;background:#98861d;font-size:14px;"
+                   title="Localización: 3 reseñas, 33% negativas">
+                Localización
+              </div>
             </div>
+            <div class="bubble-pct" style="color:#98861d;">33% negativas</div>
+            <div class="bubble-n">3 reseñas · ver ejemplos</div>
+          </button>
+        </div>
+        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>Sincronización y datos</dt><dd>La sincronización con BoardGameGeek falla y borra la colección</dd></div><div class="cat-explain-item"><dt>Funcionalidad</dt><dd>Pedidos de funciones: bitácora de partidas, escaneo, portadas reales</dd></div><div class="cat-explain-item"><dt>Estabilidad</dt><dd>Se traba y la publicidad interrumpe el uso</dd></div><div class="cat-explain-item"><dt>Cuenta</dt><dd>No se puede crear cuenta ni iniciar sesión</dd></div><div class="cat-explain-item"><dt>Localización</dt><dd>Falta traducción al español</dd></div></dl></details><div class="category-detail-wrap">
+        <div class="category-detail" id="cat-detail-cuenta" hidden>
+          <h4 class="category-detail-title">Cuenta</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><p class="empty">Sin ejemplos.</p></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>I just got the app, several of our board game friends downloaded it too… The feature of sharing our board game collections with one another was a peak interest, but we are unable to create user ID’s… When I type a user ID in the box the letters do not appear; the cursor moves across the box but nothing happens… If I try to share my collection the text message doesn’t have a link and the user ID doesn’t show up either… not sure where the glitch is at but other than this I am excited to get to use it.</li><li>No está mal la app, pero intento registrarme y loguearme y no es posible.</li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#dc2626;">100% negativas</div>
-          <div class="bubble-n">3 reseñas</div>
         </div>
         
-        <div class="bubble-item" style="width:101px;">
-          <div class="bubble-slot" style="height:160px;">
-            <div class="bubble" style="width:101px;height:101px;background:#98861d;font-size:13px;"
-                 title="Localización: 3 reseñas, 33% negativas">
-              Localización
-            </div>
+        <div class="category-detail" id="cat-detail-estabilidad" hidden>
+          <h4 class="category-detail-title">Estabilidad</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li>Se agradece que hayan corregido los bugs que tenía la aplicación. Ahora funciona mucho mejor y permite copias de seguridad de las colecciones.</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>I used to love this app. I could keep track of all my games and play sessions. But since all of the adds it freezes kicks me out and wont let me add my sessions. Also no chance to go add free. Was 5 stars before the adds but had to drop it down since. Wouldn’t mind if it was board game adds to find out about games i might not have heard about and i understand the need for them for whoever made the app but …</li></ul></div>
           </div>
-          <div class="bubble-pct" style="color:#98861d;">33% negativas</div>
-          <div class="bubble-n">3 reseñas</div>
         </div>
-        </div><details class="cat-explain"><summary>Qué incluye cada categoría</summary><dl><div class="cat-explain-item"><dt>General</dt><dd>Satisfacción general con la organización de la colección</dd></div><div class="cat-explain-item"><dt>Sincronización y datos</dt><dd>La sincronización con BoardGameGeek falla y borra la colección</dd></div><div class="cat-explain-item"><dt>Funcionalidad</dt><dd>Pedidos de funciones: bitácora de partidas, escaneo, portadas reales</dd></div><div class="cat-explain-item"><dt>Estabilidad</dt><dd>Se traba y la publicidad interrumpe el uso</dd></div><div class="cat-explain-item"><dt>Cuenta</dt><dd>No se puede crear cuenta ni iniciar sesión</dd></div><div class="cat-explain-item"><dt>Localización</dt><dd>Falta traducción al español</dd></div></dl></details></div>
+        
+        <div class="category-detail" id="cat-detail-funcionalidad" hidden>
+          <h4 class="category-detail-title">Funcionalidad</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li>This is a really handy tool to collect, organize, and display your boRd game collection. The interface with other tools such as YouTube and BoardGameGeek are fantastic.. I’d love some quality of life (QoL) changes though: •The major one is the ability to collapse or otherwise nest game expansions and promos within the base game. For some games like Hero Realms or Terraforming Mars there are a dozen expansions, all of which take up very valuable screen space, and make scrolling through a collection painful. Yes it’s important to see these expansions, but not all the time. (This is the one keeping me from rating the app 5 stars.). • Currently the app doesn’t adjust text size with the device, or have a manual slider. I’d like to see smaller text, as some games have long names, and some folks have good eyes.</li><li>Buena app para tener tus listas de juegos por diferentes criterios Muy util la opcion de elegir un juego random Creo q falta mejorar los dados y poner diferentes colores y poder tirar varios a la vez</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>I find this app nearly perfect but needs some improvements.. When I click on a game entry, I expect to see the cover of what I’m searching for instead of user photos pulled from BGG. That would make filling out my collection less confusing and frustrating.. The barcode scanner is practically useless and I had to manually search for EVERYTHING to put it in my collection.. Fix this and it’s a perfect app for me.</li><li>I have no idea how to comment on a game even after signing in ????!</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-localizaci-n" hidden>
+          <h4 class="category-detail-title">Localización</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li>Muy buena. Me gustaría que estuviera en español, y ya las 5 estrellas !</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>Antes le dí 5 estrellas, desde la última actualización, ha empeorado. Ya no está en Español, y el menú es menos intuitivo..</li></ul></div>
+          </div>
+        </div>
+        
+        <div class="category-detail" id="cat-detail-sincronizaci-n-y-datos" hidden>
+          <h4 class="category-detail-title">Sincronización y datos</h4>
+          <div class="cat-detail-cols">
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--pos">👍 Positivas</h4><ul class="cat-detail-list"><li>Filter options are awesome. Love the randomizer too. <mark>However, too many games crash the app when being added to list AND sync with BGG doesn’t work.</mark> Good enough to work around though.</li></ul></div>
+            <div class="cat-detail-col"><h4 class="cat-detail-col-title cat-detail-col-title--neg">👎 Negativas</h4><ul class="cat-detail-list"><li>Been using this app for a few months since I started collecting board games in January 2021. <mark>Once I attempted to log in to backup my data via cloud sync my lists are completely gone.</mark> Major Bummer but can always redo. Little timid to restart on this app with the full wipe I just experienced.</li><li><mark>I love the search tools and even paid for the premium to remove ads but I am unable to get the app to sync with my collection.</mark> It does 6 games in the Zs and crashes/stops.</li><li>Con errores y bugs. <mark>Al poco tiempo borra los datos que incorporas, así que puedes hacer la lista de tu colección de juegos varias veces o hasta que te canses, porque no servirá de nada.</mark> A mi me lo ha hecho 3 veces. Tampoco permite compartirla con varios dispositivos (supongo que por un error de programación). Una pena</li></ul></div>
+          </div>
+        </div>
+        </div></div>
 
+    <!-- Temporalmente ocultas a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html/table_rows sigue intacto, solo no se renderiza acá.
     <div class="subsection">
       <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
@@ -252,6 +294,7 @@
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
+    -->
   </div>
 
   <footer>
@@ -260,6 +303,26 @@
 </div>
 <script>
 (function () {
+  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  bubbleButtons.forEach(function (btn) {
+    var targetId = btn.getAttribute("data-target");
+    var panel = targetId && document.getElementById(targetId);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      bubbleButtons.forEach(function (b) {
+        b.setAttribute("aria-expanded", "false");
+        var p = document.getElementById(b.getAttribute("data-target"));
+        if (p) p.setAttribute("hidden", "");
+      });
+      if (!open) {
+        btn.setAttribute("aria-expanded", "true");
+        panel.removeAttribute("hidden");
+        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
+      }
+    });
+  });
   document.querySelectorAll("table.sortable").forEach(function (table) {
     var tbody = table.tBodies[0];
     var headers = table.tHead.rows[0].cells;
