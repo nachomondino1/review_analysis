@@ -1,3 +1,3 @@
 # 05 — Deployment
 
-`dashboard.py` lee los outputs de `04_modeling` y genera un único HTML autocontenido en `site/<empresa>.html` para compartir.
+`generate_site.py` lee los outputs de `04_modeling` y genera `site/<empresa>.html` para compartir, con los datos embebidos y los estilos en `site/css/` (`components/base.css` + `pages/empresa.css`, compartidos por todas las empresas).

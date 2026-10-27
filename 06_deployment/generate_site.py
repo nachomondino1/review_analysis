@@ -1,8 +1,11 @@
 """
-Genera un único HTML autocontenido con el análisis de una empresa, para
-compartir por link/archivo (sin backend, sin build step).
+Genera el HTML con el análisis de una empresa, para compartir por link
+(sin backend, sin build step). Los datos quedan embebidos en el HTML; los
+estilos viven en site/css/components/base.css (compartido) + site/css/pages/empresa.css
+(propio de esta página) — un cambio de diseño compartido no implica regenerar
+los HTML de todas las empresas.
 
-Uso: python 06_deployment/dashboard.py --name <empresa>
+Uso: python 06_deployment/generate_site.py --name <empresa>
 Lee los outputs de 04_modeling; escribe site/<empresa>.html
 y regenera index.html en la raíz del repo con el listado de empresas
 (para que GitHub Pages lo muestre como home del dominio).
@@ -19,7 +22,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "02_data_understanding" / "collect_initial_data"))
 from config import Paths, ROOT  # noqa: E402
-import companies  # noqa: E402
+import companies_registry as companies  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
@@ -82,13 +85,18 @@ def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str
     )
 
 
-def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str = "") -> str:
+def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: float | None, ios_cap_note: str = "") -> str:
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
-    bien grande y visual, para que el % de negativas de más abajo no se lea
-    como si describiera a todos los usuarios, sino solo a esta porción, y
-    para que quede clarísimo cuál de las dos es la que se analiza después.
+    como un split visual (total + rating oficial -> dos ramas con flecha),
+    no una barra + números sueltos. El número grande de cada rama es la
+    CANTIDAD de reseñas (no el %), para mantener la misma unidad que el
+    "reseñas totales" del origen — el % queda como dato secundario en el
+    label. La rama "con texto" muestra además su rating promedio (★, misma
+    unidad que el rating oficial, para comparar de un vistazo sin traducir
+    mentalmente un % a estrellas); la rama "sin texto" no tiene texto ni
+    rating propio que mostrar y lo dice explícito en vez de omitirlo.
     """
     if not official or not official.get("count"):
         return ""
@@ -99,23 +107,45 @@ def build_composition_bar(official: dict | None, total_n: int, ios_cap_note: str
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
+    neg_sub = f'<div class="split-branch-sub">Promedio: {avg_rating_text}★</div>' if avg_rating_text is not None else ""
 
     return f'''
     <div class="composition">
-      <p class="composition-intro">De las <strong>{total_official_fmt} reseñas</strong>, algunas tienen texto y otras no:</p>
-      <div class="composition-stats">
-        <div class="comp-stat comp-stat--text">
-          <div class="comp-pct">{pct_text}%</div>
-          <div class="comp-label">📝 Con texto ({total_n_fmt} reseñas)</div>
+      <div class="split-flow">
+        <div class="split-origin">
+          <div class="split-origin-stat">
+            <div class="split-origin-value">{total_official_fmt}</div>
+            <div class="split-origin-label">Reseñas totales</div>
+          </div>
+          <div class="split-origin-stat">
+            <div class="split-origin-value">{official["score"]}★</div>
+            <div class="split-origin-label">Rating oficial</div>
+          </div>
         </div>
-        <div class="comp-stat comp-stat--notext">
-          <div class="comp-pct">{pct_no_text}%</div>
-          <div class="comp-label">⭐ Solo estrellas ({n_no_text_fmt} reseñas)</div>
+        <div class="split-branches">
+          <div class="split-branch split-branch--text">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">{total_n_fmt}</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Con texto</strong> · {pct_text}% del total</div>
+              {neg_sub}
+            </div>
+          </div>
+          <div class="split-branch split-branch--notext">
+            <span class="split-arrow" aria-hidden="true">↳</span>
+            <div class="split-branch-num">
+              <div class="split-branch-value">{n_no_text_fmt}</div>
+              <div class="split-branch-unit">reseñas</div>
+            </div>
+            <div class="split-branch-body">
+              <div class="split-branch-label"><strong>Solo estrellas</strong> · {pct_no_text}% del total</div>
+              <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="composition-bar">
-        <div class="composition-fill composition-fill--text" style="width:{pct_text}%"></div>
-        <div class="composition-fill composition-fill--notext" style="width:{pct_no_text}%"></div>
       </div>
       <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
       {ios_cap_note}
@@ -154,7 +184,7 @@ def build_version_breakout_section(paths: Paths) -> str:
 def build_competitor_section(official: dict | None, empresa_display: str, competitor_name: str) -> str:
     """
     Compara el rating oficial de la empresa contra un competidor puntual
-    (ids ya cargados en common/companies.csv). Es trabajo específico para
+    (ids ya cargados en data/companies.csv). Es trabajo específico para
     esta empresa, no reciclable al toque para otra: justamente por eso sirve
     como evidencia de que el análisis no es una plantilla mandada a todos.
     """
@@ -309,7 +339,7 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
                 f'<dl>{"".join(items)}</dl></details>'
             )
     return (
-        f'<div class="subsection"><h3>Por categoría</h3>'
+        f'<div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>'
         f'{legend}'
         f'<div class="bubble-chart">{"".join(bubbles)}</div>'
         f'{explain}</div>'
@@ -347,13 +377,68 @@ MIN_SAMPLE_FOR_COMPARISON = 5  # con menos reseñas, el % no es confiable para c
 TREND_THRESHOLD_PTS = 3  # diferencia de puntos porcentuales para no llamarlo "estable"
 
 
+def build_sparkline_svg(months: list[str], monthly_pct_neg: list[float], trend_class: str,
+                         recent_from_month: str, historical_avg: float) -> str:
+    """
+    12 puntos (o los que haya) de % negativas por mes, en el tono de
+    "de-énfasis" (--muted-soft), con eje Y (min/max del rango) y eje X
+    (primer/último mes) explícitos — un gráfico sin ejes no se puede leer,
+    solo "intuir". Dos marcas extra para que el gráfico no "contradiga" al
+    chip de arriba: el chip compara el promedio de los ÚLTIMOS N MESES
+    contra TODO el histórico (años), no mes a mes — sin esto, un mes
+    puntual subiendo al final del gráfico parece desmentir un chip que dice
+    "mejorando" cuando en realidad comparan ventanas distintas. Entonces:
+    (1) los puntos dentro de la ventana "últimos N meses" se marcan en el
+    color de la tendencia, el resto en gris; (2) una línea punteada marca
+    el promedio histórico, para comparar el nivel actual contra esa
+    referencia en vez de contra el mes inmediato anterior.
+    """
+    if len(monthly_pct_neg) < 2:
+        return ""
+    w, h, pad = 260, 48, 6
+    values_with_ref = monthly_pct_neg + [historical_avg]
+    lo, hi = min(values_with_ref), max(values_with_ref)
+    span = (hi - lo) or 1  # evita división por cero si todos los meses dan igual
+    n = len(monthly_pct_neg)
+    xs = [pad + i * (w - 2 * pad) / (n - 1) for i in range(n)]
+    ys = [pad + (h - 2 * pad) * (1 - (v - lo) / span) for v in monthly_pct_neg]
+    path = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f},{y:.1f}" for i, (x, y) in enumerate(zip(xs, ys)))
+    ref_y = pad + (h - 2 * pad) * (1 - (historical_avg - lo) / span)
+    trend_color = {"trend-good": "var(--good)", "trend-bad": "var(--bad)", "trend-flat": "var(--muted)"}[trend_class]
+
+    recent_dots = "".join(
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{4 if i == n - 1 else 3}" fill="{trend_color}" stroke="var(--surface)" stroke-width="2" />'
+        for i, (x, y, m) in enumerate(zip(xs, ys, months)) if m >= recent_from_month
+    )
+
+    def month_label(m: str) -> str:
+        year, month = m.split("-")
+        return f"{month}/{year[2:]}"
+
+    return f'''
+    <div class="sparkline-chart">
+      <div class="sparkline-caption"><span>% negativas por mes</span><span class="sparkline-legend"><span class="sparkline-legend-dot" style="background:{trend_color}"></span>últimos {month_label(recent_from_month)}–{month_label(months[-1])}<span class="sparkline-legend-dash"></span>promedio histórico</span></div>
+      <div class="sparkline-row">
+        <div class="sparkline-yaxis"><span>{hi:.1f}%</span><span>{lo:.1f}%</span></div>
+        <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de {month_label(months[0])} a {month_label(months[-1])}; promedio histórico {historical_avg}%">
+          <line x1="{pad}" y1="{ref_y:.1f}" x2="{w - pad}" y2="{ref_y:.1f}" stroke="var(--muted-soft)" stroke-width="1" stroke-dasharray="3,3" />
+          <path d="{path}" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+          {recent_dots}
+        </svg>
+      </div>
+      <div class="sparkline-xaxis"><span>{month_label(months[0])}</span><span>{month_label(months[-1])}</span></div>
+    </div>
+    '''
+
+
 def build_recency_comparison(reviews: pd.DataFrame) -> str:
     """
-    Responde "¿cómo vienen las reseñas últimamente respecto de siempre?" de
-    forma directa: últimos N meses vs. histórico completo, con un chip que dice
-    explícitamente si mejoró o empeoró (en vez de un gráfico de línea donde
-    "sube" es ambiguo — ¿sube el % de negativas, que es malo, o sube el
-    rating, que es bueno? — confuso incluso con eje bien etiquetado).
+    Responde "¿cómo vienen las reseñas últimamente respecto de siempre?" con
+    UN solo número titular (% negativas de los últimos N meses) + el delta
+    contra el histórico + un sparkline de la tendencia mensual — en vez de 4
+    números sueltos en 2 cards. El sparkline grafica una sola métrica
+    (% negativas) de punta a punta, así "sube" tiene un solo significado
+    posible (nunca mezcla con rating, que subiría por motivos opuestos).
     """
     if reviews is None or reviews.empty or "date" not in reviews.columns:
         return ""
@@ -375,27 +460,29 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     delta = recent_s["pct_neg"] - all_s["pct_neg"]  # positivo = empeoró (más % negativas)
 
     if delta <= -TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-good", f"Mejorando: {abs(delta):.1f} puntos porcentuales menos reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-good", f"{abs(delta):.1f} puntos menos que el histórico ({all_s['pct_neg']}%)"
     elif delta >= TREND_THRESHOLD_PTS:
-        trend_class, trend_label = "trend-bad", f"Empeorando: {delta:.1f} puntos porcentuales más reseñas negativas que el histórico"
+        trend_class, trend_label = "trend-bad", f"{delta:.1f} puntos más que el histórico ({all_s['pct_neg']}%)"
     else:
-        trend_class, trend_label = "trend-flat", "Estable respecto del histórico"
+        trend_class, trend_label = "trend-flat", f"Estable respecto del histórico ({all_s['pct_neg']}%)"
+
+    monthly = (reviews.assign(_neg=(reviews["sentiment"] == "NEG"))
+               .groupby("month")["_neg"].mean().mul(100).round(1))
+    monthly = monthly.sort_index().tail(12)
+    sparkline_html = build_sparkline_svg(
+        monthly.index.tolist(), monthly.tolist(), trend_class,
+        recent_from_month=cutoff.strftime("%Y-%m"), historical_avg=all_s["pct_neg"],
+    )
 
     return f'''
-    <div class="recency-grid">
-      <div class="recency-card">
-        <div class="recency-label">Histórico completo</div>
-        <div class="recency-value">{all_s["rating"]}★</div>
-        <div class="recency-sub">{all_s["pct_neg"]}% negativas · {all_s["n"]} reseñas</div>
+    <div class="trend-tile">
+      <div class="trend-tile-main">
+        <div class="recency-label">Negativas, últimos {RECENT_MONTHS} meses ({recent_s["n"]} reseñas)</div>
+        <div class="recency-value">{recent_s["pct_neg"]}%</div>
+        <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
       </div>
-      <div class="recency-arrow">vs.</div>
-      <div class="recency-card">
-        <div class="recency-label">Últimos {RECENT_MONTHS} meses</div>
-        <div class="recency-value">{recent_s["rating"]}★</div>
-        <div class="recency-sub">{recent_s["pct_neg"]}% negativas · {recent_s["n"]} reseñas</div>
-      </div>
+      {sparkline_html}
     </div>
-    <div class="trend-banner {trend_class}">{esc(trend_label)}</div>
     '''
 
 
@@ -459,220 +546,8 @@ TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<style>
-:root {{
-  --bg: #fafaf8;
-  --bg-subtle: #f2f1ed;
-  --surface: #ffffff;
-  --text: #1a1a17;
-  --muted: #6f6d67;
-  --muted-soft: #a19e96;
-  --border: #e4e2dc;
-  --border-soft: #ecebe6;
-  --accent: #2f6f62;
-  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
-  --accent-contrast: #ffffff;
-  --good: #16a34a; --warn: #d97706; --bad: #dc2626; --info: #3f5c8a;
-  --goal-bg: var(--accent);
-  --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
-  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
-  --shadow-sm: 0 1px 3px rgba(20,19,15,.06), 0 1px 2px rgba(20,19,15,.04);
-  --shadow-lg: 0 18px 32px -10px rgba(20,19,15,.16), 0 4px 10px rgba(20,19,15,.06);
-}}
-@media (prefers-color-scheme: dark) {{
-  :root {{
-    --bg: #0f1218; --bg-subtle: #1a202b; --surface: #181e29;
-    --text: #e6e8ec; --muted: #9aa3b2; --muted-soft: #6b7585;
-    --border: #2a3342; --border-soft: #212836;
-    --accent: #4f9686; --info: #5ac8fa; --goal-bg: #2f6f62;
-    --shadow-xs: 0 1px 2px rgba(0,0,0,.4);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.45);
-    --shadow-lg: 0 18px 32px -10px rgba(0,0,0,.6);
-  }}
-}}
-* {{ box-sizing: border-box; }}
-body {{
-  margin: 0; background: var(--bg); color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
-}}
-.container {{ max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }}
-@media (max-width: 640px) {{ .container {{ padding: 16px 16px 48px; }} }}
-header.page-head {{
-  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(14px); border-bottom: 1px solid var(--border-soft);
-  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
-}}
-@media (max-width: 640px) {{ header.page-head {{ padding: 12px 16px; }} }}
-header.page-head h1 {{ font-size: 1.1rem; font-weight: 700; margin: 0; }}
-header.page-head .sub {{ color: var(--muted); font-size: 0.8rem; }}
-h3 {{ font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }}
-.goal-banner {{
-  background: var(--goal-bg); color: var(--accent-contrast); border-radius: var(--radius-lg);
-  padding: 26px 28px; margin-top: 0; box-shadow: var(--shadow-lg);
-}}
-.goal-badge {{
-  display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
-  background: rgba(255,255,255,0.16); padding: 5px 12px; border-radius: 999px; margin-bottom: 16px;
-}}
-.goal-main {{ display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }}
-.goal-left {{ flex: 1 1 320px; }}
-.goal-eyebrow {{
-  font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; opacity: 0.85; margin-bottom: 6px;
-}}
-.goal-question {{
-  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;
-}}
-@media (max-width: 640px) {{ .goal-question {{ font-size: 1.3rem; }} }}
-.goal-hero {{
-  flex: 0 0 auto; background: rgba(255,255,255,0.14); border-radius: var(--radius);
-  padding: 14px 24px; text-align: center; min-width: 150px;
-}}
-.goal-hero-value {{ font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }}
-.goal-hero-label {{ font-size: 0.72rem; font-weight: 700; margin-top: 6px; opacity: 0.85; line-height: 1.3; }}
-.goal-steps {{
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin-top: 20px;
-}}
-.goal-step {{
-  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700;
-  background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px;
-}}
-.goal-step-icon {{ font-size: 0.9rem; }}
-.goal-step-arrow {{ opacity: 0.55; font-weight: 700; }}
-.goal-urgent-row {{ display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }}
-.goal-urgent {{
-  display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; flex: 1 1 260px;
-  background: var(--surface); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow-sm);
-}}
-.goal-urgent-icon {{ font-size: 1.1rem; flex-shrink: 0; line-height: 1.4; }}
-.goal-urgent-label {{
-  font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--bad);
-}}
-.goal-urgent-name {{ font-weight: 700; font-size: 0.92rem; margin-top: 2px; }}
-.goal-urgent-meta {{ font-size: 0.78rem; color: var(--muted); margin-top: 2px; }}
-.part {{
-  margin-top: 40px; padding: 28px; border: 1px solid var(--border-soft); border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
-}}
-.part:first-child {{ margin-top: 0; }}
-.part--store {{ border-top: 4px solid var(--info); }}
-.part--text {{ border-top: 4px solid var(--warn); }}
-.part-title .kw {{ font-weight: 800; }}
-.part--store .kw {{ color: var(--info); }}
-.part--text .kw {{ color: var(--warn); }}
-.part-eyebrow {{
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--muted-soft);
-}}
-.part-title {{ font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 20px; }}
-.part-scope {{ color: var(--muted); font-size: 0.85rem; margin: -8px 0 20px; }}
-.subsection {{ margin-top: 32px; }}
-.stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px; margin-top: 16px; }}
-.stat-card {{
-  background: var(--surface); border: 1px solid var(--border-soft);
-  border-radius: var(--radius); box-shadow: var(--shadow-xs); padding: 16px;
-}}
-.stat-card .value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }}
-.stat-card .label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-top: 4px; }}
-.bubble-legend {{
-  display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted);
-}}
-.bubble-legend-scale {{ display: flex; align-items: center; gap: 6px; }}
-.bubble-legend-dot {{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; }}
-.bubble-legend-dot + .bubble-legend-dot {{ margin-left: 10px; }}
-.bubble-chart {{
-  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
-  gap: 20px 16px; padding: 8px 0 4px;
-}}
-.bubble-item {{ display: flex; flex-direction: column; align-items: center; }}
-.bubble-slot {{ display: flex; align-items: flex-end; justify-content: center; }}
-.bubble {{
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 800; box-shadow: var(--shadow-sm); flex-shrink: 0;
-  text-align: center; line-height: 1.15; padding: 10%; box-sizing: border-box;
-  overflow-wrap: break-word; word-break: break-word;
-}}
-.bubble-pct {{ font-weight: 700; font-size: 0.82rem; margin-top: 8px; text-align: center; }}
-.bubble-n {{ color: var(--muted); font-size: 0.72rem; margin-top: 2px; text-align: center; }}
-.cat-explain {{ margin-top: 20px; font-size: 0.85rem; }}
-.cat-explain summary {{
-  cursor: pointer; font-weight: 700; color: var(--muted); user-select: none;
-}}
-.cat-explain summary:hover {{ color: var(--text); }}
-.cat-explain dl {{ margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }}
-.cat-explain-item dt {{ font-weight: 700; font-size: 0.82rem; }}
-.cat-explain-item dd {{ margin: 2px 0 0; color: var(--muted); line-height: 1.5; }}
-.findings-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }}
-.finding-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 18px;
-}}
-.finding-head {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }}
-.finding-head h3 {{ font-size: 1rem; font-weight: 700; margin: 0; }}
-.finding-meta {{ color: var(--muted); font-size: 0.78rem; margin: 6px 0 10px; }}
-.recommendation {{ background: var(--bg-subtle); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }}
-.samples {{ list-style: none; padding: 0; margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; }}
-.samples li {{ padding: 6px 0; border-top: 1px dashed var(--border-soft); }}
-.chip {{
-  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem;
-  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
-}}
-.sev-alta {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
-.sev-media {{ background: color-mix(in srgb, var(--warn) 17%, transparent); color: var(--warn); }}
-.sev-baja {{ background: var(--bg-subtle); color: var(--muted); }}
-.chip-category {{ background: var(--accent-soft); color: var(--accent); margin-right: 8px; }}
-.recency-grid {{ display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }}
-.recency-card {{
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 16px 20px; flex: 1; min-width: 150px;
-}}
-.recency-label {{ color: var(--muted-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }}
-.recency-value {{ font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }}
-.recency-sub {{ color: var(--muted); font-size: 0.8rem; margin-top: 4px; }}
-.recency-arrow {{ color: var(--muted-soft); font-weight: 700; font-size: 0.85rem; flex: 0 0 auto; }}
-.trend-banner {{
-  margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm);
-  font-weight: 700; font-size: 0.85rem; white-space: normal; max-width: 100%;
-}}
-.trend-good {{ background: color-mix(in srgb, var(--good) 17%, transparent); color: var(--good); }}
-.trend-bad {{ background: color-mix(in srgb, var(--bad) 17%, transparent); color: var(--bad); }}
-.trend-flat {{ background: var(--bg-subtle); color: var(--muted); }}
-details.detail-table {{ margin-top: 8px; }}
-details.detail-table summary {{ cursor: pointer; font-weight: 600; padding: 8px 0; }}
-.table-scroll {{ overflow-x: auto; margin-top: 8px; }}
-table {{ width: 100%; min-width: 420px; border-collapse: collapse; font-size: 0.85rem; }}
-th {{ background: var(--bg-subtle); text-transform: uppercase; font-size: 0.68rem; color: var(--muted); text-align: left; padding: 8px 10px; }}
-td {{ padding: 8px 10px; border-top: 1px solid var(--border-soft); }}
-td.num, th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
-table.sortable th[data-sort] {{ cursor: pointer; user-select: none; white-space: nowrap; }}
-table.sortable th[data-sort]:hover {{ color: var(--text); }}
-table.sortable th.sorted-asc::after {{ content: " \\25B2"; }}
-table.sortable th.sorted-desc::after {{ content: " \\25BC"; }}
-.table-hint {{ color: var(--muted-soft); font-size: 0.72rem; margin-top: 6px; }}
-footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }}
-.empty {{ color: var(--muted); text-align: center; padding: 24px; }}
-.methodology-note {{ color: var(--muted); font-size: 0.8rem; margin-top: 12px; }}
-.composition {{ margin-top: 20px; }}
-.composition-intro {{ font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }}
-.composition-stats {{ display: flex; flex-wrap: wrap; gap: 24px; }}
-.comp-stat {{ flex: 1 1 160px; }}
-.comp-pct {{ font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }}
-.comp-stat--text .comp-pct {{ color: var(--warn); }}
-.comp-stat--notext .comp-pct {{ color: var(--muted-soft); }}
-.comp-label {{ font-size: 0.8rem; color: var(--muted); margin-top: 2px; }}
-.composition-bar {{
-  display: flex; height: 22px; border-radius: 999px; overflow: hidden; margin-top: 12px;
-  border: 1px solid var(--border-soft);
-}}
-.composition-fill {{ height: 100%; }}
-.composition-fill--text {{ background: var(--warn); }}
-.composition-fill--notext {{ background: var(--border-soft); }}
-.composition-callout {{
-  margin-top: 14px; padding: 12px 16px; border-radius: var(--radius);
-  background: color-mix(in srgb, var(--warn) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent);
-  font-size: 0.85rem; color: var(--text);
-}}
-</style>
+<link rel="stylesheet" href="css/components/base.css">
+<link rel="stylesheet" href="css/pages/empresa.css">
 </head>
 <body>
 <header class="page-head">
@@ -690,10 +565,6 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
         <div class="goal-eyebrow">{empresa} en Google Play y App Store</div>
         <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
       </div>
-      <div class="goal-hero">
-        <div class="goal-hero-value">{official_rating}</div>
-        <div class="goal-hero-label">Rating oficial<br>({official_count})</div>
-      </div>
     </div>
     <div class="goal-steps">
       <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
@@ -707,36 +578,28 @@ footer {{ margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--borde
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
-    <h2 class="part-title">Resumen de <span class="kw">todas</span> las reseñas</h2>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">{official_count_num}</div><div class="label">Reseñas totales en las tiendas</div></div>
-      <div class="stat-card"><div class="value">{official_rating}</div><div class="label">Rating oficial de las tiendas ({official_count})</div></div>
-    </div>
+    <h2 class="part-title">¿Qué dicen <span class="kw">todas</span> las calificaciones de la tienda?</h2>
     {composition_html}
     {competitor_section}
   </div>
 
   <div class="part part--text">
     <div class="part-eyebrow">Parte 2</div>
-    <h2 class="part-title">Análisis de reseñas <span class="kw">que tienen texto</span></h2>
+    <h2 class="part-title">¿Qué dicen las reseñas <span class="kw">que tienen texto</span>?</h2>
     <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="value">{total_n_fmt}</div><div class="label">Reseñas totales con texto analizadas</div></div>
-      <div class="stat-card"><div class="value">{pct_neg}%</div><div class="label">Negativas sobre {total_n_fmt} reseñas con texto</div></div>
-    </div>
     <div class="subsection">{trend_html}</div>
 
     {categories_section}
 
     <div class="subsection">
-      <h3>Top 3 tópicos</h3>
+      <h3>¿Cuáles son los problemas más urgentes?</h3>
       <div class="findings-grid">
         {findings_html}
       </div>
     </div>
 
     <div class="subsection">
-      <h3>Detalle completo por tópico</h3>
+      <h3>¿Qué dice cada tópico en detalle?</h3>
       <details class="detail-table">
         <summary>Ver los {n_topics} tópicos detectados</summary>
         <div class="table-scroll">
@@ -804,7 +667,8 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     ios_cap_note = build_ios_cap_note(reviews, store_ratings)
-    composition_html = build_composition_bar(official, stats["total_n"], ios_cap_note)
+    avg_rating_text = round(float(reviews["rating"].mean()), 2) if reviews is not None and not reviews.empty else None
+    composition_html = build_composition_bar(official, stats["total_n"], avg_rating_text, ios_cap_note)
     categories = build_categories(summary)
     categories_section = render_categories_html(categories, build_category_topics(summary))
     findings = build_findings(summary, reviews)
@@ -837,21 +701,13 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     breakout_html = build_version_breakout_section(paths)
     recency_html = build_recency_comparison(reviews)
     trend_body = breakout_html or recency_html
-    trend_note = ""
-    if not breakout_html and recency_html and official:
-        trend_note = (
-            f'<p class="methodology-note">El histórico completo es más bajo que el {official["score"]}★ '
-            f'analizado antes, puesto que las opiniones que tienen texto por su naturaleza '
-            f'<strong>tienden a ser más negativas</strong> que el promedio general — quien solo puntúa con '
-            f'estrellas casi nunca escribe para elogiar.</p>'
-        )
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}{trend_note}' if trend_body else ""
+    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
-        f'<div class="subsection"><h3>Comparado con la competencia</h3>{competitor_html}</div>' if competitor_html else ""
+        f'<div class="subsection"><h3>¿Cómo comparás con la competencia?</h3>{competitor_html}</div>' if competitor_html else ""
     )
 
     return TEMPLATE.format(
@@ -859,7 +715,6 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
-        official_count_num=f'{official["count"]:,}'.replace(",", ".") if official else "N/D",
         total_n=stats["total_n"],
         total_n_fmt=f'{stats["total_n"]:,}'.replace(",", "."),
         pct_neg=stats["pct_neg"],
@@ -892,28 +747,10 @@ INDEX_TEMPLATE = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<style>
-:root {{
-  --bg: #fafaf8; --surface: #ffffff; --text: #1a1a17; --muted: #6f6d67;
-  --border-soft: #ecebe6; --accent: #2f6f62; --radius: 12px;
-  --shadow-xs: 0 1px 2px rgba(20,19,15,.05);
-}}
-@media (prefers-color-scheme: dark) {{
-  :root {{ --bg: #0f1218; --surface: #181e29; --text: #e6e8ec; --muted: #9aa3b2; --border-soft: #212836; --accent: #4f9686; }}
-}}
-* {{ box-sizing: border-box; }}
-body {{ margin: 0; background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.55; }}
-.container {{ max-width: 640px; margin: 0 auto; padding: 32px 24px 64px; }}
-h1 {{ font-size: 1.3rem; font-weight: 800; }}
-ul {{ list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }}
-a.company-link {{
-  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
-}}
-a.company-link:hover {{ border-color: var(--accent); }}
-</style>
+<link rel="stylesheet" href="site/css/components/base.css">
+<link rel="stylesheet" href="site/css/pages/index.css">
 </head>
-<body>
+<body class="index-page">
 <div class="container">
   <h1>📊 Análisis de reseñas</h1>
   <ul>
@@ -943,10 +780,10 @@ def build_index(site_dir: Path, root: Path):
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Genera el HTML autocontenido para compartir el análisis.")
+    p = argparse.ArgumentParser(description="Genera el HTML para compartir el análisis (estilos en site/css/, compartidos entre empresas).")
     p.add_argument("--name", required=True, help="Nombre de la empresa/app (debe coincidir con el usado en las fases previas)")
     p.add_argument("--display-name", default=None, help="Nombre a mostrar en la web (default: --name tal cual)")
-    p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en common/companies.csv, para comparar rating oficial")
+    p.add_argument("--competitor", default=None, help="Nombre de un competidor ya cargado en data/companies.csv, para comparar rating oficial")
     return p.parse_args()
 
 

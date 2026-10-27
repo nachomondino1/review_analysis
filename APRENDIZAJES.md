@@ -69,7 +69,7 @@ con los tópicos reales, ordenado solo por `% negativas`. Podía aparecer
 entre los primeros puestos sin ser un hallazgo real.
 
 **Cómo lo resolvimos:** se marca explícitamente con `is_outlier=True` en
-`03_modeling/model.py`, se excluye de los hallazgos del dashboard y del
+`03_modeling/analyze_sentiment_topics.py`, se excluye de los hallazgos del dashboard y del
 nombrado con LLM, y se muestra aparte en la tabla de detalle como "Sin
 patrón claro".
 
@@ -91,7 +91,7 @@ tenía quejas bien claras y repetidas (la app es un simple link a una web que
 además anda mal).
 
 **Cómo lo resolvimos:** `min_topic_size` ahora se calcula con
-`min_topic_size_for(n_docs)` en `03_modeling/model.py` — escala con el
+`min_topic_size_for(n_docs)` en `03_modeling/analyze_sentiment_topics.py` — escala con el
 tamaño del corpus (`n_docs // 10`), con un piso de 5 para no generar tópicos
 de 2-3 reseñas sin sentido. Con ese cambio, Beelup formó 2 tópicos reales
 sobre 70 de las 74 reseñas.
@@ -183,7 +183,7 @@ texto".
 
 ### 2026-10-20 — GitHub Pages "clásico" no sirve carpetas anidadas
 
-**Qué pasó:** `dashboard.py` escribía en `05_deployment/site/`, y las URLs
+**Qué pasó:** `generate_site.py` escribía en `05_deployment/site/`, y las URLs
 públicas quedaban con ese prefijo completo
 (`.../05_deployment/site/ripio.html`) — incómodo para compartir.
 
@@ -198,7 +198,7 @@ cualquier carpeta como raíz del sitio.
 preferencia declarada por la simplicidad, se eligió mover la carpeta
 generada a `site/` en la raíz del repo (un solo cambio en `config.py`) en
 vez de agregar un workflow de Actions. El código del generador
-(`dashboard.py`) se queda en `05_deployment/`; solo cambia dónde aterriza
+(`generate_site.py`) se queda en `05_deployment/`; solo cambia dónde aterriza
 el archivo que genera.
 
 **Lección generalizable:** separar "dónde vive el código que genera algo"
@@ -318,7 +318,7 @@ problema de login, solo separados porque HDBSCAN los veía como clusters
 distintos en el espacio de embeddings.
 
 **Cómo lo resolvimos:** se agregó `nr_topics="auto"` a la construcción de
-`BERTopic` en `03_modeling/model.py`. Es un mecanismo nativo de la
+`BERTopic` en `03_modeling/analyze_sentiment_topics.py`. Es un mecanismo nativo de la
 librería: después de clusterizar, fusiona los tópicos cuya representación
 de palabras clave (c-TF-IDF) es más parecida entre sí, de forma iterativa,
 hasta que no quede ningún par "demasiado similar". No hay que elegir un
@@ -404,7 +404,7 @@ calibrado contra 1-2 casos previos no generaliza a una empresa con más
 líneas de producto. Subir `min_topic_size` a mano por empresa (como se
 hizo una vez con Ripio) no escala: hay que probarlo cada vez.
 
-**Cómo lo resolvimos:** en `04_modeling/model.py`, después de fitear
+**Cómo lo resolvimos:** en `04_modeling/analyze_sentiment_topics.py`, después de fitear
 BERTopic con el `min_topic_size` calculado, si el resultado supera
 `MAX_TOPICS=30` tópicos no-outlier, se duplica `min_topic_size` y se
 reintenta (hasta `MIN_TOPIC_SIZE_MAX_RETRIES=4` veces). Con Lemon Cash,
@@ -452,7 +452,7 @@ texto ilegible, rating condicionado sin desarrollar). Se recategorizaron
 a mano los tópicos ya nombrados de las 5 empresas con este criterio
 (incluida la corrección de Belo/Ripio de arriba) y se regeneraron
 `topics_summary.csv` y los sitios con `topics_enrich.py merge` +
-`dashboard.py`.
+`generate_site.py`.
 
 **Lección generalizable:** un bucket catch-all ("Otros", "Varios",
 "General") suele estar mezclando dos preguntas distintas sin que nadie lo
@@ -494,7 +494,7 @@ casi-duplicados sin fusionar (ver sus propias recomendaciones: "consolidar
 con el tópico 17/18/10/15/21") — "auto" tampoco fusionaba lo que sí
 debía.
 
-**Cómo lo resolvimos:** en `04_modeling/model.py`, se reemplazó
+**Cómo lo resolvimos:** en `04_modeling/analyze_sentiment_topics.py`, se reemplazó
 `nr_topics="auto"` por una reducción controlada: ajustar sin fusión, y
 solo si el resultado natural supera `MAX_TOPICS` (30), reducir con
 `reduce_topics(nr_topics=MAX_TOPICS)` — un objetivo explícito, no una
