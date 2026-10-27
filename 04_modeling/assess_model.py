@@ -56,6 +56,10 @@ def assess_one(name: str) -> dict:
     real = summary[~summary["is_outlier"]] if "is_outlier" in summary.columns else summary.iloc[0:0]
     row["n_topicos_total"] = len(summary)
     row["n_topicos_reales"] = len(real)
+    row["n_resenas"] = (
+        int(pd.read_parquet(paths.reviews_enriched_parquet, columns=["review_id"]).shape[0])
+        if paths.reviews_enriched_parquet.exists() else None
+    )
 
     if "category" in summary.columns:
         cats = sorted(c for c in real["category"].dropna().unique() if c)
@@ -101,6 +105,7 @@ def print_assessment(row: dict):
         return
 
     print(f"\n### {name}")
+    print(f"  Reseñas con texto analizadas: {row['n_resenas']}")
     print(f"  Tópicos: {row['n_topicos_reales']} reales ({row['n_topicos_total']} total con outlier)")
     print(f"  Categorías ({row['n_categorias']}): {row['categorias']}")
     if row["n_oraciones"] is not None:
@@ -144,7 +149,8 @@ def build_markdown(rows: list[dict]) -> str:
     ok_rows = [r for r in rows if r.get("estado") == "ok"]
     if ok_rows:
         lines.append(markdown_table(ok_rows, [
-            ("empresa", "Empresa"), ("n_topicos_reales", "Tópicos"), ("n_categorias", "Categorías"),
+            ("empresa", "Empresa"), ("n_resenas", "Reseñas"), ("n_topicos_reales", "Tópicos"),
+            ("n_categorias", "N° categorías"), ("categorias", "Categorías"),
             ("n_oraciones", "Oraciones"), ("pct_con_categoria", "% con categoría"),
             ("confianza_prom", "Confianza prom."), ("pct_negativas", "% negativas"),
         ]))
