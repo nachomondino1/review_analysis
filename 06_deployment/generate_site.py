@@ -84,15 +84,17 @@ def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str
     )
 
 
-def build_composition_bar(official: dict | None, total_n: int, pct_neg_text: float | None, ios_cap_note: str = "") -> str:
+def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: float | None, ios_cap_note: str = "") -> str:
     """
     De todas las calificaciones de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
     como un split visual (total -> dos ramas con flecha), no una barra +
-    números sueltos. La rama "con texto" ya trae ahí mismo su % de
-    negativas (el dato que antes se repetía en una card aparte más abajo);
-    la rama "sin texto" no puede traerlo — no hay texto que analizar — y lo
-    dice explícito en vez de omitirlo en silencio.
+    números sueltos. La rama "con texto" muestra ahí mismo su rating
+    promedio (★, misma unidad que el "rating oficial" del banner de arriba,
+    para comparar de un vistazo sin tener que mentalmente traducir un % de
+    negativas a estrellas) en vez del % de negativas; la rama "sin texto"
+    no tiene ni texto ni rating propio que mostrar — no son reseñas que este
+    análisis haya podido leer — y lo dice explícito en vez de omitirlo.
     """
     if not official or not official.get("count"):
         return ""
@@ -103,7 +105,7 @@ def build_composition_bar(official: dict | None, total_n: int, pct_neg_text: flo
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
-    neg_sub = f'<div class="split-branch-sub">{pct_neg_text}% negativas</div>' if pct_neg_text is not None else ""
+    neg_sub = f'<div class="split-branch-sub">Promedio: {avg_rating_text}★</div>' if avg_rating_text is not None else ""
 
     return f'''
     <div class="composition">
@@ -622,7 +624,8 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     stats = build_summary_stats(summary)
     official = build_official_rating(store_ratings)
     ios_cap_note = build_ios_cap_note(reviews, store_ratings)
-    composition_html = build_composition_bar(official, stats["total_n"], stats["pct_neg"], ios_cap_note)
+    avg_rating_text = round(float(reviews["rating"].mean()), 2) if reviews is not None and not reviews.empty else None
+    composition_html = build_composition_bar(official, stats["total_n"], avg_rating_text, ios_cap_note)
     categories = build_categories(summary)
     categories_section = render_categories_html(categories, build_category_topics(summary))
     findings = build_findings(summary, reviews)
