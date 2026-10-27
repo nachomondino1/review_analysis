@@ -49,11 +49,11 @@ class Paths:
 
         # 04_modeling se divide en dos carpetas según qué pregunta responden:
         # topics/ = "de qué hablan las reseñas y qué tan grave es cada tema"
-        # (analyze_sentiment_topics.py -> refine_topic_sentiment.py ->
-        # topics_enrich.py export/merge, en ese orden); trends/ = "cómo viene
+        # (01_analyze_sentiment_topics.py -> 02_refine_topic_sentiment.py ->
+        # 03_topics_enrich.py export/merge, en ese orden); trends/ = "cómo viene
         # cambiando en el tiempo" (trends.py, version_breakout.py — ambos
         # opcionales y leen reviews_enriched.parquet, no dependen de
-        # topics_enrich.py). Ningún otro criterio de corte (por tipo de
+        # 03_topics_enrich.py). Ningún otro criterio de corte (por tipo de
         # archivo, por fecha) separa tan bien "qué" de "cuándo".
         self.topics_dir = self.modeling_dir / "topics"
         self.trends_dir = self.modeling_dir / "trends"
@@ -63,7 +63,7 @@ class Paths:
         self.topics_summary_csv = self.topics_dir / "topics_summary.csv"
         self.topic_samples_json = self.topics_dir / "topic_samples.json"
         self.topics_named_json = self.topics_dir / "topics_named.json"
-        self.review_audit_csv = self.topics_dir / "review_audit.csv"  # para QA manual (ver export_review_audit.py), una fila por oración
+        self.review_audit_csv = self.topics_dir / "review_audit.csv"  # para QA manual (ver 05_export_review_audit.py), una fila por oración
         self.review_audit_stats_json = self.topics_dir / "review_audit_stats.json"  # cobertura de categorización, mismo script
 
         self.sentiment_by_month_csv = self.trends_dir / "sentiment_by_month.csv"

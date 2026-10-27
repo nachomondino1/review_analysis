@@ -1,7 +1,7 @@
 """
 Tendencia temporal de sentimiento y comparación App Store vs Google Play.
 
-Uso: python 04_modeling/trends.py --name <empresa>
+Uso: python 04_modeling/trends/trends.py --name <empresa>
 Genera:
   - data/<empresa>/04_modeling/sentiment_by_month.csv   (mes, store, n, pct_neg, avg_rating)
   - data/<empresa>/04_modeling/store_comparison.csv      (store, n, avg_rating, pct_neg)
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 

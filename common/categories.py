@@ -1,5 +1,5 @@
 """
-Taxonomías de categorías para agrupar tópicos (ver topics_enrich.py).
+Taxonomías de categorías para agrupar tópicos (ver 03_topics_enrich.py).
 
 Un solo eje: "¿qué área funcional del producto está en juego en este
 tópico?" — no mezclar con otros ejes (severidad, sentimiento, volumen: esos

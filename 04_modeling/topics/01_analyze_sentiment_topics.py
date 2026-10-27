@@ -10,7 +10,7 @@ from pysentimiento import create_analyzer
 from bertopic import BERTopic
 from sentence_transformers import SentenceTransformer
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 OUTLIER_TOPIC = -1  # BERTopic: reseñas sin patrón claro, no es un tópico real
@@ -94,7 +94,7 @@ def run(paths: Paths):
     df["topic"] = topics
 
     # Resumen por tópico (antes se calculaba y se descartaba). pct_neg acá es
-    # rápido y por reseña entera; 04_modeling/refine_topic_sentiment.py lo
+    # rápido y por reseña entera; 04_modeling/topics/02_refine_topic_sentiment.py lo
     # refina después a nivel oración sin tener que re-clusterizar (ver su
     # docstring para por qué eso importa).
     summary = (df.groupby("topic")

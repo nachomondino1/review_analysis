@@ -158,7 +158,7 @@ STORE_LABEL = {"ios": "App Store", "android": "Google Play"}
 
 def build_version_breakout_section(paths: Paths) -> str:
     """
-    Si 04_modeling/version_breakout.py encontró un quiebre real (ver ese
+    Si 04_modeling/trends/version_breakout.py encontró un quiebre real (ver ese
     script para la metodología), lo muestra como un hecho concreto y citable
     ("se rompió en la v5.45.0, no 'empeoró este trimestre'") — más difícil de
     replicar al toque que un resumen genérico, porque exige cruzar sentimiento
@@ -248,7 +248,7 @@ def build_categories(summary: pd.DataFrame) -> list[dict]:
     """
     Agrupa los tópicos (no outlier) en sus categorías de una palabra, asignadas
     a mano en topics_named.json junto con el resto del enriquecimiento (ver
-    topics_enrich.py) — no hay una cantidad fija de categorías: la raíz
+    03_topics_enrich.py) — no hay una cantidad fija de categorías: la raíz
     cuadrada del número de tópicos es solo una guía orientativa de cuántos
     grupos tienen sentido, no una regla que el código fuerce.
 
@@ -313,7 +313,7 @@ def category_slug(category: str) -> str:
 
 
 def split_sentences_simple(text: str) -> list[str]:
-    """Split liviano para resaltar — ver split_sentences en analyze_sentiment_topics.py (misma idea, duplicado
+    """Split liviano para resaltar — ver split_sentences en 01_analyze_sentiment_topics.py (misma idea, duplicado
     a propósito: generate_site.py no importa del paso de modelado)."""
     text = text.replace("\n", ". ")
     parts = re.split(r"(?<=[.!?])\s+", text)

@@ -1,32 +1,38 @@
 """
 Exporta una tabla (CSV) con una fila por ORACIÓN/split de cada reseña — no
 una fila por reseña — para poder chequear a ojo si el modelo clasifica bien
-a nivel de detalle real: texto de la oración, categoría que le detectó y
-sentimiento de esa oración. "review_id" identifica a qué reseña pertenece
-cada oración, para poder agrupar y ver cómo quedó partida una reseña
-puntual.
+a nivel de detalle real: texto de la oración, tópico y categoría que le
+detectó, y sentimiento de esa oración. "review_id" identifica a qué reseña
+pertenece cada oración, para poder agrupar y ver cómo quedó partida una
+reseña puntual.
 
-Cada oración se compara contra las keywords de TODAS las categorías de la
-empresa, no solo la del tópico que le tocó a su reseña: una reseña puede
-hablar de varios temas (ver topics_named.json), y restringir la búsqueda a
-la categoría dominante de la reseña entera dejaba casi todo sin clasificar.
+BERTopic (01_analyze_sentiment_topics.py) se corre UNA sola vez por empresa
+para descubrir qué tópicos existen y sus keywords (c-TF-IDF); de ahí en
+adelante, la clasificación real de cada oración —a tópico y a categoría— es
+por keywords, no por el "topic" que BERTopic le asignó a la reseña entera.
+Evita dos problemas: (1) una reseña puede hablar de varios temas, así que
+restringir la búsqueda al tópico dominante de la reseña entera dejaba casi
+todo sin clasificar; (2) re-correr BERTopic para refrescar nunca hace falta
+— es determinístico y no pisa los nombres ya curados (ver APRENDIZAJES.md,
+caso belo, y el docstring de 02_refine_topic_sentiment.py).
 
-Si una oración menciona más de una categoría, se emite una fila por cada
-una (no se concatenan en una sola celda) — más fácil de filtrar/pivotear
-en una planilla. Si no menciona ninguna, la fila queda con category vacío.
+Cada oración se compara contra las keywords de TODOS los tópicos de la
+empresa. Si menciona más de uno, se emite una fila por cada uno (no se
+concatenan en una sola celda) — más fácil de filtrar/pivotear en una
+planilla. Si no menciona ninguno, la fila queda con topic/category vacíos.
 
 No modifica ningún dato de la empresa (reviews_enriched.parquet,
 topics_summary.csv): solo lee y arma una tabla aparte. Pensado para correr
-después de refine_topic_sentiment.py y topics_enrich.py merge (necesita la
+después de 02_refine_topic_sentiment.py y 03_topics_enrich.py merge (necesita la
 categoría y las keywords de cada tópico ya asignadas).
 
 Al final imprime y guarda la cobertura de categorización (cuántas oraciones
-quedaron SIN ninguna categoría asignada y la confianza promedio del
-modelo) — un % de sin-categoría alto es la señal de que las keywords por
-categoría de esta empresa están incompletas, no de que las reseñas no
-hablen de nada puntual.
+quedaron SIN ningún tópico asignado y la confianza promedio del modelo) —
+un % de sin-categoría alto es la señal de que las keywords por tópico de
+esta empresa están incompletas, no de que las reseñas no hablen de nada
+puntual.
 
-Uso: python 04_modeling/export_review_audit.py --name <empresa>
+Uso: python 04_modeling/topics/05_export_review_audit.py --name <empresa>
 Escribe data/<empresa>/04_modeling/topics/review_audit.csv
 y data/<empresa>/04_modeling/topics/review_audit_stats.json
 """
@@ -42,7 +48,7 @@ load_dotenv()
 import pandas as pd
 from pysentimiento import create_analyzer
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 
@@ -59,9 +65,9 @@ def topic_keywords(name: str) -> list[str]:
     return [p for p in name.split("_")[1:] if len(p) > 2]
 
 
-def matching_categories(sentence: str, keywords_by_category: dict[str, list[str]]) -> list[str]:
+def matching_topics(sentence: str, keywords_by_topic: dict) -> list:
     low = sentence.lower()
-    return [cat for cat, kws in keywords_by_category.items()
+    return [topic for topic, kws in keywords_by_topic.items()
             if any(re.search(rf"\b{re.escape(kw.lower())}", low) for kw in kws)]
 
 
@@ -69,23 +75,22 @@ def run(paths: Paths):
     df = pd.read_parquet(paths.reviews_enriched_parquet)
     summary = pd.read_csv(paths.topics_summary_csv)
     if "category" not in summary.columns:
-        raise SystemExit("topics_summary.csv no tiene tópicos nombrados todavía — correr topics_enrich.py merge primero.")
+        raise SystemExit("topics_summary.csv no tiene tópicos nombrados todavía — correr 03_topics_enrich.py merge primero.")
 
-    # Keywords de TODAS las categorías de la empresa (unión de las keywords de
-    # cada tópico que cae en esa categoría), para poder buscarlas en cualquier
-    # oración sin importar de qué reseña venga.
-    keywords_by_category: dict[str, list[str]] = {}
-    for _, row in summary.iterrows():
-        if not row["category"]:
-            continue
-        keywords_by_category.setdefault(row["category"], []).extend(topic_keywords(row["Name"]))
+    # Keywords por TÓPICO (no por categoría): dos tópicos de la misma
+    # categoría (ej. "Foto de DNI no valida" y "SMS no llega", ambos en
+    # Acceso) tienen que poder distinguirse entre sí, no solo de las otras
+    # categorías.
+    real_topics = summary[~summary["is_outlier"]]
+    keywords_by_topic = {row["topic"]: topic_keywords(row["Name"]) for _, row in real_topics.iterrows()}
+    topic_to_category = real_topics.set_index("topic")["category"].to_dict()
 
     analyzer = create_analyzer(task="sentiment", lang="es")
 
     rows = []
     for _, review in df.iterrows():
         for order, sentence in enumerate(split_sentences(review["text"])):
-            cats = matching_categories(sentence, keywords_by_category)
+            topics = matching_topics(sentence, keywords_by_topic)
             pred = analyzer.predict(sentence)
             base = {
                 "review_id": review["review_id"],
@@ -94,18 +99,18 @@ def run(paths: Paths):
                 "sentence_sentiment": pred.output,
                 "sentence_confidence": round(pred.probas[pred.output], 4),
             }
-            if cats:
-                for cat in cats:
-                    rows.append({**base, "category": cat})
+            if topics:
+                for topic in topics:
+                    rows.append({**base, "topic": topic, "category": topic_to_category.get(topic, "")})
             else:
-                rows.append({**base, "category": ""})
+                rows.append({**base, "topic": "", "category": ""})
 
-    out = pd.DataFrame(rows, columns=["review_id", "sentence_order", "sentence", "category",
+    out = pd.DataFrame(rows, columns=["review_id", "sentence_order", "sentence", "topic", "category",
                                        "sentence_sentiment", "sentence_confidence"])
     out.to_csv(paths.review_audit_csv, index=False, encoding="utf-8-sig")
     print(f"{len(out)} filas ({df['review_id'].nunique()} reseñas) -> {paths.review_audit_csv.resolve()}")
 
-    # Cobertura a nivel ORACIÓN, no fila (una oración con 2 categorías no debe
+    # Cobertura a nivel ORACIÓN, no fila (una oración con 2 tópicos no debe
     # contarse 2 veces): una oración "tiene categoría" si al menos una de sus
     # filas la tiene.
     has_category = out.groupby(["review_id", "sentence_order"]).agg(
@@ -134,8 +139,8 @@ def run(paths: Paths):
           f"(con categoría {stats['avg_confidence_with_category']:.1%}, "
           f"sin categoría {stats['avg_confidence_without_category']:.1%})")
     if pct_with_category < 0.5:
-        print(f"⚠️  Menos de la mitad de las oraciones quedaron sin categoría: revisar las keywords por "
-              f"categoría en topics_summary.csv (columna Name) — probablemente faltan variantes, no que "
+        print(f"⚠️  Menos de la mitad de las oraciones quedaron sin categoría: revisar las keywords por tópico "
+              f"en topics_summary.csv (columna Name) — probablemente faltan variantes, no que "
               f"las reseñas no hablen de temas puntuales.")
     print(f"Guardado en {paths.review_audit_stats_json.resolve()}")
 

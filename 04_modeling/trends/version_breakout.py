@@ -28,7 +28,7 @@ esa versión vieja haya roto algo — es un quiebre de versión espurio, no uno
 real. Limitar a versiones recientes asegura que el hallazgo responda la
 pregunta de negocio real: "¿una versión reciente rompió algo?".
 
-Uso: python 04_modeling/version_breakout.py --name <empresa>
+Uso: python 04_modeling/trends/version_breakout.py --name <empresa>
 Genera data/<empresa>/04_modeling/version_breakout.json
 """
 import argparse
@@ -39,7 +39,7 @@ from pathlib import Path
 import pandas as pd
 from scipy.stats import norm
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 MIN_ONWARD_N = 30       # reseñas desde la versión candidata en adelante, para que su % no sea ruido

@@ -7,9 +7,9 @@ con más confianza es más representativa que una ambigua.
 
 No toca "sentiment" ni "topic" — solo agrega una columna nueva. No
 re-clusteriza, no re-nombra tópicos: igual de seguro que
-refine_topic_sentiment.py (mismo motivo, ver su docstring).
+02_refine_topic_sentiment.py (mismo motivo, ver su docstring).
 
-Uso: python 04_modeling/add_sentiment_confidence.py --name <empresa>
+Uso: python 04_modeling/topics/04_add_sentiment_confidence.py --name <empresa>
 """
 import argparse
 import sys
@@ -21,7 +21,7 @@ load_dotenv()
 import pandas as pd
 from pysentimiento import create_analyzer
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "common"))
 from config import Paths  # noqa: E402
 
 
