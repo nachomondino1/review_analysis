@@ -121,7 +121,15 @@
   box-shadow: var(--shadow-xs); padding: 18px 20px;
 }
 .trend-tile-main { flex: 1 1 220px; }
-.sparkline { flex: 1 1 200px; max-width: 260px; height: 48px; }
+.sparkline-chart { flex: 1 1 240px; max-width: 300px; }
+.sparkline-caption { color: var(--muted-soft); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 4px; }
+.sparkline-row { display: flex; align-items: stretch; gap: 8px; }
+.sparkline-yaxis {
+  display: flex; flex-direction: column; justify-content: space-between;
+  color: var(--muted-soft); font-size: 0.68rem; font-variant-numeric: tabular-nums; flex-shrink: 0;
+}
+.sparkline { flex: 1 1 auto; height: 48px; }
+.sparkline-xaxis { display: flex; justify-content: space-between; color: var(--muted-soft); font-size: 0.68rem; margin-top: 2px; }
 details.detail-table { margin-top: 8px; }
 details.detail-table summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
 .table-scroll { overflow-x: auto; margin-top: 8px; }

@@ -335,7 +335,7 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
                 f'<dl>{"".join(items)}</dl></details>'
             )
     return (
-        f'<div class="subsection"><h3>¿Qué categoría molesta más?</h3>'
+        f'<div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>'
         f'{legend}'
         f'<div class="bubble-chart">{"".join(bubbles)}</div>'
         f'{explain}</div>'
@@ -373,12 +373,14 @@ MIN_SAMPLE_FOR_COMPARISON = 5  # con menos reseñas, el % no es confiable para c
 TREND_THRESHOLD_PTS = 3  # diferencia de puntos porcentuales para no llamarlo "estable"
 
 
-def build_sparkline_svg(monthly_pct_neg: list[float], trend_class: str) -> str:
+def build_sparkline_svg(months: list[str], monthly_pct_neg: list[float], trend_class: str) -> str:
     """
     12 puntos (o los que haya) de % negativas por mes, en el tono de
     "de-énfasis" (--muted-soft) con el punto actual resaltado en el color de
     la tendencia (good/bad/flat) — mismo color que el chip de abajo, nunca
-    color solo (ver dataviz skill: "status colors... icon + label").
+    color solo (ver dataviz skill: "status colors... icon + label"). Lleva
+    eje Y (min/max del rango) y eje X (primer/último mes) explícitos — un
+    gráfico sin ejes no se puede leer, solo "intuir".
     """
     if len(monthly_pct_neg) < 2:
         return ""
@@ -390,11 +392,23 @@ def build_sparkline_svg(monthly_pct_neg: list[float], trend_class: str) -> str:
     ys = [pad + (h - 2 * pad) * (1 - (v - lo) / span) for v in monthly_pct_neg]
     path = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f},{y:.1f}" for i, (x, y) in enumerate(zip(xs, ys)))
     dot_color = {"trend-good": "var(--good)", "trend-bad": "var(--bad)", "trend-flat": "var(--muted)"}[trend_class]
+
+    def month_label(m: str) -> str:
+        year, month = m.split("-")
+        return f"{month}/{year[2:]}"
+
     return f'''
-    <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, últimos {n} meses">
-      <path d="{path}" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-      <circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="4" fill="{dot_color}" stroke="var(--surface)" stroke-width="2" />
-    </svg>
+    <div class="sparkline-chart">
+      <div class="sparkline-caption">% negativas por mes</div>
+      <div class="sparkline-row">
+        <div class="sparkline-yaxis"><span>{hi}%</span><span>{lo}%</span></div>
+        <svg class="sparkline" viewBox="0 0 {w} {h}" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de {month_label(months[0])} a {month_label(months[-1])}">
+          <path d="{path}" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+          <circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="4" fill="{dot_color}" stroke="var(--surface)" stroke-width="2" />
+        </svg>
+      </div>
+      <div class="sparkline-xaxis"><span>{month_label(months[0])}</span><span>{month_label(months[-1])}</span></div>
+    </div>
     '''
 
 
@@ -436,7 +450,7 @@ def build_recency_comparison(reviews: pd.DataFrame) -> str:
     monthly = (reviews.assign(_neg=(reviews["sentiment"] == "NEG"))
                .groupby("month")["_neg"].mean().mul(100).round(1))
     monthly = monthly.sort_index().tail(12)
-    sparkline_html = build_sparkline_svg(monthly.tolist(), trend_class)
+    sparkline_html = build_sparkline_svg(monthly.index.tolist(), monthly.tolist(), trend_class)
 
     return f'''
     <div class="trend-tile">
@@ -665,15 +679,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     breakout_html = build_version_breakout_section(paths)
     recency_html = build_recency_comparison(reviews)
     trend_body = breakout_html or recency_html
-    trend_note = ""
-    if not breakout_html and recency_html and official:
-        trend_note = (
-            f'<p class="methodology-note">El histórico completo es más bajo que el {official["score"]}★ '
-            f'analizado antes, puesto que las opiniones que tienen texto por su naturaleza '
-            f'<strong>tienden a ser más negativas</strong> que el promedio general — quien solo puntúa con '
-            f'estrellas casi nunca escribe para elogiar.</p>'
-        )
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}{trend_note}' if trend_body else ""
+    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
