@@ -38,7 +38,7 @@ CATEGORIES_BY_DOMAIN = {
         "Ruido": "Reseñas sin contenido interpretable para el negocio: calificación condicionada a algo puntual "
                  "sin desarrollarlo, texto demasiado corto o con palabras sueltas sin sentido claro.",
     },
-    "catalogo-hobby": {
+    "juegos-de-mesa": {
         "Sincronización y datos": "Sync con servicios externos (ej. BoardGameGeek), backups, pérdida o "
                                    "duplicación de la colección/listas guardadas, falta de respaldo en la nube.",
         "Cuenta": "Login, registro, crear usuario, compartir colección con otros usuarios.",

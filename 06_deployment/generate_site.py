@@ -909,28 +909,33 @@ INDEX_TEMPLATE = """<!doctype html>
     y topic modeling, y arma un resumen ejecutivo por empresa — sin backend, sin build step, un HTML por
     análisis. <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
   </p>
-  <ul>
-    {items}
-  </ul>
+  {groups}
 </div>
 </body>
 </html>
 """
 
 
+DOMAIN_LABELS = {"fintech": "Fintech", "juegos-de-mesa": "Juegos de mesa"}
+NO_DOMAIN_LABEL = "Otros"
+
+
 def build_index(site_dir: Path, root: Path):
     """
-    Escanea site/*.html y arma un índice con links, con un preview por
-    empresa (rating oficial, reseñas totales, categoría más urgente) leído
-    de la página ya generada por regex — no vuelve a tocar los datos
-    crudos, así que si alguna empresa no tiene alguno de estos datos
-    (ej. sin categorías nombradas) el preview omite esa parte en silencio
-    en vez de romper. Se escribe en la raíz del repo (no en site/) para
-    que GitHub Pages lo muestre como home del dominio
-    (.../review_analysis/), que de otra forma da 404 al no haber nada ahí.
+    Escanea site/*.html y arma un índice con links, agrupado por rubro
+    (companies_registry.lookup -> "domain", cargado a mano en
+    data/companies.csv — ver common/categories.py para la lista de rubros
+    conocidos). Cada card tiene un preview (rating oficial, reseñas
+    totales, categoría más urgente) leído de la página ya generada por
+    regex — no vuelve a tocar los datos crudos, así que si alguna empresa
+    no tiene alguno de estos datos (ej. sin categorías nombradas) el
+    preview omite esa parte en silencio en vez de romper. Se escribe en la
+    raíz del repo (no en site/) para que GitHub Pages lo muestre como home
+    del dominio (.../review_analysis/), que de otra forma da 404 al no
+    haber nada ahí.
     """
     pages = sorted(site_dir.glob("*.html"))
-    items = []
+    items_by_domain: dict[str, list[str]] = {}
     for page in pages:
         html_out = page.read_text(encoding="utf-8")
         match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", html_out)
@@ -951,12 +956,27 @@ def build_index(site_dir: Path, root: Path):
             meta_parts.append(f'<span class="company-meta-item company-meta-item--urgent">⚠️ {esc(category_m.group(1))}</span>')
         meta_html = f'<div class="company-meta">{"".join(meta_parts)}</div>' if meta_parts else ""
 
-        items.append(
+        info = companies.lookup(page.stem)
+        domain_label = DOMAIN_LABELS.get(info.get("domain") if info else None, NO_DOMAIN_LABEL)
+
+        items_by_domain.setdefault(domain_label, []).append(
             f'<li><a class="company-link" href="{site_dir.name}/{page.name}">'
             f'<div class="company-name">{esc(name)}</div>{meta_html}</a></li>'
         )
+
+    # Grupos conocidos primero en el orden de DOMAIN_LABELS, "Otros" al final.
+    ordered_labels = [l for l in DOMAIN_LABELS.values() if l in items_by_domain]
+    ordered_labels += [l for l in items_by_domain if l not in ordered_labels]
+
+    groups_html = []
+    for label in ordered_labels:
+        groups_html.append(
+            f'<h2 class="index-group-title">{esc(label)}</h2>'
+            f'<ul>{"".join(items_by_domain[label])}</ul>'
+        )
+
     (root / "index.html").write_text(
-        INDEX_TEMPLATE.format(items="\n    ".join(items)), encoding="utf-8"
+        INDEX_TEMPLATE.format(groups="\n    ".join(groups_html)), encoding="utf-8"
     )
 
 
