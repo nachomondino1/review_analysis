@@ -26,6 +26,13 @@ import companies_registry as companies  # noqa: E402
 from keywords import topic_keywords  # noqa: E402
 from collect_store_ratings import fetch_store_ratings  # noqa: E402
 
+BASE_URL = "https://nachomondino1.github.io/review_analysis"
+FAVICON = (
+    '<link rel="icon" href="data:image/svg+xml,'
+    '<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 font-size=%2290%22>'
+    '<text y=%22.9em%22>%F0%9F%93%8A</text></svg>">'
+)
+
 SEVERITY_LABEL = {"alta": "Alta", "media": "Media", "baja": "Baja"}
 TOP_FINDINGS_MAX = 3  # minimalismo: 3 hallazgos que se leen, no 6 que se scrollean
 SAMPLES_PER_FINDING = 2
@@ -669,6 +676,18 @@ TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas de la app de {empresa}</title>
+<meta name="description" content="{meta_description}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Análisis de reseñas de la app de {empresa}">
+<meta property="og:description" content="{meta_description}">
+<meta property="og:image" content="{base_url}/site/og-image.png">
+<meta property="og:url" content="{base_url}/site/{slug}.html">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Análisis de reseñas de la app de {empresa}">
+<meta name="twitter:description" content="{meta_description}">
+<meta name="twitter:image" content="{base_url}/site/og-image.png">
+{favicon}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -678,7 +697,7 @@ TEMPLATE = """<!doctype html>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 Análisis de reseñas de {empresa}</h1>
+    <h1>📊 <a class="page-head-home" href="../index.html">Análisis de reseñas</a> de {empresa}</h1>
     <div class="sub">Generado {fecha}</div>
   </div>
 </header>
@@ -861,8 +880,20 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         f'<div class="subsection"><h3>¿Cómo comparás con la competencia?</h3>{competitor_html}</div>' if competitor_html else ""
     )
 
+    top_category_name = categories[0]["category"] if categories else None
+    total_n_fmt = f'{stats["total_n"]:,}'.replace(",", ".")
+    meta_description = (
+        f"Análisis de {total_n_fmt} reseñas de {empresa_display} en App Store y Google Play "
+        "— sentiment analysis y topic modeling"
+        + (f", categoría más urgente: {top_category_name}." if top_category_name else ".")
+    )
+
     return TEMPLATE.format(
         empresa=esc(empresa_display),
+        slug=paths.site_html.stem,
+        base_url=BASE_URL,
+        favicon=FAVICON,
+        meta_description=esc(meta_description),
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
         official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
@@ -895,6 +926,18 @@ INDEX_TEMPLATE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas — empresas</title>
+<meta name="description" content="Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis y topic modeling, y arma un resumen ejecutivo por empresa.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Análisis de reseñas — empresas">
+<meta property="og:description" content="Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis y topic modeling, y arma un resumen ejecutivo por empresa.">
+<meta property="og:image" content="{base_url}/site/og-image.png">
+<meta property="og:url" content="{base_url}/">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Análisis de reseñas — empresas">
+<meta name="twitter:description" content="Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis y topic modeling, y arma un resumen ejecutivo por empresa.">
+<meta name="twitter:image" content="{base_url}/site/og-image.png">
+{favicon}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -976,7 +1019,8 @@ def build_index(site_dir: Path, root: Path):
         )
 
     (root / "index.html").write_text(
-        INDEX_TEMPLATE.format(groups="\n    ".join(groups_html)), encoding="utf-8"
+        INDEX_TEMPLATE.format(groups="\n    ".join(groups_html), base_url=BASE_URL, favicon=FAVICON),
+        encoding="utf-8",
     )
 
 
