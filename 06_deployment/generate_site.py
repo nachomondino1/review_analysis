@@ -15,6 +15,7 @@ import html
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pandas as pd
@@ -51,7 +52,7 @@ def load_data(paths: Paths):
 
 def build_official_rating(store_ratings: dict | None) -> dict | None:
     """
-    Rating ponderado sobre TODAS las calificaciones de las tiendas (toquen
+    Rating ponderado sobre TODAS las reseñas de las tiendas (toquen
     estrellas o no escriban texto) — no se puede derivar de `summary`, que solo
     cubre la muestra de reseñas con texto que el scraping puede leer.
     """
@@ -86,7 +87,7 @@ def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str
     ios_official_fmt = f'{ios_official:,}'.replace(",", ".")
     return (
         f'<p class="methodology-note">⚠️ La API pública de reseñas de iOS solo deja leer las últimas '
-        f'~{IOS_RSS_PAGE_CAP}, aunque haya más: de las {ios_official_fmt} calificaciones de iOS, este '
+        f'~{IOS_RSS_PAGE_CAP}, aunque haya más: de las {ios_official_fmt} reseñas de iOS, este '
         f'análisis pudo leer el texto de {ios_n}. Una parte del resto puede tener texto también — no '
         f'figuran acá porque la tienda no las deja leer, no porque no existan. Android no tiene ese '
         f'límite (se leyeron todas las disponibles).</p>'
@@ -95,7 +96,7 @@ def build_ios_cap_note(reviews: pd.DataFrame, store_ratings: dict | None) -> str
 
 def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: float | None, ios_cap_note: str = "") -> str:
     """
-    De todas las calificaciones de las tiendas, cuántas traen texto (la única
+    De todas las reseñas de las tiendas, cuántas traen texto (la única
     porción que este análisis puede leer) y cuántas son solo estrellas —
     como un split visual (total + rating oficial -> dos ramas con flecha),
     no una barra + números sueltos. El número grande de cada rama es la
@@ -221,13 +222,13 @@ def build_competitor_section(official: dict | None, empresa_display: str, compet
       <div class="recency-card">
         <div class="recency-label">{esc(empresa_display)}</div>
         <div class="recency-value">{official["score"]}★</div>
-        <div class="recency-sub">{official["count"]:,} calificaciones</div>
+        <div class="recency-sub">{official["count"]:,} reseñas</div>
       </div>
       <div class="recency-arrow">vs.</div>
       <div class="recency-card">
         <div class="recency-label">{esc(competitor_display)}</div>
         <div class="recency-value">{comp_official["score"]}★</div>
-        <div class="recency-sub">{comp_official["count"]:,} calificaciones</div>
+        <div class="recency-sub">{comp_official["count"]:,} reseñas</div>
       </div>
     </div>
     <div class="trend-banner {note_class}">{esc(note)}</div>
@@ -888,7 +889,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         + (f", categoría más urgente: {top_category_name}." if top_category_name else ".")
     )
 
-    return TEMPLATE.format(
+    html_out = TEMPLATE.format(
         empresa=esc(empresa_display),
         slug=paths.site_html.stem,
         base_url=BASE_URL,
@@ -896,7 +897,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         meta_description=esc(meta_description),
         fecha=pd.Timestamp.now().strftime("%Y-%m-%d"),
         official_rating=f'{official["score"]}★' if official else "N/D",
-        official_count=f'{official["count"]:,} calificaciones'.replace(",", ".") if official else "sin dato",
+        official_count=f'{official["count"]:,} reseñas'.replace(",", ".") if official else "sin dato",
         total_n=stats["total_n"],
         total_n_fmt=f'{stats["total_n"]:,}'.replace(",", "."),
         pct_neg=stats["pct_neg"],
@@ -910,6 +911,23 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         table_category_header=table_category_header,
         table_rows=table_rows,
     )
+
+    # Sidecar con las métricas agregables para el índice (build_index): evita volver
+    # a tocar los datos crudos o scrapear el HTML con regex para armar la sección de
+    # "hallazgos agregados" entre todas las empresas.
+    index_meta = {
+        "empresa": empresa_display,
+        "slug": paths.site_html.stem,
+        "official_score": official["score"] if official else None,
+        "official_count": official["count"] if official else None,
+        "total_n_text": stats["total_n"],
+        "pct_neg_text": stats["pct_neg"],
+        "top_category": top_category_name,
+        "top_category_n": categories[0]["n"] if categories else None,
+        "top_category_pct_neg": categories[0]["pct_neg"] if categories else None,
+    }
+
+    return html_out, index_meta
 
 
 INDEX_TEMPLATE = """<!doctype html>
@@ -953,6 +971,7 @@ INDEX_TEMPLATE = """<!doctype html>
       Convierte reseñas públicas de App Store y Google Play en decisiones: qué arreglar si es tu producto,
       dónde diferenciarte si estás mirando un nicho.
     </p>
+    <h2 class="index-section-title">¿Para qué sirve?</h2>
     <div class="index-usecases">
       <div class="index-usecase">
         <div class="index-usecase-icon">🔧</div>
@@ -965,16 +984,12 @@ INDEX_TEMPLATE = """<!doctype html>
         <div class="index-usecase-body">Compará varias empresas del mismo rubro y detectá qué le falla a la mayoría — ahí está tu oportunidad para diferenciarte.</div>
       </div>
     </div>
-    <div class="index-stats">
-      <div class="index-stat"><div class="index-stat-value">{n_companies}</div><div class="index-stat-label">Empresas analizadas</div></div>
-      <div class="index-stat"><div class="index-stat-value">{n_reviews_fmt}</div><div class="index-stat-label">Reseñas procesadas</div></div>
-      <div class="index-stat"><div class="index-stat-value">{n_domains}</div><div class="index-stat-label">Rubros</div></div>
-    </div>
     <p class="index-caption">
       Sentiment analysis + topic modeling, sin backend, un HTML por análisis.
       <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
     </p>
   </header>
+  {findings_section}
   {groups}
 </div>
 </body>
@@ -986,61 +1001,160 @@ DOMAIN_LABELS = {"fintech": "Fintech", "brokers": "Brokers", "sportstech": "Spor
 NO_DOMAIN_LABEL = "Otros"
 
 
+def build_findings_stats(metas: list[dict], n_domains: int) -> str:
+    """
+    Hallazgos agregados entre TODAS las empresas analizadas (no por empresa):
+    responde "¿qué dicen, en conjunto, todas las reseñas que pasaron por este
+    pipeline?" — útil para el caso de uso "analizar un nicho" del hero, no
+    solo "mi producto". Arranca con la escala del análisis (empresas,
+    reseñas, rubros — antes vivían sueltas en el hero) y sigue con los
+    hallazgos reales: % de reseñas negativas ponderado por volumen (no
+    promedio simple entre empresas, que le daría el mismo peso a una
+    empresa con 169 reseñas que a una con 276.508), % de reseñas oficiales
+    que efectivamente tienen texto analizable (la limitación real de este
+    tipo de análisis, ver composition bar de cada empresa), y la categoría
+    que más veces aparece como "la más urgente" de una empresa — si se
+    repite entre varios rubros/empresas, es señal de un problema
+    estructural del sector, no de una sola app.
+    """
+    total_text = sum(m["total_n_text"] for m in metas)
+    total_official = sum(m["official_count"] for m in metas if m["official_count"])
+    if not total_text:
+        return ""
+
+    total_official_fmt = f'{total_official:,}'.replace(",", ".")
+    stats_cards = [
+        f'<div class="findings-stat"><div class="findings-stat-value">{len(metas)}</div>'
+        f'<div class="findings-stat-label">Empresas analizadas</div></div>',
+        f'<div class="findings-stat"><div class="findings-stat-value">{total_official_fmt}</div>'
+        f'<div class="findings-stat-label">Reseñas procesadas</div></div>',
+        f'<div class="findings-stat"><div class="findings-stat-value">{n_domains}</div>'
+        f'<div class="findings-stat-label">Rubros</div></div>',
+    ]
+
+    neg_count = sum(m["pct_neg_text"] / 100 * m["total_n_text"] for m in metas)
+    pct_neg_overall = round(neg_count / total_text * 100, 1)
+    neg_color = pct_to_color(pct_neg_overall)
+
+    stats_cards.append(f'''
+      <div class="findings-stat">
+        <div class="findings-stat-value" style="color:{neg_color}">{pct_neg_overall}%</div>
+        <div class="findings-stat-label">De las reseñas con texto son negativas<br>(ponderado por volumen, no por empresa)</div>
+      </div>
+    ''')
+
+    if total_official:
+        pct_text_overall = round(total_text / total_official * 100, 1)
+        stats_cards.append(f'''
+      <div class="findings-stat">
+        <div class="findings-stat-value">{pct_text_overall}%</div>
+        <div class="findings-stat-label">De todas las reseñas de la tienda<br>tiene texto analizable</div>
+      </div>
+        ''')
+
+    category_counts = Counter(m["top_category"] for m in metas if m["top_category"])
+    if category_counts:
+        top_category, top_count = category_counts.most_common(1)[0]
+        stats_cards.append(f'''
+      <div class="findings-stat">
+        <div class="findings-stat-value">{esc(top_category)}</div>
+        <div class="findings-stat-sub">{top_count} de {len(metas)} empresas</div>
+        <div class="findings-stat-label">Categoría que más veces es "la más urgente"</div>
+      </div>
+        ''')
+
+    gap_html = build_rating_gap_highlight(metas)
+
+    return f'''
+  <section class="index-findings">
+    <h2 class="index-section-title">Hallazgos generales</h2>
+    <p class="index-section-subtitle">Qué dicen, en conjunto, todas las reseñas que pasaron por este análisis.</p>
+    <div class="findings-grid">{"".join(stats_cards)}</div>
+    {gap_html}
+  </section>
+    '''
+
+
+def build_rating_gap_highlight(metas: list[dict]) -> str:
+    """
+    El hallazgo más "jugoso" del agregado: la brecha entre lo que dice el
+    rating oficial de la tienda (que resume TODAS las calificaciones,
+    mayoría solo estrellas sin texto) y lo que dicen efectivamente las
+    reseñas con texto de esa misma empresa — ver review_sampling_bias en
+    memoria del proyecto. Un rating de 4.6★ puede convivir con una mayoría
+    de reseñas escritas negativas: el promedio de estrellas no cancela el
+    enojo puntual que alguien se toma el trabajo de escribir. Se mide la
+    brecha, no solo "la empresa con más % negativas", porque el punto no es
+    "quién es peor" sino "dónde el rating visible esconde más la realidad
+    del texto" — eso es lo que un lector no esperaría de un 4.6★.
+    """
+    scored = [m for m in metas if m["official_score"] is not None]
+    if not scored:
+        return ""
+    for m in scored:
+        implied_neg = (5 - m["official_score"]) / 4 * 100
+        m["_gap"] = m["pct_neg_text"] - implied_neg
+    worst = max(scored, key=lambda m: m["_gap"])
+    if worst["_gap"] < 15:  # brecha chica: no es un hallazgo sorprendente, no forzarlo
+        return ""
+    return f'''
+    <div class="findings-highlight">
+      <div class="findings-highlight-icon">💥</div>
+      <div>
+        <div class="findings-highlight-title">La brecha más grande entre rating y texto</div>
+        <div class="findings-highlight-body">
+          <strong>{esc(worst["empresa"])}</strong> tiene <strong>{worst["official_score"]}★</strong> en la tienda —
+          pero el <strong>{worst["pct_neg_text"]}%</strong> de sus reseñas con texto son negativas.
+          El rating resume todas las reseñas (la mayoría solo estrellas, sin texto);
+          quien se toma el trabajo de escribir, en su mayoría, se está quejando.
+        </div>
+      </div>
+    </div>
+    '''
+
+
 def build_index(site_dir: Path, root: Path):
     """
-    Escanea site/*.html y arma un índice con links, agrupado por rubro
-    (companies_registry.lookup -> "domain", cargado a mano en
-    data/companies.csv — ver common/categories.py para la lista de rubros
-    conocidos). Cada card tiene un preview (rating oficial, reseñas
-    totales, categoría más urgente) leído de la página ya generada por
-    regex — no vuelve a tocar los datos crudos, así que si alguna empresa
-    no tiene alguno de estos datos (ej. sin categorías nombradas) el
-    preview omite esa parte en silencio en vez de romper. Se escribe en la
-    raíz del repo (no en site/) para que GitHub Pages lo muestre como home
-    del dominio (.../review_analysis/), que de otra forma da 404 al no
-    haber nada ahí.
+    Escanea site/*.json (sidecar que escribe render(), uno por empresa) y
+    arma un índice con links, agrupado por rubro (companies_registry.lookup
+    -> "domain", cargado a mano en data/companies.csv — ver
+    common/categories.py). Lee el sidecar en vez de scrapear el HTML con
+    regex: más robusto (no depende de que el markup de la página de empresa
+    no cambie) y permite calcular agregados reales entre empresas (ver
+    build_findings_stats), que el regex no podía dar sin re-sumar texto
+    libre. Si una empresa no tiene alguno de estos datos (ej. sin
+    categorías nombradas) el preview omite esa parte en silencio en vez de
+    romper. Se escribe en la raíz del repo (no en site/) para que GitHub
+    Pages lo muestre como home del dominio (.../review_analysis/), que de
+    otra forma da 404 al no haber nada ahí.
     """
-    pages = sorted(site_dir.glob("*.html"))
+    metas = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(site_dir.glob("*.json"))]
     items_by_domain: dict[str, list[str]] = {}
-    n_reviews_total = 0
-    for page in pages:
-        html_out = page.read_text(encoding="utf-8")
-        match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", html_out)
-        name = match.group(1) if match else page.stem
 
-        rating_m = re.search(r'<div class="split-origin-value[^"]*">([\d.,]+★)</div>\s*'
-                              r'<div class="split-origin-label">Rating oficial</div>', html_out)
-        total_m = re.search(r'<div class="split-origin-value">([\d.,]+)</div>\s*'
-                             r'<div class="split-origin-label">Reseñas totales</div>', html_out)
-        urgent_m = re.search(
-            r'Categoría más urgente</div>\s*<div class="goal-urgent-name">([^<]+)</div>\s*'
-            r'<div class="goal-urgent-meta">[\d.,]+ reseñas · ([\d.,]+)% negativas</div>', html_out)
-
-        if total_m:
-            n_reviews_total += int(total_m.group(1).replace(".", ""))
-
+    for m in metas:
         meta_parts = []
-        if rating_m:
-            meta_parts.append(f'<span class="company-meta-item">{esc(rating_m.group(1))}</span>')
-        if total_m:
-            meta_parts.append(f'<span class="company-meta-item">{esc(total_m.group(1))} reseñas</span>')
+        if m["official_score"] is not None:
+            meta_parts.append(f'<span class="company-meta-item">{m["official_score"]}★</span>')
+        if m["official_count"] is not None:
+            count_fmt = f'{m["official_count"]:,}'.replace(",", ".")
+            meta_parts.append(f'<span class="company-meta-item">{count_fmt} reseñas</span>')
         meta_html = f'<div class="company-meta">{"".join(meta_parts)}</div>' if meta_parts else ""
 
         urgent_html = ""
-        if urgent_m:
-            category, pct_neg = urgent_m.group(1), float(urgent_m.group(2).replace(",", "."))
-            color = pct_to_color(pct_neg)
+        if m["top_category"]:
+            color = pct_to_color(m["top_category_pct_neg"])
             urgent_html = (
                 f'<div class="company-urgent" style="--urgent-color:{color};--urgent-bg:'
-                f'color-mix(in srgb, {color} 14%, transparent)">⚠️ {esc(category)} · {urgent_m.group(2)}% negativas</div>'
+                f'color-mix(in srgb, {color} 14%, transparent)">⚠️ {esc(m["top_category"])} · '
+                f'{m["top_category_pct_neg"]}% negativas</div>'
             )
 
-        info = companies.lookup(page.stem)
+        info = companies.lookup(m["slug"])
         domain_label = DOMAIN_LABELS.get(info.get("domain") if info else None, NO_DOMAIN_LABEL)
 
         items_by_domain.setdefault(domain_label, []).append(
-            f'<a class="company-card" href="{site_dir.name}/{page.name}">'
-            f'<div class="company-card-head"><div class="company-name">{esc(name)}</div></div>'
+            f'<a class="company-card" href="{site_dir.name}/{m["slug"]}.html">'
+            f'<div class="company-card-head"><div class="company-name">{esc(m["empresa"])}</div></div>'
             f'{meta_html}{urgent_html}</a>'
         )
 
@@ -1051,20 +1165,25 @@ def build_index(site_dir: Path, root: Path):
     groups_html = []
     for label in ordered_labels:
         groups_html.append(
-            f'<section class="index-group">'
-            f'<h2 class="index-group-title">{esc(label)}</h2>'
+            f'<div class="index-group">'
+            f'<h3 class="index-group-title">{esc(label)}</h3>'
             f'<div class="company-grid">{"".join(items_by_domain[label])}</div>'
-            f'</section>'
+            f'</div>'
         )
+    companies_section = (
+        '<section class="index-companies">'
+        '<h2 class="index-section-title">Explorá por empresa</h2>'
+        '<p class="index-section-subtitle">Un informe ejecutivo por empresa, agrupadas por rubro.</p>'
+        + "\n    ".join(groups_html)
+        + '</section>'
+    )
 
     (root / "index.html").write_text(
         INDEX_TEMPLATE.format(
-            groups="\n    ".join(groups_html),
+            groups=companies_section,
+            findings_section=build_findings_stats(metas, len(items_by_domain)),
             base_url=BASE_URL,
             favicon=FAVICON,
-            n_companies=len(pages),
-            n_domains=len(items_by_domain),
-            n_reviews_fmt=f'{n_reviews_total:,}'.replace(",", "."),
         ),
         encoding="utf-8",
     )
@@ -1081,9 +1200,10 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     paths = Paths(args.name)
-    html_out = render(paths, args.display_name or args.name, competitor=args.competitor)
+    html_out, index_meta = render(paths, args.display_name or args.name, competitor=args.competitor)
     paths.ensure_site_dir()
     paths.site_html.write_text(html_out, encoding="utf-8")
+    (paths.site_dir / f"{paths.site_html.stem}.json").write_text(json.dumps(index_meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Guardado en {paths.site_html.resolve()}")
     build_index(paths.site_dir, ROOT)
     print(f"Índice actualizado en {(ROOT / 'index.html').resolve()}")
