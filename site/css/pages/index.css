@@ -1,9 +1,20 @@
 /* Reglas propias de index.html (listado de empresas). Carga después de components/base.css. */
 .index-page .container { max-width: 640px; padding: 32px 24px 64px; }
 .index-page h1 { font-size: 1.3rem; font-weight: 800; }
-.index-page ul { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.index-intro { color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin: 10px 0 0; }
+.index-intro a { color: var(--accent); font-weight: 600; }
+.index-group-title {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800;
+  color: var(--muted-soft); margin: 28px 0 0;
+}
+.index-page ul { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
 a.company-link {
   display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none; font-weight: 600;
+  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-a.company-link:hover { border-color: var(--accent); }
+a.company-link:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.company-name { font-weight: 700; font-size: 0.95rem; }
+.company-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; }
+.company-meta-item { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.company-meta-item--urgent { color: var(--bad); font-weight: 600; }
