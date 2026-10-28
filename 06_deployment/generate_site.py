@@ -946,12 +946,20 @@ INDEX_TEMPLATE = """<!doctype html>
 </head>
 <body class="index-page">
 <div class="container">
-  <h1>📊 Análisis de reseñas</h1>
-  <p class="index-intro">
-    Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis
-    y topic modeling, y arma un resumen ejecutivo por empresa — sin backend, sin build step, un HTML por
-    análisis. <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
-  </p>
+  <header class="index-hero">
+    <div class="index-hero-emoji">📊</div>
+    <h1>Análisis de reseñas</h1>
+    <p class="index-intro">
+      Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis
+      y topic modeling, y arma un resumen ejecutivo por empresa — sin backend, sin build step, un HTML por
+      análisis. <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
+    </p>
+    <div class="index-stats">
+      <div class="index-stat"><div class="index-stat-value">{n_companies}</div><div class="index-stat-label">Empresas analizadas</div></div>
+      <div class="index-stat"><div class="index-stat-value">{n_reviews_fmt}</div><div class="index-stat-label">Reseñas procesadas</div></div>
+      <div class="index-stat"><div class="index-stat-value">{n_domains}</div><div class="index-stat-label">Rubros</div></div>
+    </div>
+  </header>
   {groups}
 </div>
 </body>
@@ -979,6 +987,7 @@ def build_index(site_dir: Path, root: Path):
     """
     pages = sorted(site_dir.glob("*.html"))
     items_by_domain: dict[str, list[str]] = {}
+    n_reviews_total = 0
     for page in pages:
         html_out = page.read_text(encoding="utf-8")
         match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", html_out)
@@ -988,23 +997,36 @@ def build_index(site_dir: Path, root: Path):
                               r'<div class="split-origin-label">Rating oficial</div>', html_out)
         total_m = re.search(r'<div class="split-origin-value">([\d.,]+)</div>\s*'
                              r'<div class="split-origin-label">Reseñas totales</div>', html_out)
-        category_m = re.search(r'Categoría más urgente</div>\s*<div class="goal-urgent-name">([^<]+)</div>', html_out)
+        urgent_m = re.search(
+            r'Categoría más urgente</div>\s*<div class="goal-urgent-name">([^<]+)</div>\s*'
+            r'<div class="goal-urgent-meta">[\d.,]+ reseñas · ([\d.,]+)% negativas</div>', html_out)
+
+        if total_m:
+            n_reviews_total += int(total_m.group(1).replace(".", ""))
 
         meta_parts = []
         if rating_m:
             meta_parts.append(f'<span class="company-meta-item">{esc(rating_m.group(1))}</span>')
         if total_m:
             meta_parts.append(f'<span class="company-meta-item">{esc(total_m.group(1))} reseñas</span>')
-        if category_m:
-            meta_parts.append(f'<span class="company-meta-item company-meta-item--urgent">⚠️ {esc(category_m.group(1))}</span>')
         meta_html = f'<div class="company-meta">{"".join(meta_parts)}</div>' if meta_parts else ""
+
+        urgent_html = ""
+        if urgent_m:
+            category, pct_neg = urgent_m.group(1), float(urgent_m.group(2).replace(",", "."))
+            color = pct_to_color(pct_neg)
+            urgent_html = (
+                f'<div class="company-urgent" style="--urgent-color:{color};--urgent-bg:'
+                f'color-mix(in srgb, {color} 14%, transparent)">⚠️ {esc(category)} · {urgent_m.group(2)}% negativas</div>'
+            )
 
         info = companies.lookup(page.stem)
         domain_label = DOMAIN_LABELS.get(info.get("domain") if info else None, NO_DOMAIN_LABEL)
 
         items_by_domain.setdefault(domain_label, []).append(
-            f'<li><a class="company-link" href="{site_dir.name}/{page.name}">'
-            f'<div class="company-name">{esc(name)}</div>{meta_html}</a></li>'
+            f'<a class="company-card" href="{site_dir.name}/{page.name}">'
+            f'<div class="company-card-head"><div class="company-name">{esc(name)}</div></div>'
+            f'{meta_html}{urgent_html}</a>'
         )
 
     # Grupos conocidos primero en el orden de DOMAIN_LABELS, "Otros" al final.
@@ -1014,12 +1036,21 @@ def build_index(site_dir: Path, root: Path):
     groups_html = []
     for label in ordered_labels:
         groups_html.append(
+            f'<section class="index-group">'
             f'<h2 class="index-group-title">{esc(label)}</h2>'
-            f'<ul>{"".join(items_by_domain[label])}</ul>'
+            f'<div class="company-grid">{"".join(items_by_domain[label])}</div>'
+            f'</section>'
         )
 
     (root / "index.html").write_text(
-        INDEX_TEMPLATE.format(groups="\n    ".join(groups_html), base_url=BASE_URL, favicon=FAVICON),
+        INDEX_TEMPLATE.format(
+            groups="\n    ".join(groups_html),
+            base_url=BASE_URL,
+            favicon=FAVICON,
+            n_companies=len(pages),
+            n_domains=len(items_by_domain),
+            n_reviews_fmt=f'{n_reviews_total:,}'.replace(",", "."),
+        ),
         encoding="utf-8",
     )
 

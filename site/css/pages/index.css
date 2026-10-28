@@ -1,20 +1,52 @@
-/* Reglas propias de index.html (listado de empresas). Carga después de components/base.css. */
-.index-page .container { max-width: 640px; padding: 32px 24px 64px; }
-.index-page h1 { font-size: 1.3rem; font-weight: 800; }
-.index-intro { color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin: 10px 0 0; }
+/* Reglas propias de index.html (landing con el listado de empresas). Carga después de components/base.css. */
+
+.index-page .container { max-width: 1240px; padding: 56px 24px 72px; }
+@media (max-width: 640px) { .index-page .container { padding: 40px 16px 56px; } }
+
+/* --- Hero --- */
+.index-hero { max-width: 640px; margin: 0 auto 48px; text-align: center; }
+.index-hero-emoji { font-size: 2.5rem; line-height: 1; margin-bottom: 8px; }
+.index-page h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.index-intro { color: var(--muted); font-size: 0.92rem; line-height: 1.65; margin: 14px 0 0; }
 .index-intro a { color: var(--accent); font-weight: 600; }
+
+.index-stats {
+  display: flex; justify-content: center; gap: 36px; margin-top: 32px;
+  padding-top: 28px; border-top: 1px solid var(--border-soft);
+}
+@media (max-width: 480px) { .index-stats { gap: 24px; } }
+.index-stat-value {
+  font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.index-stat-label {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--muted-soft); margin-top: 2px;
+}
+
+/* --- Grupos por rubro --- */
+.index-group + .index-group { margin-top: 36px; }
 .index-group-title {
   font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800;
-  color: var(--muted-soft); margin: 28px 0 0;
+  color: var(--muted-soft); margin: 0 0 14px;
 }
-.index-page ul { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 10px; }
-a.company-link {
-  display: block; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 14px 16px; color: var(--text); text-decoration: none;
+
+/* --- Grid de cards --- */
+.company-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;
+}
+a.company-card {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); padding: 18px 18px 16px; color: var(--text); text-decoration: none;
   transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-a.company-link:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.company-name { font-weight: 700; font-size: 0.95rem; }
-.company-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; }
-.company-meta-item { color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-.company-meta-item--urgent { color: var(--bad); font-weight: 600; }
+a.company-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.company-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.company-name { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+.company-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.company-meta-item { color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.company-urgent {
+  align-self: flex-start; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.01em;
+  padding: 3px 10px; border-radius: 999px; color: var(--urgent-color); background: var(--urgent-bg);
+}
