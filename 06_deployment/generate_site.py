@@ -904,6 +904,11 @@ INDEX_TEMPLATE = """<!doctype html>
 <body class="index-page">
 <div class="container">
   <h1>📊 Análisis de reseñas</h1>
+  <p class="index-intro">
+    Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis
+    y topic modeling, y arma un resumen ejecutivo por empresa — sin backend, sin build step, un HTML por
+    análisis. <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
+  </p>
   <ul>
     {items}
   </ul>
@@ -915,16 +920,41 @@ INDEX_TEMPLATE = """<!doctype html>
 
 def build_index(site_dir: Path, root: Path):
     """
-    Escanea site/*.html y arma un índice con links. Se escribe en la raíz del
-    repo (no en site/) para que GitHub Pages lo muestre como home del dominio
+    Escanea site/*.html y arma un índice con links, con un preview por
+    empresa (rating oficial, reseñas totales, categoría más urgente) leído
+    de la página ya generada por regex — no vuelve a tocar los datos
+    crudos, así que si alguna empresa no tiene alguno de estos datos
+    (ej. sin categorías nombradas) el preview omite esa parte en silencio
+    en vez de romper. Se escribe en la raíz del repo (no en site/) para
+    que GitHub Pages lo muestre como home del dominio
     (.../review_analysis/), que de otra forma da 404 al no haber nada ahí.
     """
     pages = sorted(site_dir.glob("*.html"))
     items = []
     for page in pages:
-        match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", page.read_text(encoding="utf-8"))
+        html_out = page.read_text(encoding="utf-8")
+        match = re.search(r"<title>Análisis de reseñas de la app de (.*?)</title>", html_out)
         name = match.group(1) if match else page.stem
-        items.append(f'<li><a class="company-link" href="{site_dir.name}/{page.name}">{esc(name)}</a></li>')
+
+        rating_m = re.search(r'<div class="split-origin-value[^"]*">([\d.,]+★)</div>\s*'
+                              r'<div class="split-origin-label">Rating oficial</div>', html_out)
+        total_m = re.search(r'<div class="split-origin-value">([\d.,]+)</div>\s*'
+                             r'<div class="split-origin-label">Reseñas totales</div>', html_out)
+        category_m = re.search(r'Categoría más urgente</div>\s*<div class="goal-urgent-name">([^<]+)</div>', html_out)
+
+        meta_parts = []
+        if rating_m:
+            meta_parts.append(f'<span class="company-meta-item">{esc(rating_m.group(1))}</span>')
+        if total_m:
+            meta_parts.append(f'<span class="company-meta-item">{esc(total_m.group(1))} reseñas</span>')
+        if category_m:
+            meta_parts.append(f'<span class="company-meta-item company-meta-item--urgent">⚠️ {esc(category_m.group(1))}</span>')
+        meta_html = f'<div class="company-meta">{"".join(meta_parts)}</div>' if meta_parts else ""
+
+        items.append(
+            f'<li><a class="company-link" href="{site_dir.name}/{page.name}">'
+            f'<div class="company-name">{esc(name)}</div>{meta_html}</a></li>'
+        )
     (root / "index.html").write_text(
         INDEX_TEMPLATE.format(items="\n    ".join(items)), encoding="utf-8"
     )

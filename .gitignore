@@ -3,3 +3,4 @@
 .env
 prueba.py
 __pycache__/
+.DS_Store
