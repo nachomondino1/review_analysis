@@ -916,7 +916,7 @@ INDEX_TEMPLATE = """<!doctype html>
 """
 
 
-DOMAIN_LABELS = {"fintech": "Fintech", "juegos-de-mesa": "Juegos de mesa"}
+DOMAIN_LABELS = {"fintech": "Fintech", "brokers": "Brokers", "sportstech": "Sportstech", "juegos-de-mesa": "Juegos de mesa"}
 NO_DOMAIN_LABEL = "Otros"
 
 

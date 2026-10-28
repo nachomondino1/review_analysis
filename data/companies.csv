@@ -1,14 +1,14 @@
 name,app_ios,pkg,domain
 avancargo,,com.avanmobile2,
-balanz,1318206099,com.mobile.balanz.droid,fintech
-beelup,,com.beelup.mediaplayerbeelup,fintech
+balanz,1318206099,com.mobile.balanz.droid,brokers
+beelup,,com.beelup.mediaplayerbeelup,sportstech
 belo,1575614708,com.belo.android,fintech
 bitso,1292836438,com.bitso.wallet,
 cocos-capital,1634675415,capital.cocos.app.twa,
 coppel,1267382794,ar.com.coppel,
 despegar,511479725,com.gm.despegar,
 finvoi,6744460842,finvoi.app,
-iol-inversiones,1615111890,com.iol.brokerarg,fintech
+iol-inversiones,1615111890,com.iol.brokerarg,brokers
 kilimo,6739498997,com.kilimo.irrigation,
 lemon-cash,1499421511,com.applemoncash,fintech
 mendel,1557396785,com.mendel,
