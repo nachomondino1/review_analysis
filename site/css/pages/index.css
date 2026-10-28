@@ -44,8 +44,14 @@
   font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text);
   font-variant-numeric: tabular-nums; line-height: 1.1;
 }
+.findings-stat-value--text { font-size: 1.1rem; line-height: 1.35; }
 .findings-stat-sub { font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
 .findings-stat-label { font-size: 0.78rem; color: var(--muted); line-height: 1.45; margin-top: 8px; }
+
+.findings-subheader {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800;
+  color: var(--muted-soft); margin: 28px 0 0;
+}
 
 .findings-highlight {
   display: flex; gap: 14px; align-items: flex-start; margin-top: 14px;
