@@ -925,6 +925,9 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         "top_category": top_category_name,
         "top_category_n": categories[0]["n"] if categories else None,
         "top_category_pct_neg": categories[0]["pct_neg"] if categories else None,
+        "top_topic": findings[0]["name"] if findings else None,
+        "top_topic_n": findings[0]["n"] if findings else None,
+        "top_topic_pct_neg": findings[0]["pct_neg"] if findings else None,
     }
 
     return html_out, index_meta
@@ -1006,16 +1009,18 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
     Hallazgos agregados entre TODAS las empresas analizadas (no por empresa):
     responde "¿qué dicen, en conjunto, todas las reseñas que pasaron por este
     pipeline?" — útil para el caso de uso "analizar un nicho" del hero, no
-    solo "mi producto". Arranca con la escala del análisis (empresas,
-    reseñas, rubros — antes vivían sueltas en el hero) y sigue con los
-    hallazgos reales: % de reseñas negativas ponderado por volumen (no
-    promedio simple entre empresas, que le daría el mismo peso a una
-    empresa con 169 reseñas que a una con 276.508), % de reseñas oficiales
-    que efectivamente tienen texto analizable (la limitación real de este
-    tipo de análisis, ver composition bar de cada empresa), y la categoría
-    que más veces aparece como "la más urgente" de una empresa — si se
-    repite entre varios rubros/empresas, es señal de un problema
-    estructural del sector, no de una sola app.
+    solo "mi producto". Dos niveles con su propio header, en el orden que
+    se leen (alcance primero, interpretación después):
+    1. Escala: cuántas empresas/reseñas/rubros entraron al análisis — el
+       contexto necesario antes de confiar en cualquier %.
+    2. Estadísticas, en orden de embudo (cada una es una porción de la
+       anterior, no un dato suelto): % de esas reseñas que tiene texto
+       analizable (la limitación real del método) → de ESE texto, % que es
+       negativo (ponderado por volumen, no promedio simple entre empresas,
+       que le daría el mismo peso a una empresa con 169 reseñas que a una
+       con 276.508) → categoría y tópico que más veces aparecen como "lo
+       más urgente" de una empresa (si se repiten entre varias, es señal
+       de un problema estructural del sector, no de una sola app).
     """
     total_text = sum(m["total_n_text"] for m in metas)
     total_official = sum(m["official_count"] for m in metas if m["official_count"])
@@ -1023,7 +1028,7 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
         return ""
 
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
-    stats_cards = [
+    scale_cards = [
         f'<div class="findings-stat"><div class="findings-stat-value">{len(metas)}</div>'
         f'<div class="findings-stat-label">Empresas analizadas</div></div>',
         f'<div class="findings-stat"><div class="findings-stat-value">{total_official_fmt}</div>'
@@ -1032,34 +1037,49 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
         f'<div class="findings-stat-label">Rubros</div></div>',
     ]
 
-    neg_count = sum(m["pct_neg_text"] / 100 * m["total_n_text"] for m in metas)
-    pct_neg_overall = round(neg_count / total_text * 100, 1)
-    neg_color = pct_to_color(pct_neg_overall)
-
-    stats_cards.append(f'''
-      <div class="findings-stat">
-        <div class="findings-stat-value" style="color:{neg_color}">{pct_neg_overall}%</div>
-        <div class="findings-stat-label">De las reseñas con texto son negativas<br>(ponderado por volumen, no por empresa)</div>
-      </div>
-    ''')
-
+    stat_cards = []
     if total_official:
         pct_text_overall = round(total_text / total_official * 100, 1)
-        stats_cards.append(f'''
+        stat_cards.append(f'''
       <div class="findings-stat">
         <div class="findings-stat-value">{pct_text_overall}%</div>
         <div class="findings-stat-label">De todas las reseñas de la tienda<br>tiene texto analizable</div>
       </div>
         ''')
 
+    neg_count = sum(m["pct_neg_text"] / 100 * m["total_n_text"] for m in metas)
+    pct_neg_overall = round(neg_count / total_text * 100, 1)
+    neg_color = pct_to_color(pct_neg_overall)
+    stat_cards.append(f'''
+      <div class="findings-stat">
+        <div class="findings-stat-value" style="color:{neg_color}">{pct_neg_overall}%</div>
+        <div class="findings-stat-label">De esas reseñas con texto son negativas<br>(ponderado por volumen, no por empresa)</div>
+      </div>
+    ''')
+
+    # Solo vale como "hallazgo entre empresas" si se repite en 2+ — en 1 sola
+    # empresa es el top finding de esa empresa, no un patrón del agregado.
     category_counts = Counter(m["top_category"] for m in metas if m["top_category"])
     if category_counts:
         top_category, top_count = category_counts.most_common(1)[0]
-        stats_cards.append(f'''
+        if top_count >= 2:
+            stat_cards.append(f'''
       <div class="findings-stat">
-        <div class="findings-stat-value">{esc(top_category)}</div>
+        <div class="findings-stat-value findings-stat-value--text">{esc(top_category)}</div>
         <div class="findings-stat-sub">{top_count} de {len(metas)} empresas</div>
         <div class="findings-stat-label">Categoría que más veces es "la más urgente"</div>
+      </div>
+        ''')
+
+    topic_counts = Counter(m["top_topic"] for m in metas if m.get("top_topic"))
+    if topic_counts:
+        top_topic, top_topic_count = topic_counts.most_common(1)[0]
+        if top_topic_count >= 2:
+            stat_cards.append(f'''
+      <div class="findings-stat">
+        <div class="findings-stat-value findings-stat-value--text">{esc(top_topic)}</div>
+        <div class="findings-stat-sub">{top_topic_count} de {len(metas)} empresas</div>
+        <div class="findings-stat-label">Tópico que más veces es "el más urgente"</div>
       </div>
         ''')
 
@@ -1068,8 +1088,10 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
     return f'''
   <section class="index-findings">
     <h2 class="index-section-title">Hallazgos generales</h2>
-    <p class="index-section-subtitle">Qué dicen, en conjunto, todas las reseñas que pasaron por este análisis.</p>
-    <div class="findings-grid">{"".join(stats_cards)}</div>
+    <p class="index-section-subtitle">Todos los datos analizados, en conjunto.</p>
+    <div class="findings-grid">{"".join(scale_cards)}</div>
+    <h3 class="findings-subheader">Estadísticas</h3>
+    <div class="findings-grid">{"".join(stat_cards)}</div>
     {gap_html}
   </section>
     '''
@@ -1129,6 +1151,12 @@ def build_index(site_dir: Path, root: Path):
     otra forma da 404 al no haber nada ahí.
     """
     metas = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(site_dir.glob("*.json"))]
+    # beelup: volumen de reseñas con texto demasiado bajo (74) para que ningún
+    # tópico/categoría pase el umbral de significancia — sin categorías
+    # nombradas no hay un informe ejecutivo real que mostrar, solo el rating.
+    # Se excluye del índice (queda la página generada, pero sin link ni en
+    # los agregados) hasta que tenga más volumen.
+    metas = [m for m in metas if m["slug"] != "beelup"]
     items_by_domain: dict[str, list[str]] = {}
 
     for m in metas:

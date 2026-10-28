@@ -7,5 +7,8 @@
   "pct_neg_text": 13.8,
   "top_category": "Comisiones",
   "top_category_n": 85,
-  "top_category_pct_neg": 42.7
+  "top_category_pct_neg": 42.7,
+  "top_topic": "La app se cierra o falla al verificar identidad (selfie/DNI)",
+  "top_topic_n": 1506,
+  "top_topic_pct_neg": 13.7
 }
