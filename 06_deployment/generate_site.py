@@ -723,7 +723,7 @@ TEMPLATE = """<!doctype html>
 
   <div class="part part--store">
     <div class="part-eyebrow">Parte 1</div>
-    <h2 class="part-title">¿Qué dicen <span class="kw">todas</span> las calificaciones de la tienda?</h2>
+    <h2 class="part-title">¿Qué dicen <span class="kw">todas</span> las reseñas de la tienda?</h2>
     {composition_html}
     {competitor_section}
   </div>
@@ -950,15 +950,30 @@ INDEX_TEMPLATE = """<!doctype html>
     <div class="index-hero-emoji">📊</div>
     <h1>Análisis de reseñas</h1>
     <p class="index-intro">
-      Pipeline que extrae reseñas públicas de App Store y Google Play, las analiza con sentiment analysis
-      y topic modeling, y arma un resumen ejecutivo por empresa — sin backend, sin build step, un HTML por
-      análisis. <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
+      Convierte reseñas públicas de App Store y Google Play en decisiones: qué arreglar si es tu producto,
+      dónde diferenciarte si estás mirando un nicho.
     </p>
+    <div class="index-usecases">
+      <div class="index-usecase">
+        <div class="index-usecase-icon">🔧</div>
+        <div class="index-usecase-title">Si es tu producto</div>
+        <div class="index-usecase-body">Encontrá qué frustra realmente a tus usuarios, con ejemplos concretos y priorizado por impacto — no intuición.</div>
+      </div>
+      <div class="index-usecase">
+        <div class="index-usecase-icon">🎯</div>
+        <div class="index-usecase-title">Si analizás un nicho</div>
+        <div class="index-usecase-body">Compará varias empresas del mismo rubro y detectá qué le falla a la mayoría — ahí está tu oportunidad para diferenciarte.</div>
+      </div>
+    </div>
     <div class="index-stats">
       <div class="index-stat"><div class="index-stat-value">{n_companies}</div><div class="index-stat-label">Empresas analizadas</div></div>
       <div class="index-stat"><div class="index-stat-value">{n_reviews_fmt}</div><div class="index-stat-label">Reseñas procesadas</div></div>
       <div class="index-stat"><div class="index-stat-value">{n_domains}</div><div class="index-stat-label">Rubros</div></div>
     </div>
+    <p class="index-caption">
+      Sentiment analysis + topic modeling, sin backend, un HTML por análisis.
+      <a href="https://github.com/nachomondino1/review_analysis" target="_blank" rel="noopener">Ver el código</a>.
+    </p>
   </header>
   {groups}
 </div>

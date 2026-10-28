@@ -4,14 +4,31 @@
 @media (max-width: 640px) { .index-page .container { padding: 40px 16px 56px; } }
 
 /* --- Hero --- */
-.index-hero { max-width: 640px; margin: 0 auto 48px; text-align: center; }
+.index-hero { max-width: 760px; margin: 0 auto 48px; text-align: center; }
 .index-hero-emoji { font-size: 2.5rem; line-height: 1; margin-bottom: 8px; }
 .index-page h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
-.index-intro { color: var(--muted); font-size: 0.92rem; line-height: 1.65; margin: 14px 0 0; }
-.index-intro a { color: var(--accent); font-weight: 600; }
+.index-intro {
+  color: var(--text); font-size: 1.05rem; font-weight: 500; line-height: 1.6;
+  margin: 14px auto 0; max-width: 560px;
+}
+
+.index-usecases {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;
+  margin-top: 28px; text-align: left;
+}
+.index-usecase {
+  background: var(--accent-soft); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.index-usecase-icon { font-size: 1.3rem; line-height: 1; margin-bottom: 6px; }
+.index-usecase-title { font-weight: 700; font-size: 0.92rem; letter-spacing: -0.01em; }
+.index-usecase-body { color: var(--muted); font-size: 0.82rem; line-height: 1.55; margin-top: 4px; }
+
+.index-caption { color: var(--muted-soft); font-size: 0.78rem; line-height: 1.6; margin: 20px 0 0; }
+.index-caption a { color: var(--accent); font-weight: 600; }
 
 .index-stats {
-  display: flex; justify-content: center; gap: 36px; margin-top: 32px;
+  display: flex; justify-content: center; gap: 36px; margin-top: 28px;
   padding-top: 28px; border-top: 1px solid var(--border-soft);
 }
 @media (max-width: 480px) { .index-stats { gap: 24px; } }
