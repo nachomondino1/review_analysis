@@ -21,6 +21,10 @@
   font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em;
   color: #fff; margin: 0 0 18px; line-height: 1.1;
 }
+/* Resalta las 1-2 palabras clave del título (ver DESIGN_PLAYBOOK): colores fijos,
+   no tokens de tema, porque el hero siempre va sobre foto oscura + degradé. */
+.hero-full-title-accent { color: #6fcbb3; }
+.hero-full-title-accent--2 { color: #f2b544; }
 .hero-full-sub {
   color: rgba(255,255,255,.82); font-size: 1.05rem; line-height: 1.6;
   margin: 0 auto 32px; max-width: 56ch;
