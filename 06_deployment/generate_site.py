@@ -930,12 +930,20 @@ INDEX_TEMPLATE = """<!doctype html>
     <div class="sub">App Store + Google Play</div>
   </div>
 </header>
+<section class="hero-full">
+  <div class="hero-full-overlay"></div>
+  <div class="hero-full-content">
+    <h2 class="hero-full-title">Convertí reseñas en decisiones</h2>
+    <p class="hero-full-sub">
+      Sentiment analysis + topic modeling sobre reseñas públicas de App Store y Google Play:
+      qué arreglar si es tu producto, dónde diferenciarte si estás mirando un nicho.
+    </p>
+    <a class="hero-full-cta" href="#empresas">Explorá por empresa ↓</a>
+  </div>
+  <a class="hero-full-credit" href="https://unsplash.com/photos/aT24h1Lm_vw" target="_blank" rel="noopener">Foto: Martin Martz / Unsplash</a>
+</section>
 <div class="container">
   <header class="index-hero">
-    <p class="index-intro">
-      Convierte reseñas públicas de App Store y Google Play en decisiones: qué arreglar si es tu producto,
-      dónde diferenciarte si estás mirando un nicho.
-    </p>
     <p class="section-label">¿Para qué sirve?</p>
     <div class="index-usecases">
       <div class="index-usecase">
@@ -1158,7 +1166,7 @@ def build_index(site_dir: Path, root: Path):
             f'</div>'
         )
     companies_section = (
-        '<section class="index-companies">'
+        '<section class="index-companies" id="empresas">'
         '<p class="section-label">Explorá por empresa</p>'
         '<p class="index-section-subtitle">Un informe ejecutivo por empresa, agrupadas por rubro.</p>'
         + "\n    ".join(groups_html)
