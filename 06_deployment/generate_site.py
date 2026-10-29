@@ -115,52 +115,22 @@ def build_composition_bar(official: dict | None, total_n: int, avg_rating_text: 
     n_no_text = total_official - total_n
     total_n_fmt = f'{total_n:,}'.replace(",", ".")
     n_no_text_fmt = f'{n_no_text:,}'.replace(",", ".")
-    total_official_fmt = f'{total_official:,}'.replace(",", ".")
-    neg_sub = f'<div class="split-branch-sub">Promedio: {avg_rating_text}★</div>' if avg_rating_text is not None else ""
+    avg_sub = f' · {avg_rating_text}★ promedio' if avg_rating_text is not None else ""
 
     return f'''
-    <div class="composition">
-      <div class="split-flow">
-        <div class="split-origin">
-          <div class="split-origin-stat">
-            <div class="split-origin-value">{total_official_fmt}</div>
-            <div class="split-origin-label">Reseñas totales</div>
-          </div>
-          <div class="split-origin-stat split-origin-stat--secondary">
-            <div class="split-origin-value split-origin-value--small">{official["score"]}★</div>
-            <div class="split-origin-label">Rating oficial</div>
-          </div>
-        </div>
-        <div class="split-branches">
-          <div class="split-branch split-branch--notext">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">{n_no_text_fmt}</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Solo estrellas</strong> · {pct_no_text}% del total</div>
-              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--notext" style="width:{pct_no_text}%"></div></div>
-              <div class="split-branch-sub">Sin texto no se puede medir sentimiento</div>
-            </div>
-          </div>
-          <div class="split-branch split-branch--text">
-            <span class="split-arrow" aria-hidden="true">↳</span>
-            <div class="split-branch-num">
-              <div class="split-branch-value">{total_n_fmt}</div>
-              <div class="split-branch-unit">reseñas</div>
-            </div>
-            <div class="split-branch-body">
-              <div class="split-branch-label"><strong>Con texto</strong> · {pct_text}% del total</div>
-              <div class="split-branch-bar"><div class="split-branch-bar-fill split-branch-bar-fill--text" style="width:{pct_text}%"></div></div>
-              {neg_sub}
-            </div>
-          </div>
-        </div>
+    <div class="scope-rows">
+      <div class="scope-row">
+        <span class="scope-row-label">Solo estrellas</span>
+        <div class="bar-track"><div class="bar-fill bar-fill--muted" style="width:{pct_no_text}%"></div></div>
+        <span class="scope-row-num">{n_no_text_fmt} reseñas · {pct_no_text}%</span>
       </div>
-      <p class="composition-callout">👇 A partir de acá, el análisis usa <strong>solo el {pct_text}% que tiene texto</strong> ({total_n_fmt} reseñas) — es la única porción que se puede leer.</p>
-      {ios_cap_note}
+      <div class="scope-row">
+        <span class="scope-row-label">Con texto</span>
+        <div class="bar-track"><div class="bar-fill" style="width:{pct_text}%"></div></div>
+        <span class="scope-row-num">{total_n_fmt} reseñas · {pct_text}%{avg_sub}</span>
+      </div>
     </div>
+    {ios_cap_note}
     '''
 
 
@@ -412,38 +382,21 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
     if not categories:
         return ""
     max_n = max(c["n"] for c in categories)
-    bubbles = []
+    bars = []
     for c in sorted(categories, key=lambda c: c["n"], reverse=True):
-        scale = (c["n"] / max_n) ** 0.5 if max_n else 0  # área ~ n, no diámetro ~ n
-        size = round(BUBBLE_MIN_PX + (BUBBLE_MAX_PX - BUBBLE_MIN_PX) * scale)
+        width_pct = round(max(c["n"] / max_n, 0.04) * 100, 1) if max_n else 0
         color = pct_to_color(c["pct_neg"])
         pct_round = round(c["pct_neg"])
-        font_size = max(10, min(14, round(size / 8)))
-        item_width = max(size, 90)
         slug = category_slug(c["category"])
-        bubbles.append(f'''
-        <div class="bubble-item" style="width:{item_width}px;">
-          <button type="button" class="bubble-trigger" aria-expanded="false" data-target="cat-detail-{slug}">
-            <div class="bubble-slot" style="height:{BUBBLE_MAX_PX}px;">
-              <div class="bubble" style="width:{size}px;height:{size}px;background:{color};font-size:{font_size}px;"
-                   title="{esc(c["category"])}: {c["n"]} reseñas, {pct_round}% negativas">
-                {esc(c["category"])}
-              </div>
-            </div>
-            <div class="bubble-pct" style="color:{color};">{pct_round}% negativas</div>
-            <div class="bubble-n">{c["n"]} reseñas · ver ejemplos</div>
-          </button>
-        </div>
+        bars.append(f'''
+        <button type="button" class="cat-bar-trigger" aria-expanded="false" data-target="cat-detail-{slug}">
+          <span class="cat-bar-name">{esc(c["category"])}</span>
+          <span class="cat-bar-track"><span class="cat-bar-fill" style="width:{width_pct}%;background:{color};"></span></span>
+          <span class="cat-bar-pct" style="color:{color};">{pct_round}% neg.</span>
+          <span class="cat-bar-n">{c["n"]} reseñas</span>
+        </button>
         ''')
-    legend = f'''
-    <div class="bubble-legend">
-      <span>Tamaño = volumen de reseñas · click en una burbuja para ver ejemplos</span>
-      <span class="bubble-legend-scale">
-        <span class="bubble-legend-dot" style="background:{pct_to_color(0)}"></span>Positiva
-        <span class="bubble-legend-dot" style="background:{pct_to_color(100)}"></span>Negativa
-      </span>
-    </div>
-    '''
+    legend = '<p class="methodology-note">Largo de la barra = volumen de reseñas · color = % negativas · click para ver ejemplos</p>'
     explain = ""
     if category_topics:
         items = []
@@ -461,12 +414,11 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
                 f'<dl>{"".join(items)}</dl></details>'
             )
     return (
-        f'<div class="subsection"><h3>¿Qué opina el cliente por categoría?</h3>'
+        f'<p class="section-label">¿Qué opina el cliente por categoría?</p>'
         f'{legend}'
-        f'<div class="bubble-chart">{"".join(bubbles)}</div>'
+        f'<div class="cat-bars">{"".join(bars)}</div>'
         f'{explain}'
         f'<div class="category-detail-wrap">{category_detail_html}</div>'
-        f'</div>'
     )
 
 
@@ -691,51 +643,51 @@ TEMPLATE = """<!doctype html>
 {favicon}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="css/components/base.css">
 <link rel="stylesheet" href="css/pages/empresa.css">
 </head>
 <body>
 <header class="page-head">
   <div>
-    <h1>📊 <a class="page-head-home" href="../index.html">Análisis de reseñas</a> de {empresa}</h1>
+    <h1><a class="page-head-home" href="../index.html">Análisis de reseñas</a> de {empresa}</h1>
     <div class="sub">Generado {fecha}</div>
   </div>
 </header>
 <div class="container">
 
-  <div class="goal-banner">
-    <div class="goal-badge">📊 Informe ejecutivo · {fecha}</div>
-    <div class="goal-main">
-      <div class="goal-left">
-        <div class="goal-eyebrow">{empresa} en Google Play y App Store</div>
-        <div class="goal-question">¿Qué podemos mejorar en la app según el feedback del usuario?</div>
-      </div>
-    </div>
-    <div class="goal-steps">
-      <div class="goal-step"><span class="goal-step-icon">📱</span>Reseñas de App Store y Google Play</div>
-      <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">🤖</span>Analizadas con Machine Learning</div>
-      <div class="goal-step-arrow">→</div>
-      <div class="goal-step"><span class="goal-step-icon">🏷️</span>Sentimiento por categoría y tópico</div>
-    </div>
-    {top_finding_html}
+  <div class="head-row">
+    <div class="head-name">{empresa}</div>
+    <div class="head-meta">GOOGLE PLAY + APP STORE · {fecha}</div>
   </div>
 
-  <div class="part part--store">
-    <div class="part-eyebrow">Parte 1</div>
-    <h2 class="part-title">¿Qué dicen <span class="kw">todas</span> las reseñas de la tienda?</h2>
-    {composition_html}
-    {competitor_section}
+  <div class="grid-stats">
+    <div class="stat-cell">
+      <p class="stat-cell-label">Rating oficial</p>
+      <div class="stat-cell-value">{official_rating}</div>
+      <div class="stat-cell-sub">{official_count}</div>
+    </div>
+    <div class="stat-cell">
+      <p class="stat-cell-label">Con texto analizado</p>
+      <div class="stat-cell-value">{total_n_fmt}</div>
+      <div class="stat-cell-sub">de {official_count}</div>
+    </div>
+    <div class="stat-cell">
+      <p class="stat-cell-label">% negativas (con texto)</p>
+      <div class="stat-cell-value bad">{pct_neg}%</div>
+    </div>
+    {urgent_cells}
   </div>
 
-  <div class="part part--text">
-    <div class="part-eyebrow">Parte 2</div>
-    <h2 class="part-title">¿Qué dicen las reseñas <span class="kw">que tienen texto</span>?</h2>
-    <p class="part-scope">Todo lo que sigue en esta sección — tendencia, categorías, hallazgos y el detalle por tópico — está calculado <strong>únicamente sobre las {total_n_fmt} reseñas con texto</strong>, no sobre el total de la tienda.</p>
-    <div class="subsection">{trend_html}</div>
+  <p class="section-label">¿Qué dicen todas las reseñas de la tienda?</p>
+  {composition_html}
+  {competitor_section}
 
-    {categories_section}
+  <p class="part-scope">A partir de acá, el análisis usa <strong>únicamente las {total_n_fmt} reseñas con texto</strong> — es la única porción que se puede leer.</p>
+
+  <div class="subsection">{trend_html}</div>
+
+  {categories_section}
 
     <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
          ejemplos por categoría (debajo del bubble chart) — el código que arma
@@ -749,7 +701,7 @@ TEMPLATE = """<!doctype html>
     -->
 
     <div class="subsection">
-      <h3>¿Qué dice cada tópico en detalle?</h3>
+      <p class="section-label">¿Qué dice cada tópico en detalle?</p>
       <details class="detail-table">
         <summary>Ver los {n_topics} tópicos detectados</summary>
         <div class="table-scroll">
@@ -768,7 +720,6 @@ TEMPLATE = """<!doctype html>
         <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
       </details>
     </div>
-  </div>
 
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
@@ -776,7 +727,7 @@ TEMPLATE = """<!doctype html>
 </div>
 <script>
 (function () {{
-  var bubbleButtons = document.querySelectorAll(".bubble-trigger");
+  var bubbleButtons = document.querySelectorAll(".cat-bar-trigger");
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   bubbleButtons.forEach(function (btn) {{
     var targetId = btn.getAttribute("data-target");
@@ -845,26 +796,23 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     findings = build_findings(summary, reviews)
     findings_html = render_findings_html(findings) or '<p class="empty">No se detectaron hallazgos negativos relevantes.</p>'
 
-    def urgent_card(icon: str, label: str, name: str, n: int, pct_neg: float) -> str:
+    def urgent_card(label: str, name: str, n: int, pct_neg: float) -> str:
         return f'''
-        <div class="goal-urgent">
-          <span class="goal-urgent-icon">{icon}</span>
-          <div>
-            <div class="goal-urgent-label">{label}</div>
-            <div class="goal-urgent-name">{esc(name)}</div>
-            <div class="goal-urgent-meta">{n} reseñas · {pct_neg}% negativas</div>
-          </div>
+        <div class="stat-cell">
+          <p class="stat-cell-label">{label}</p>
+          <div class="stat-cell-value is-text bad">{esc(name)}</div>
+          <div class="stat-cell-sub">{n} reseñas · {pct_neg}% neg.</div>
         </div>
         '''
 
     urgent_cards = []
     if categories:
         top_category = categories[0]
-        urgent_cards.append(urgent_card("📂", "Categoría más urgente", top_category["category"], top_category["n"], top_category["pct_neg"]))
+        urgent_cards.append(urgent_card("Categoría más urgente", top_category["category"], top_category["n"], top_category["pct_neg"]))
     if findings:
         top = findings[0]
-        urgent_cards.append(urgent_card("🚨", "Tópico más urgente", top["name"], top["n"], top["pct_neg"]))
-    top_finding_html = f'<div class="goal-urgent-row">{"".join(urgent_cards)}</div>' if urgent_cards else ""
+        urgent_cards.append(urgent_card("Tópico más urgente", top["name"], top["n"], top["pct_neg"]))
+    urgent_cells = "".join(urgent_cards)
     # Minimalismo: mostrar un solo banner de tendencia, no los dos apilados.
     # El quiebre de versión es el hallazgo más fuerte y citable (persistencia +
     # significancia ya exigidas en version_breakout.py) — si existe, gana;
@@ -872,13 +820,13 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     breakout_html = build_version_breakout_section(paths)
     recency_html = build_recency_comparison(reviews)
     trend_body = breakout_html or recency_html
-    trend_html = f'<h3>¿Cómo vienen últimamente?</h3>{trend_body}' if trend_body else ""
+    trend_html = f'<p class="section-label">¿Cómo vienen últimamente?</p>{trend_body}' if trend_body else ""
     table_rows = build_table_rows(summary)
     table_category_header = '<th data-sort="text">Categoría</th>' if "category" in summary.columns else ""
 
     competitor_html = build_competitor_section(official, empresa_display, competitor) if competitor else ""
     competitor_section = (
-        f'<div class="subsection"><h3>¿Cómo comparás con la competencia?</h3>{competitor_html}</div>' if competitor_html else ""
+        f'<p class="section-label">¿Cómo comparás con la competencia?</p>{competitor_html}' if competitor_html else ""
     )
 
     top_category_name = categories[0]["category"] if categories else None
@@ -904,7 +852,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
         composition_html=composition_html,
         categories_section=categories_section,
         findings_html=findings_html,
-        top_finding_html=top_finding_html,
+        urgent_cells=urgent_cells,
         trend_html=trend_html,
         competitor_section=competitor_section,
         n_topics=len(summary),
@@ -1027,12 +975,15 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
     if not total_text:
         return ""
 
+    total_text_fmt = f'{total_text:,}'.replace(",", ".")
     total_official_fmt = f'{total_official:,}'.replace(",", ".")
     scale_cards = [
         f'<div class="findings-stat"><div class="findings-stat-value">{len(metas)}</div>'
         f'<div class="findings-stat-label">Empresas analizadas</div></div>',
         f'<div class="findings-stat"><div class="findings-stat-value">{total_official_fmt}</div>'
-        f'<div class="findings-stat-label">Reseñas procesadas</div></div>',
+        f'<div class="findings-stat-label">Reseñas totales</div></div>',
+        f'<div class="findings-stat"><div class="findings-stat-value">{total_text_fmt}</div>'
+        f'<div class="findings-stat-label">Reseñas con texto</div></div>',
         f'<div class="findings-stat"><div class="findings-stat-value">{n_domains}</div>'
         f'<div class="findings-stat-label">Rubros</div></div>',
     ]
