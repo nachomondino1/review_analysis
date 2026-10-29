@@ -1233,6 +1233,7 @@ def build_index(site_dir: Path, root: Path):
 
 
 CONTACT_EMAIL = "nachomondino1@gmail.com"
+CONTACT_LINKEDIN = "https://www.linkedin.com/in/ignacio-mondino/"
 
 CONTACT_TEMPLATE = """<!doctype html>
 <html lang="es">
@@ -1277,7 +1278,10 @@ CONTACT_TEMPLATE = """<!doctype html>
     Si tenés dudas sobre el análisis, querés un informe de tu propia app o encontraste algo
     que no cierra en los datos, escribime.
   </p>
-  <a class="contacto-email" href="mailto:{email}">{email}</a>
+  <div class="contacto-links">
+    <a class="contacto-email" href="mailto:{email}">{email}</a>
+    <a class="contacto-email" href="{linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a>
+  </div>
   <footer>
     Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
   </footer>
@@ -1291,6 +1295,7 @@ def build_contacto(root: Path, site_dir: Path):
     (root / "contacto.html").write_text(
         CONTACT_TEMPLATE.format(
             email=CONTACT_EMAIL,
+            linkedin=CONTACT_LINKEDIN,
             nav_html=build_nav_html(site_dir, companies_prefix=f"{site_dir.name}/", contacto_href="contacto.html"),
             base_url=BASE_URL,
             favicon=FAVICON,

@@ -3,9 +3,11 @@
 
 .contacto-container { max-width: 640px; }
 .contacto-intro { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin: 24px 0 28px; max-width: 56ch; }
+.contacto-links { display: flex; flex-wrap: wrap; gap: 12px; }
 .contacto-email {
   display: inline-block; font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600;
   color: var(--accent); text-decoration: none; border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 14px 20px;
 }
 .contacto-email:hover { background: var(--bg-subtle); }
+@media (max-width: 480px) { .contacto-links { flex-direction: column; } }
