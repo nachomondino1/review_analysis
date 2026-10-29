@@ -676,6 +676,7 @@ TEMPLATE = """<!doctype html>
     <h1><a class="page-head-home" href="../index.html">Análisis de reseñas</a> de {empresa}</h1>
     <div class="sub">Generado {fecha}</div>
   </div>
+  {nav_html}
 </header>
 <div class="container">
 
@@ -850,6 +851,7 @@ def render(paths: Paths, empresa_display: str, competitor: str | None = None) ->
     html_out = TEMPLATE.format(
         empresa=esc(empresa_display),
         slug=paths.site_html.stem,
+        nav_html=build_nav_html(paths.site_dir, companies_prefix="", contacto_href="../contacto.html"),
         base_url=BASE_URL,
         favicon=FAVICON,
         meta_description=esc(meta_description),
@@ -929,11 +931,12 @@ INDEX_TEMPLATE = """<!doctype html>
     <h1>Análisis de reseñas</h1>
     <div class="sub">App Store + Google Play</div>
   </div>
+  {nav_html}
 </header>
 <section class="hero-full">
   <div class="hero-full-overlay"></div>
   <div class="hero-full-content">
-    <h2 class="hero-full-title">Convertí reseñas en decisiones</h2>
+    <h2 class="hero-full-title">Convertí <span class="hero-full-title-accent">reseñas</span> en <span class="hero-full-title-accent hero-full-title-accent--2">decisiones</span></h2>
     <p class="hero-full-sub">
       Sentiment analysis + topic modeling sobre reseñas públicas de App Store y Google Play:
       qué arreglar si es tu producto, dónde diferenciarte si estás mirando un nicho.
@@ -970,6 +973,50 @@ INDEX_TEMPLATE = """<!doctype html>
 
 DOMAIN_LABELS = {"fintech": "Fintech", "brokers": "Brokers", "sportstech": "Sportstech", "juegos-de-mesa": "Juegos de mesa"}
 NO_DOMAIN_LABEL = "Otros"
+
+
+def build_nav_html(site_dir: Path, companies_prefix: str, contacto_href: str) -> str:
+    """
+    Nav compartida del header.page-head (todas las páginas): un dropdown
+    "Empresas" agrupado por rubro (mismo agrupamiento que build_index, leído
+    de los mismos sidecars site/*.json) + link a "Contacto". Un solo
+    dropdown en vez de uno por rubro (ver DECISIONS) — con 6 empresas en 3
+    rubros, varios triggers de hover saturan una navbar angosta y no
+    funcionan bien en mobile; <details> en vez de hover porque sí funciona
+    con touch.
+
+    companies_prefix: cómo llegar de ESTA página a site/<slug>.html (p.ej.
+    "site/" desde la raíz, "" desde adentro de site/).
+    contacto_href: cómo llegar de ESTA página a contacto.html.
+    """
+    metas = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(site_dir.glob("*.json"))]
+    metas = [m for m in metas if m["slug"] != "beelup"]
+    items_by_domain: dict[str, list[tuple[str, str]]] = {}
+    for m in metas:
+        info = companies.lookup(m["slug"])
+        domain_label = DOMAIN_LABELS.get(info.get("domain") if info else None, NO_DOMAIN_LABEL)
+        items_by_domain.setdefault(domain_label, []).append((m["slug"], m["empresa"]))
+
+    ordered_labels = [l for l in DOMAIN_LABELS.values() if l in items_by_domain]
+    ordered_labels += [l for l in items_by_domain if l not in ordered_labels]
+
+    groups_html = []
+    for label in ordered_labels:
+        links = "".join(
+            f'<a href="{companies_prefix}{slug}.html">{esc(name)}</a>'
+            for slug, name in items_by_domain[label]
+        )
+        groups_html.append(
+            f'<div class="nav-dropdown-group"><div class="nav-dropdown-group-title">{esc(label)}</div>{links}</div>'
+        )
+
+    return f'''<nav class="page-nav">
+    <details class="nav-dropdown">
+      <summary>Empresas</summary>
+      <div class="nav-dropdown-panel">{"".join(groups_html)}</div>
+    </details>
+    <a class="page-nav-link" href="{contacto_href}">Contacto</a>
+  </nav>'''
 
 
 def build_findings_stats(metas: list[dict], n_domains: int) -> str:
@@ -1177,6 +1224,74 @@ def build_index(site_dir: Path, root: Path):
         INDEX_TEMPLATE.format(
             groups=companies_section,
             findings_section=build_findings_stats(metas, len(items_by_domain)),
+            nav_html=build_nav_html(site_dir, companies_prefix=f"{site_dir.name}/", contacto_href="contacto.html"),
+            base_url=BASE_URL,
+            favicon=FAVICON,
+        ),
+        encoding="utf-8",
+    )
+
+
+CONTACT_EMAIL = "nachomondino1@gmail.com"
+
+CONTACT_TEMPLATE = """<!doctype html>
+<html lang="es">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contacto — Análisis de reseñas</title>
+<meta name="description" content="Contacto para consultas sobre el análisis de reseñas de App Store y Google Play.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contacto — Análisis de reseñas">
+<meta property="og:url" content="{base_url}/contacto.html">
+<meta property="og:locale" content="es_AR">
+{favicon}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="site/css/components/base.css">
+<link rel="stylesheet" href="site/css/pages/contacto.css">
+</head>
+<body class="contacto-page">
+<header class="page-head">
+  <div>
+    <h1><a class="page-head-home" href="index.html">Análisis de reseñas</a></h1>
+    <div class="sub">Contacto</div>
+  </div>
+  {nav_html}
+</header>
+<div class="container contacto-container">
+  <div class="head-row">
+    <div class="head-name">Contacto</div>
+    <div class="head-meta">¿CONSULTAS, DATOS O FEEDBACK?</div>
+  </div>
+  <p class="contacto-intro">
+    Si tenés dudas sobre el análisis, querés un informe de tu propia app o encontraste algo
+    que no cierra en los datos, escribime.
+  </p>
+  <a class="contacto-email" href="mailto:{email}">{email}</a>
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+</body>
+</html>
+"""
+
+
+def build_contacto(root: Path, site_dir: Path):
+    (root / "contacto.html").write_text(
+        CONTACT_TEMPLATE.format(
+            email=CONTACT_EMAIL,
+            nav_html=build_nav_html(site_dir, companies_prefix=f"{site_dir.name}/", contacto_href="contacto.html"),
             base_url=BASE_URL,
             favicon=FAVICON,
         ),
@@ -1202,3 +1317,5 @@ if __name__ == "__main__":
     print(f"Guardado en {paths.site_html.resolve()}")
     build_index(paths.site_dir, ROOT)
     print(f"Índice actualizado en {(ROOT / 'index.html').resolve()}")
+    build_contacto(ROOT, paths.site_dir)
+    print(f"Contacto actualizado en {(ROOT / 'contacto.html').resolve()}")
