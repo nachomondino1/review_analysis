@@ -124,24 +124,11 @@
 </div>
 <script>
 (function () {
-  var bubbleButtons = document.querySelectorAll(".cat-bar-trigger");
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  bubbleButtons.forEach(function (btn) {
-    var targetId = btn.getAttribute("data-target");
-    var panel = targetId && document.getElementById(targetId);
-    if (!panel) return;
-    btn.addEventListener("click", function () {
-      var open = btn.getAttribute("aria-expanded") === "true";
-      bubbleButtons.forEach(function (b) {
-        b.setAttribute("aria-expanded", "false");
-        var p = document.getElementById(b.getAttribute("data-target"));
-        if (p) p.setAttribute("hidden", "");
-      });
-      if (!open) {
-        btn.setAttribute("aria-expanded", "true");
-        panel.removeAttribute("hidden");
-        panel.scrollIntoView({behavior: reduceMotion ? "auto" : "smooth", block: "start"});
-      }
+  var catRows = document.querySelectorAll(".cat-bars > .cat-row");
+  catRows.forEach(function (row) {
+    row.addEventListener("toggle", function () {
+      if (!row.open) return;
+      catRows.forEach(function (other) { if (other !== row) other.open = false; });
     });
   });
   document.querySelectorAll("table.sortable").forEach(function (table) {

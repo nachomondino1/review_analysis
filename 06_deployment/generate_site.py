@@ -323,26 +323,27 @@ def highlight_relevant_sentence(text: str, keywords: list[str]) -> str:
     return " ".join(out)
 
 
-def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame) -> str:
+def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame) -> dict[str, str]:
     """
-    Panel oculto por categoría (debajo del bubble chart, no en la burbuja
-    misma): al hacer click en una burbuja, JS muestra el panel de esa
-    categoría y hace scroll hasta acá. Separa ejemplos en positivas/negativas
-    y resalta, dentro de cada reseña, la oración que efectivamente habla de
-    la categoría (puede ser una reseña con varios temas mezclados).
+    Panel por categoría (uno por `category`, keyed para que render_categories_html
+    lo intercale justo debajo de SU fila, acordeón con las demás filas, en vez
+    de juntar todos los paneles en un bloque aparte más abajo). Separa ejemplos
+    en positivas/negativas y resalta, dentro de cada reseña, la oración que
+    efectivamente habla de la categoría (puede ser una reseña con varios temas
+    mezclados).
     """
     if "category" not in summary.columns:
-        return ""
+        return {}
     real = summary[~summary["is_outlier"]].copy()
     real = real[real["category"].notna() & (real["category"] != "")]
     real = real[~real["category"].isin(CATEGORIES_EXCLUDED_FROM_BUBBLES)]
     if real.empty:
-        return ""
+        return {}
 
     has_confidence = "sentiment_confidence" in reviews.columns
     RECENT_POOL = 10  # entre las más recientes, se eligen las de clasificación más confiable
 
-    panels = []
+    panels = {}
     for category, group in real.groupby("category"):
         cat_reviews = reviews[reviews["topic"].isin(group["topic"])]
         keywords = [kw for name in group["Name"].dropna() for kw in topic_keywords(name)]
@@ -365,36 +366,46 @@ def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame)
             )
             return f'<div class="cat-detail-col"><h4 class="cat-detail-col-title {css}">{label}</h4><ul class="cat-detail-list">{items}</ul></div>'
 
-        panels.append(f'''
-        <div class="category-detail" id="cat-detail-{category_slug(category)}" hidden>
-          <h4 class="category-detail-title">{esc(category)}</h4>
+        panels[category] = f'''
+        <div class="category-detail">
           <div class="cat-detail-cols">
             {render_side("👍 Positivas", "POS", "cat-detail-col-title--pos")}
             {render_side("👎 Negativas", "NEG", "cat-detail-col-title--neg")}
           </div>
         </div>
-        ''')
-    return "".join(panels)
+        '''
+    return panels
 
 
 def render_categories_html(categories: list[dict], category_topics: dict[str, list[str]] | None = None,
-                            category_detail_html: str = "") -> str:
+                            category_detail_by_cat: dict[str, str] | None = None) -> str:
+    """
+    Cada fila es un <details> nativo: el detalle (ejemplos positivos/negativos)
+    se abre pegado a SU fila, no en un bloque aparte más abajo — así, al abrir
+    otra categoría, las de abajo se corren en vez de haber que scrollear hasta
+    un panel compartido. <details> además da acordeón "uno a la vez" gratis vía
+    JS (cerrar los otros al abrir uno), sin reimplementar aria-expanded a mano.
+    """
     if not categories:
         return ""
+    category_detail_by_cat = category_detail_by_cat or {}
     max_n = max(c["n"] for c in categories)
-    bars = []
+    rows = []
     for c in sorted(categories, key=lambda c: c["n"], reverse=True):
         width_pct = round(max(c["n"] / max_n, 0.04) * 100, 1) if max_n else 0
         color = pct_to_color(c["pct_neg"])
         pct_round = round(c["pct_neg"])
-        slug = category_slug(c["category"])
-        bars.append(f'''
-        <button type="button" class="cat-bar-trigger" aria-expanded="false" data-target="cat-detail-{slug}">
-          <span class="cat-bar-name">{esc(c["category"])}</span>
-          <span class="cat-bar-track"><span class="cat-bar-fill" style="width:{width_pct}%;background:{color};"></span></span>
-          <span class="cat-bar-pct" style="color:{color};">{pct_round}% neg.</span>
-          <span class="cat-bar-n">{c["n"]} reseñas</span>
-        </button>
+        detail_html = category_detail_by_cat.get(c["category"], "")
+        rows.append(f'''
+        <details class="cat-row">
+          <summary class="cat-bar-trigger">
+            <span class="cat-bar-name">{esc(c["category"])}</span>
+            <span class="cat-bar-track"><span class="cat-bar-fill" style="width:{width_pct}%;background:{color};"></span></span>
+            <span class="cat-bar-pct" style="color:{color};">{pct_round}% neg.</span>
+            <span class="cat-bar-n">{c["n"]} reseñas</span>
+          </summary>
+          {detail_html}
+        </details>
         ''')
     legend = '<p class="methodology-note">Largo de la barra = volumen de reseñas · color = % negativas · click para ver ejemplos</p>'
     explain = ""
@@ -416,9 +427,8 @@ def render_categories_html(categories: list[dict], category_topics: dict[str, li
     return (
         f'<p class="section-label">¿Qué opina el cliente por categoría?</p>'
         f'{legend}'
-        f'<div class="cat-bars">{"".join(bars)}</div>'
+        f'<div class="cat-bars">{"".join(rows)}</div>'
         f'{explain}'
-        f'<div class="category-detail-wrap">{category_detail_html}</div>'
     )
 
 
@@ -727,24 +737,11 @@ TEMPLATE = """<!doctype html>
 </div>
 <script>
 (function () {{
-  var bubbleButtons = document.querySelectorAll(".cat-bar-trigger");
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  bubbleButtons.forEach(function (btn) {{
-    var targetId = btn.getAttribute("data-target");
-    var panel = targetId && document.getElementById(targetId);
-    if (!panel) return;
-    btn.addEventListener("click", function () {{
-      var open = btn.getAttribute("aria-expanded") === "true";
-      bubbleButtons.forEach(function (b) {{
-        b.setAttribute("aria-expanded", "false");
-        var p = document.getElementById(b.getAttribute("data-target"));
-        if (p) p.setAttribute("hidden", "");
-      }});
-      if (!open) {{
-        btn.setAttribute("aria-expanded", "true");
-        panel.removeAttribute("hidden");
-        panel.scrollIntoView({{behavior: reduceMotion ? "auto" : "smooth", block: "start"}});
-      }}
+  var catRows = document.querySelectorAll(".cat-bars > .cat-row");
+  catRows.forEach(function (row) {{
+    row.addEventListener("toggle", function () {{
+      if (!row.open) return;
+      catRows.forEach(function (other) {{ if (other !== row) other.open = false; }});
     }});
   }});
   document.querySelectorAll("table.sortable").forEach(function (table) {{
