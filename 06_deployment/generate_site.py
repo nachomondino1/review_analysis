@@ -672,10 +672,7 @@ TEMPLATE = """<!doctype html>
 </head>
 <body>
 <header class="page-head">
-  <div>
-    <h1><a class="page-head-home" href="../index.html">Análisis de reseñas</a> de {empresa}</h1>
-    <div class="sub">Generado {fecha}</div>
-  </div>
+  <h1><a class="page-head-home" href="../index.html">Análisis de reseñas</a></h1>
   {nav_html}
 </header>
 <div class="container">
@@ -927,10 +924,7 @@ INDEX_TEMPLATE = """<!doctype html>
 </head>
 <body class="index-page">
 <header class="page-head">
-  <div>
-    <h1>Análisis de reseñas</h1>
-    <div class="sub">App Store + Google Play</div>
-  </div>
+  <h1>Análisis de reseñas</h1>
   {nav_html}
 </header>
 <section class="hero-full">
@@ -1263,10 +1257,7 @@ CONTACT_TEMPLATE = """<!doctype html>
 </head>
 <body class="contacto-page">
 <header class="page-head">
-  <div>
-    <h1><a class="page-head-home" href="index.html">Análisis de reseñas</a></h1>
-    <div class="sub">Contacto</div>
-  </div>
+  <h1><a class="page-head-home" href="index.html">Análisis de reseñas</a></h1>
   {nav_html}
 </header>
 <div class="container contacto-container">
