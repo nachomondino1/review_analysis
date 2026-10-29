@@ -60,7 +60,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border
 .head-name { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
 .head-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
 .section-label {
-  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--muted); margin: 40px 0 14px; display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  color: var(--text); margin: 48px 0 16px; display: flex; align-items: center; gap: 12px;
 }
 .section-label::after { content: ""; flex: 1; border-top: 1px solid var(--border); }

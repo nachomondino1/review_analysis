@@ -48,8 +48,8 @@
 .findings-stat-label { font-size: 0.76rem; color: var(--muted); line-height: 1.45; margin-top: 8px; }
 
 .findings-subheader {
-  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
-  color: var(--muted); margin: 32px 0 0; display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+  color: var(--text); margin: 32px 0 0; display: flex; align-items: center; gap: 10px;
 }
 .findings-subheader::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 
@@ -67,8 +67,8 @@
 .index-companies .index-group:first-of-type { margin-top: 10px; }
 .index-group + .index-group { margin-top: 32px; }
 .index-group-title {
-  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
-  color: var(--muted); margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+  color: var(--text); margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
 }
 .index-group-title::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 
