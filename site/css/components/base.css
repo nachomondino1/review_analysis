@@ -50,3 +50,17 @@ header.page-head .sub { color: var(--muted); font-size: 0.8rem; }
 .page-head-home:hover { color: var(--accent); text-decoration: underline; }
 h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; margin: 24px 0 8px; color: var(--muted); }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--muted-soft); font-size: 0.78rem; }
+
+/* Panel: lenguaje compartido entre site/<empresa>.html e index.html — encabezado tipo
+   ficha técnica (nombre + meta en monoespaciada) y rótulo de sección con línea divisoria. */
+.head-row {
+  display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 20px;
+  padding-bottom: 14px; border-bottom: 2px solid var(--text);
+}
+.head-name { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
+.head-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.section-label {
+  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted); margin: 40px 0 14px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ""; flex: 1; border-top: 1px solid var(--border); }

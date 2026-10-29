@@ -26,28 +26,28 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 font-size=%2290%22><text y=%22.9em%22>%F0%9F%93%8A</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="site/css/components/base.css">
 <link rel="stylesheet" href="site/css/pages/index.css">
 </head>
 <body class="index-page">
 <div class="container">
   <header class="index-hero">
-    <div class="index-hero-emoji">📊</div>
-    <h1>Análisis de reseñas</h1>
+    <div class="head-row">
+      <div class="head-name">Análisis de reseñas</div>
+      <div class="head-meta">APP STORE + GOOGLE PLAY</div>
+    </div>
     <p class="index-intro">
       Convierte reseñas públicas de App Store y Google Play en decisiones: qué arreglar si es tu producto,
       dónde diferenciarte si estás mirando un nicho.
     </p>
-    <h2 class="index-section-title">¿Para qué sirve?</h2>
+    <p class="section-label">¿Para qué sirve?</p>
     <div class="index-usecases">
       <div class="index-usecase">
-        <div class="index-usecase-icon">🔧</div>
         <div class="index-usecase-title">Si es tu producto</div>
         <div class="index-usecase-body">Encontrá qué frustra realmente a tus usuarios, con ejemplos concretos y priorizado por impacto — no intuición.</div>
       </div>
       <div class="index-usecase">
-        <div class="index-usecase-icon">🎯</div>
         <div class="index-usecase-title">Si analizás un nicho</div>
         <div class="index-usecase-body">Compará varias empresas del mismo rubro y detectá qué le falla a la mayoría — ahí está tu oportunidad para diferenciarte.</div>
       </div>
@@ -59,10 +59,10 @@
   </header>
   
   <section class="index-findings">
-    <h2 class="index-section-title">Hallazgos generales</h2>
+    <p class="section-label">Hallazgos generales</p>
     <p class="index-section-subtitle">Todos los datos analizados, en conjunto.</p>
     <div class="findings-grid"><div class="findings-stat"><div class="findings-stat-value">6</div><div class="findings-stat-label">Empresas analizadas</div></div><div class="findings-stat"><div class="findings-stat-value">516.247</div><div class="findings-stat-label">Reseñas totales</div></div><div class="findings-stat"><div class="findings-stat-value">56.939</div><div class="findings-stat-label">Reseñas con texto</div></div><div class="findings-stat"><div class="findings-stat-value">3</div><div class="findings-stat-label">Rubros</div></div></div>
-    <h3 class="findings-subheader">Estadísticas</h3>
+    <p class="findings-subheader">Estadísticas</p>
     <div class="findings-grid">
       <div class="findings-stat">
         <div class="findings-stat-value">11.0%</div>
@@ -82,23 +82,20 @@
         </div>
     
     <div class="findings-highlight">
-      <div class="findings-highlight-icon">💥</div>
-      <div>
-        <div class="findings-highlight-title">La brecha más grande entre rating y texto</div>
-        <div class="findings-highlight-body">
-          <strong>ripio</strong> tiene <strong>4.61★</strong> en la tienda —
-          pero el <strong>69.9%</strong> de sus reseñas con texto son negativas.
-          El rating resume todas las reseñas (la mayoría solo estrellas, sin texto);
-          quien se toma el trabajo de escribir, en su mayoría, se está quejando.
-        </div>
+      <div class="findings-highlight-title">La brecha más grande entre rating y texto</div>
+      <div class="findings-highlight-body">
+        <strong>ripio</strong> tiene <strong>4.61★</strong> en la tienda —
+        pero el <strong>69.9%</strong> de sus reseñas con texto son negativas.
+        El rating resume todas las reseñas (la mayoría solo estrellas, sin texto);
+        quien se toma el trabajo de escribir, en su mayoría, se está quejando.
       </div>
     </div>
     
   </section>
     
-  <section class="index-companies"><h2 class="index-section-title">Explorá por empresa</h2><p class="index-section-subtitle">Un informe ejecutivo por empresa, agrupadas por rubro.</p><div class="index-group"><h3 class="index-group-title">Fintech</h3><div class="company-grid"><a class="company-card" href="site/belo.html"><div class="company-card-head"><div class="company-name">Belo</div></div><div class="company-meta"><span class="company-meta-item">4.66★</span><span class="company-meta-item">95.044 reseñas</span></div><div class="company-urgent" style="--urgent-color:#db3f1c;--urgent-bg:color-mix(in srgb, #db3f1c 14%, transparent)">⚠️ Acceso · 84.6% negativas</div></a><a class="company-card" href="site/lemon-cash.html"><div class="company-card-head"><div class="company-name">Lemon Cash</div></div><div class="company-meta"><span class="company-meta-item">4.05★</span><span class="company-meta-item">49.840 reseñas</span></div><div class="company-urgent" style="--urgent-color:#d96f09;--urgent-bg:color-mix(in srgb, #d96f09 14%, transparent)">⚠️ Pagos · 55.2% negativas</div></a><a class="company-card" href="site/ripio.html"><div class="company-card-head"><div class="company-name">ripio</div></div><div class="company-meta"><span class="company-meta-item">4.61★</span><span class="company-meta-item">62.767 reseñas</span></div><div class="company-urgent" style="--urgent-color:#db4b18;--urgent-bg:color-mix(in srgb, #db4b18 14%, transparent)">⚠️ Acceso · 77.4% negativas</div></a></div></div>
-    <div class="index-group"><h3 class="index-group-title">Brokers</h3><div class="company-grid"><a class="company-card" href="site/balanz.html"><div class="company-card-head"><div class="company-name">Balanz</div></div><div class="company-meta"><span class="company-meta-item">4.72★</span><span class="company-meta-item">31.046 reseñas</span></div><div class="company-urgent" style="--urgent-color:#bd7d10;--urgent-bg:color-mix(in srgb, #bd7d10 14%, transparent)">⚠️ Comisiones · 42.7% negativas</div></a><a class="company-card" href="site/iol-inversiones.html"><div class="company-card-head"><div class="company-name">IOL Inversiones</div></div><div class="company-meta"><span class="company-meta-item">4.74★</span><span class="company-meta-item">276.508 reseñas</span></div><div class="company-urgent" style="--urgent-color:#db3e1c;--urgent-bg:color-mix(in srgb, #db3e1c 14%, transparent)">⚠️ Acceso · 85.0% negativas</div></a></div></div>
-    <div class="index-group"><h3 class="index-group-title">Juegos de mesa</h3><div class="company-grid"><a class="company-card" href="site/my-board-game-collection.html"><div class="company-card-head"><div class="company-name">My Board Game Collection</div></div><div class="company-meta"><span class="company-meta-item">4.33★</span><span class="company-meta-item">1.042 reseñas</span></div><div class="company-urgent" style="--urgent-color:#dc2626;--urgent-bg:color-mix(in srgb, #dc2626 14%, transparent)">⚠️ Cuenta · 100.0% negativas</div></a></div></div></section>
+  <section class="index-companies"><p class="section-label">Explorá por empresa</p><p class="index-section-subtitle">Un informe ejecutivo por empresa, agrupadas por rubro.</p><div class="index-group"><h3 class="index-group-title">Fintech</h3><div class="company-grid"><a class="company-card" href="site/belo.html"><div class="company-card-head"><div class="company-name">Belo</div></div><div class="company-meta"><span class="company-meta-item">4.66★</span><span class="company-meta-item">95.044 reseñas</span></div><div class="company-urgent" style="color:#db3f1c">Acceso · 84.6% negativas</div></a><a class="company-card" href="site/lemon-cash.html"><div class="company-card-head"><div class="company-name">Lemon Cash</div></div><div class="company-meta"><span class="company-meta-item">4.05★</span><span class="company-meta-item">49.840 reseñas</span></div><div class="company-urgent" style="color:#d96f09">Pagos · 55.2% negativas</div></a><a class="company-card" href="site/ripio.html"><div class="company-card-head"><div class="company-name">ripio</div></div><div class="company-meta"><span class="company-meta-item">4.61★</span><span class="company-meta-item">62.767 reseñas</span></div><div class="company-urgent" style="color:#db4b18">Acceso · 77.4% negativas</div></a></div></div>
+    <div class="index-group"><h3 class="index-group-title">Brokers</h3><div class="company-grid"><a class="company-card" href="site/balanz.html"><div class="company-card-head"><div class="company-name">Balanz</div></div><div class="company-meta"><span class="company-meta-item">4.72★</span><span class="company-meta-item">31.046 reseñas</span></div><div class="company-urgent" style="color:#bd7d10">Comisiones · 42.7% negativas</div></a><a class="company-card" href="site/iol-inversiones.html"><div class="company-card-head"><div class="company-name">IOL Inversiones</div></div><div class="company-meta"><span class="company-meta-item">4.74★</span><span class="company-meta-item">276.508 reseñas</span></div><div class="company-urgent" style="color:#db3e1c">Acceso · 85.0% negativas</div></a></div></div>
+    <div class="index-group"><h3 class="index-group-title">Juegos de mesa</h3><div class="company-grid"><a class="company-card" href="site/my-board-game-collection.html"><div class="company-card-head"><div class="company-name">My Board Game Collection</div></div><div class="company-meta"><span class="company-meta-item">4.33★</span><span class="company-meta-item">1.042 reseñas</span></div><div class="company-urgent" style="color:#dc2626">Cuenta · 100.0% negativas</div></a></div></div></section>
 </div>
 </body>
 </html>

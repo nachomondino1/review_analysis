@@ -2,13 +2,6 @@
 /* Panel: grilla densa tipo ficha técnica — números en monoespaciada alineados en columnas,
    rótulos chicos en mayúscula, divisores finos en vez de cards con sombra. */
 
-.head-row {
-  display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 20px;
-  padding-bottom: 14px; border-bottom: 2px solid var(--text);
-}
-.head-name { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
-.head-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-
 .grid-stats {
   display: grid; grid-template-columns: repeat(6, 1fr); border-left: 1px solid var(--border);
   margin-top: 0;
@@ -31,11 +24,6 @@
 .stat-cell-value.good { color: var(--good); }
 .stat-cell-sub { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
 
-.section-label {
-  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--muted); margin: 40px 0 14px; display: flex; align-items: center; gap: 10px;
-}
-.section-label::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 .part { margin-top: 0; padding: 0; border: none; background: none; }
 .part:first-child { margin-top: 0; }
 .part-eyebrow { display: none; }
@@ -94,6 +82,7 @@
   padding: 10px 12px; font-size: 0.84rem; line-height: 1.5; color: var(--muted);
 }
 .cat-detail-date { color: var(--muted-soft); font-size: 0.66rem; font-weight: 700; margin-bottom: 4px; font-family: var(--font-mono); }
+.cat-detail-confidence { color: var(--warn); font-weight: 600; }
 .cat-detail-list mark {
   background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--text);
   padding: 0 2px; border-radius: 3px;

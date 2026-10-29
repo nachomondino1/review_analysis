@@ -1,31 +1,30 @@
-/* Reglas propias de index.html (landing con el listado de empresas). Carga después de components/base.css. */
+/* Reglas propias de index.html (landing con el listado de empresas). Carga después de components/base.css.
+   Mismo lenguaje tipográfico y de componentes que site/css/pages/empresa.css (Panel): Inter + IBM Plex Mono,
+   celdas con borde en vez de cards con sombra, rótulos en mayúscula chica como separador de sección. */
 
-.index-page .container { max-width: 1240px; padding: 56px 24px 72px; }
-@media (max-width: 640px) { .index-page .container { padding: 40px 16px 56px; } }
+.index-page .container { max-width: 1240px; padding: 40px 24px 72px; }
+@media (max-width: 640px) { .index-page .container { padding: 28px 16px 56px; } }
 
 /* --- Hero --- */
-.index-hero { max-width: 760px; margin: 0 auto 48px; text-align: center; }
-.index-hero-emoji { font-size: 2.5rem; line-height: 1; margin-bottom: 8px; }
-.index-page h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.index-hero { max-width: 760px; margin: 0 auto 48px; }
 .index-intro {
-  color: var(--text); font-size: 1.05rem; font-weight: 500; line-height: 1.6;
-  margin: 14px auto 0; max-width: 560px;
+  color: var(--muted); font-size: 0.95rem; line-height: 1.6;
+  margin: 18px 0 0; max-width: 62ch;
 }
 
-.index-section-title { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; margin: 28px 0 0; }
+.index-section-title { display: none; } /* reemplazado por .section-label, ver empresa.css */
 .index-section-subtitle { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin: 4px 0 0; }
 
 .index-usecases {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;
-  margin-top: 28px; text-align: left;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-left: 1px solid var(--border);
+  margin-top: 0;
 }
 .index-usecase {
-  background: var(--accent-soft); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  padding: 16px 18px;
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 16px 16px;
 }
-.index-usecase-icon { font-size: 1.3rem; line-height: 1; margin-bottom: 6px; }
-.index-usecase-title { font-weight: 700; font-size: 0.92rem; letter-spacing: -0.01em; }
-.index-usecase-body { color: var(--muted); font-size: 0.82rem; line-height: 1.55; margin-top: 4px; }
+.index-usecase-title { font-weight: 700; font-size: 0.88rem; letter-spacing: -0.01em; }
+.index-usecase-body { color: var(--muted); font-size: 0.82rem; line-height: 1.55; margin-top: 6px; }
 
 .index-caption { color: var(--muted-soft); font-size: 0.78rem; line-height: 1.6; margin: 20px 0 0; }
 .index-caption a { color: var(--accent); font-weight: 600; }
@@ -33,63 +32,61 @@
 /* --- Hallazgos agregados entre todas las empresas --- */
 .index-findings { margin: 0 0 40px; }
 .findings-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
-  margin-top: 16px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-left: 1px solid var(--border);
+  margin-top: 10px;
 }
 .findings-stat {
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 20px 18px; text-align: center;
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 16px 16px; text-align: left; min-width: 0;
 }
 .findings-stat-value {
-  font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text);
-  font-variant-numeric: tabular-nums; line-height: 1.1;
+  font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text);
+  font-variant-numeric: tabular-nums; line-height: 1.15;
 }
-.findings-stat-value--text { font-size: 1.1rem; line-height: 1.35; }
-.findings-stat-sub { font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
-.findings-stat-label { font-size: 0.78rem; color: var(--muted); line-height: 1.45; margin-top: 8px; }
+.findings-stat-value--text { font-size: 0.95rem; font-weight: 700; font-family: var(--font-body); line-height: 1.35; }
+.findings-stat-sub { font-family: var(--font-mono); font-size: 0.76rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
+.findings-stat-label { font-size: 0.76rem; color: var(--muted); line-height: 1.45; margin-top: 8px; }
 
 .findings-subheader {
-  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800;
-  color: var(--muted-soft); margin: 28px 0 0;
+  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+  color: var(--muted); margin: 32px 0 0; display: flex; align-items: center; gap: 10px;
 }
+.findings-subheader::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 
 .findings-highlight {
-  display: flex; gap: 14px; align-items: flex-start; margin-top: 14px;
-  background: var(--accent-soft); border: 1px solid var(--accent); border-radius: var(--radius);
-  padding: 18px 20px;
+  margin-top: 16px; padding: 14px 0 0; border-top: 1px dashed var(--border);
 }
-.findings-highlight-icon { font-size: 1.5rem; line-height: 1; }
 .findings-highlight-title {
-  font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
-  color: var(--accent); margin-bottom: 4px;
+  font-family: var(--font-mono); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--accent); margin-bottom: 6px;
 }
-.findings-highlight-body { font-size: 0.92rem; line-height: 1.6; color: var(--text); }
+.findings-highlight-body { font-size: 0.88rem; line-height: 1.6; color: var(--text); max-width: 72ch; }
 .findings-highlight-body strong { font-weight: 800; }
 
 /* --- Grupos por rubro --- */
-.index-companies .index-group:first-of-type { margin-top: 16px; }
-.index-group + .index-group { margin-top: 36px; }
+.index-companies .index-group:first-of-type { margin-top: 10px; }
+.index-group + .index-group { margin-top: 32px; }
 .index-group-title {
-  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800;
-  color: var(--muted-soft); margin: 0 0 14px;
+  font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+  color: var(--muted); margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
 }
+.index-group-title::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 
 /* --- Grid de cards --- */
 .company-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-left: 1px solid var(--border);
 }
 a.company-card {
-  display: flex; flex-direction: column; gap: 10px;
-  background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius);
-  box-shadow: var(--shadow-xs); padding: 18px 18px 16px; color: var(--text); text-decoration: none;
-  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  display: flex; flex-direction: column; gap: 8px;
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 16px 16px; color: var(--text); text-decoration: none;
+  transition: background-color .15s ease;
 }
-a.company-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+a.company-card:hover { background: var(--bg-subtle); }
 .company-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.company-name { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
-.company-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; }
-.company-meta-item { color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.company-name { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
+.company-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.company-meta-item { color: var(--muted); font-size: 0.78rem; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .company-urgent {
-  align-self: flex-start; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.01em;
-  padding: 3px 10px; border-radius: 999px; color: var(--urgent-color); background: var(--urgent-bg);
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.01em;
 }

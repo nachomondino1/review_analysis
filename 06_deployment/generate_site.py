@@ -287,6 +287,7 @@ def build_category_topics(summary: pd.DataFrame) -> dict[str, list[str]]:
 
 
 SAMPLES_PER_BUBBLE = 3
+CONFIDENCE_LOW_THRESHOLD = 0.7  # bajo esto, se muestra el % de confianza del sentimiento como advertencia
 
 
 def category_slug(category: str) -> str:
@@ -359,8 +360,20 @@ def build_category_detail_sections(summary: pd.DataFrame, reviews: pd.DataFrame)
             recent = sub.sort_values("date", ascending=False).head(RECENT_POOL)
             sort_cols = ["sentiment_confidence", "text_length"] if has_confidence else ["text_length"]
             recent = recent.sort_values(sort_cols, ascending=False).head(SAMPLES_PER_BUBBLE)
+
+            def date_line(row) -> str:
+                date_txt = pd.to_datetime(row["date"]).strftime("%d/%m/%Y")
+                # Solo se marca la confianza cuando es BAJA (no en cada reseña): es la
+                # señal de "ojo, el modelo no está tan seguro de este sentimiento" —
+                # mostrarla siempre satura la card sin aportar nada en el caso normal
+                # (confianza alta), que es la mayoría.
+                conf = row.get("sentiment_confidence")
+                if has_confidence and pd.notna(conf) and conf < CONFIDENCE_LOW_THRESHOLD:
+                    return f'{date_txt} <span class="cat-detail-confidence">· {round(conf * 100)}% confianza</span>'
+                return date_txt
+
             items = "".join(
-                f'<li><div class="cat-detail-date">{pd.to_datetime(row["date"]).strftime("%d/%m/%Y")}</div>'
+                f'<li><div class="cat-detail-date">{date_line(row)}</div>'
                 f'{highlight_relevant_sentence(row["text"], keywords)}</li>'
                 for _, row in recent.iterrows()
             )
@@ -906,28 +919,28 @@ INDEX_TEMPLATE = """<!doctype html>
 {favicon}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="site/css/components/base.css">
 <link rel="stylesheet" href="site/css/pages/index.css">
 </head>
 <body class="index-page">
 <div class="container">
   <header class="index-hero">
-    <div class="index-hero-emoji">📊</div>
-    <h1>Análisis de reseñas</h1>
+    <div class="head-row">
+      <div class="head-name">Análisis de reseñas</div>
+      <div class="head-meta">APP STORE + GOOGLE PLAY</div>
+    </div>
     <p class="index-intro">
       Convierte reseñas públicas de App Store y Google Play en decisiones: qué arreglar si es tu producto,
       dónde diferenciarte si estás mirando un nicho.
     </p>
-    <h2 class="index-section-title">¿Para qué sirve?</h2>
+    <p class="section-label">¿Para qué sirve?</p>
     <div class="index-usecases">
       <div class="index-usecase">
-        <div class="index-usecase-icon">🔧</div>
         <div class="index-usecase-title">Si es tu producto</div>
         <div class="index-usecase-body">Encontrá qué frustra realmente a tus usuarios, con ejemplos concretos y priorizado por impacto — no intuición.</div>
       </div>
       <div class="index-usecase">
-        <div class="index-usecase-icon">🎯</div>
         <div class="index-usecase-title">Si analizás un nicho</div>
         <div class="index-usecase-body">Compará varias empresas del mismo rubro y detectá qué le falla a la mayoría — ahí está tu oportunidad para diferenciarte.</div>
       </div>
@@ -1035,10 +1048,10 @@ def build_findings_stats(metas: list[dict], n_domains: int) -> str:
 
     return f'''
   <section class="index-findings">
-    <h2 class="index-section-title">Hallazgos generales</h2>
+    <p class="section-label">Hallazgos generales</p>
     <p class="index-section-subtitle">Todos los datos analizados, en conjunto.</p>
     <div class="findings-grid">{"".join(scale_cards)}</div>
-    <h3 class="findings-subheader">Estadísticas</h3>
+    <p class="findings-subheader">Estadísticas</p>
     <div class="findings-grid">{"".join(stat_cards)}</div>
     {gap_html}
   </section>
@@ -1069,15 +1082,12 @@ def build_rating_gap_highlight(metas: list[dict]) -> str:
         return ""
     return f'''
     <div class="findings-highlight">
-      <div class="findings-highlight-icon">💥</div>
-      <div>
-        <div class="findings-highlight-title">La brecha más grande entre rating y texto</div>
-        <div class="findings-highlight-body">
-          <strong>{esc(worst["empresa"])}</strong> tiene <strong>{worst["official_score"]}★</strong> en la tienda —
-          pero el <strong>{worst["pct_neg_text"]}%</strong> de sus reseñas con texto son negativas.
-          El rating resume todas las reseñas (la mayoría solo estrellas, sin texto);
-          quien se toma el trabajo de escribir, en su mayoría, se está quejando.
-        </div>
+      <div class="findings-highlight-title">La brecha más grande entre rating y texto</div>
+      <div class="findings-highlight-body">
+        <strong>{esc(worst["empresa"])}</strong> tiene <strong>{worst["official_score"]}★</strong> en la tienda —
+        pero el <strong>{worst["pct_neg_text"]}%</strong> de sus reseñas con texto son negativas.
+        El rating resume todas las reseñas (la mayoría solo estrellas, sin texto);
+        quien se toma el trabajo de escribir, en su mayoría, se está quejando.
       </div>
     </div>
     '''
@@ -1120,8 +1130,7 @@ def build_index(site_dir: Path, root: Path):
         if m["top_category"]:
             color = pct_to_color(m["top_category_pct_neg"])
             urgent_html = (
-                f'<div class="company-urgent" style="--urgent-color:{color};--urgent-bg:'
-                f'color-mix(in srgb, {color} 14%, transparent)">⚠️ {esc(m["top_category"])} · '
+                f'<div class="company-urgent" style="color:{color}">{esc(m["top_category"])} · '
                 f'{m["top_category_pct_neg"]}% negativas</div>'
             )
 
@@ -1148,7 +1157,7 @@ def build_index(site_dir: Path, root: Path):
         )
     companies_section = (
         '<section class="index-companies">'
-        '<h2 class="index-section-title">Explorá por empresa</h2>'
+        '<p class="section-label">Explorá por empresa</p>'
         '<p class="index-section-subtitle">Un informe ejecutivo por empresa, agrupadas por rubro.</p>'
         + "\n    ".join(groups_html)
         + '</section>'
