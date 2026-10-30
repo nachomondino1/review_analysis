@@ -5,10 +5,10 @@
   "official_count": 169,
   "total_n_text": 74,
   "pct_neg_text": 68.9,
-  "top_category": null,
-  "top_category_n": null,
-  "top_category_pct_neg": null,
-  "top_topic": null,
-  "top_topic_n": null,
-  "top_topic_pct_neg": null
+  "top_category": "Experiencia de app (wrapper web)",
+  "top_category_n": 38,
+  "top_category_pct_neg": 73.7,
+  "top_topic": "La app redirige al sitio web, que además anda mal",
+  "top_topic_n": 23,
+  "top_topic_pct_neg": 65.2
 }

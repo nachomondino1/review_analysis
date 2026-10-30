@@ -984,7 +984,6 @@ def build_nav_html(site_dir: Path, companies_prefix: str, contacto_href: str) ->
     contacto_href: cómo llegar de ESTA página a contacto.html.
     """
     metas = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(site_dir.glob("*.json"))]
-    metas = [m for m in metas if m["slug"] != "beelup"]
     items_by_domain: dict[str, list[tuple[str, str]]] = {}
     for m in metas:
         info = companies.lookup(m["slug"])
@@ -1160,12 +1159,6 @@ def build_index(site_dir: Path, root: Path):
     otra forma da 404 al no haber nada ahí.
     """
     metas = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(site_dir.glob("*.json"))]
-    # beelup: volumen de reseñas con texto demasiado bajo (74) para que ningún
-    # tópico/categoría pase el umbral de significancia — sin categorías
-    # nombradas no hay un informe ejecutivo real que mostrar, solo el rating.
-    # Se excluye del índice (queda la página generada, pero sin link ni en
-    # los agregados) hasta que tenga más volumen.
-    metas = [m for m in metas if m["slug"] != "beelup"]
     items_by_domain: dict[str, list[str]] = {}
 
     for m in metas:

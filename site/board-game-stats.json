@@ -5,10 +5,10 @@
   "official_count": 2978,
   "total_n_text": 198,
   "pct_neg_text": 15.7,
-  "top_category": null,
-  "top_category_n": null,
-  "top_category_pct_neg": null,
-  "top_topic": null,
-  "top_topic_n": null,
-  "top_topic_pct_neg": null
+  "top_category": "Sincronización y datos",
+  "top_category_n": 22,
+  "top_category_pct_neg": 13.6,
+  "top_topic": "Integración con BoardGameGeek (BGG): valorada pero con fricciones",
+  "top_topic_n": 22,
+  "top_topic_pct_neg": 13.6
 }

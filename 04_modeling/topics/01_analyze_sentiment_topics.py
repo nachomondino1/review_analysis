@@ -71,9 +71,38 @@ def run(paths: Paths):
     # en vez de dejar que "auto" decida hasta dónde fusionar. Si aun así un
     # solo tópico se queda con más de MAX_TOPIC_SHARE del corpus no-outlier,
     # es la misma señal que demasiados tópicos: el ajuste no separó bien el
-    # corpus, y conviene subir min_topic_size y reintentar.
-    min_topic_size = min_topic_size_for(len(df))
-    for attempt in range(MIN_TOPIC_SIZE_MAX_RETRIES):
+    # corpus.
+    #
+    # Subir min_topic_size y reintentar (comportamiento original) resuelve
+    # el mega-tópico en corpus grandes (miles de reseñas): valida en Belo,
+    # Lemon Cash, Ripio — ver APRENDIZAJES.md 2026-10-21. Pero en un corpus
+    # chico (~200 reseñas, ej. Board Game Stats) hace lo contrario de lo que
+    # hace falta: un umbral más alto deja MENOS reseñas por cluster válido,
+    # así que todo termina en outlier en vez de separarse mejor — y eso
+    # pasaba el chequeo de calidad sin querer, porque top_share se calculaba
+    # como 0 cuando no quedaba ningún tópico no-outlier (0/0), en vez de
+    # tratarse como el peor caso posible (ver APRENDIZAJES.md 2026-10-29).
+    # Solución: generar candidatos subiendo Y bajando desde el valor base
+    # (acotado por el piso), probar todos hasta MIN_TOPIC_SIZE_MAX_RETRIES,
+    # y quedarse con el mejor resultado visto (no el último) si ninguno
+    # cumple los dos umbrales — explícito en vez de aceptar un resultado
+    # inservible en silencio.
+    base = min_topic_size_for(len(df))
+    candidates, seen = [base], {base}
+    inc = dec = base
+    while len(candidates) < MIN_TOPIC_SIZE_MAX_RETRIES * 2:
+        dec = max(MIN_TOPIC_SIZE_FLOOR, dec // 2)
+        inc = inc * 2
+        for v in (dec, inc):
+            if v not in seen:
+                candidates.append(v)
+                seen.add(v)
+        if dec == MIN_TOPIC_SIZE_FLOOR and len(candidates) >= MIN_TOPIC_SIZE_MAX_RETRIES:
+            break
+    candidates = candidates[:MIN_TOPIC_SIZE_MAX_RETRIES]
+
+    best = None  # (top_share, -n_topics, min_topic_size, topics, topic_model) — menor top_share gana, empate a más tópicos
+    for min_topic_size in candidates:
         topic_model = BERTopic(language="multilingual", min_topic_size=min_topic_size)
         topics, _ = topic_model.fit_transform(df["text"].tolist(), embeddings)
         n_topics = len(set(topics) - {OUTLIER_TOPIC})
@@ -84,13 +113,24 @@ def run(paths: Paths):
 
         non_outlier = pd.Series(topics)
         non_outlier = non_outlier[non_outlier != OUTLIER_TOPIC]
-        top_share = non_outlier.value_counts().iloc[0] / len(non_outlier) if len(non_outlier) else 0
+        # 0 tópicos no-outlier es el peor caso (no 0% de "tópico mega" — ver
+        # docstring arriba), así que cuenta como top_share=1.0, no 0.
+        top_share = non_outlier.value_counts().iloc[0] / len(non_outlier) if len(non_outlier) else 1.0
+
+        candidate_key = (top_share, -n_topics)
+        if best is None or candidate_key < best[0]:
+            best = (candidate_key, min_topic_size, topics, topic_model, n_topics, top_share)
 
         if n_topics <= MAX_TOPICS and top_share <= MAX_TOPIC_SHARE:
             break
         print(f"min_topic_size={min_topic_size} dio {n_topics} tópicos, el más grande con "
-              f"{top_share:.1%} del corpus no-outlier (ruido o tópico mega) — subiendo umbral y reintentando")
-        min_topic_size *= 2
+              f"{top_share:.1%} del corpus no-outlier (ruido o tópico mega) — probando otro umbral")
+
+    _, min_topic_size, topics, topic_model, n_topics, top_share = best
+    if not (n_topics <= MAX_TOPICS and top_share <= MAX_TOPIC_SHARE):
+        print(f"⚠️ Ningún min_topic_size probado cumplió los umbrales — se queda con el mejor "
+              f"(min_topic_size={min_topic_size}, {n_topics} tópicos, {top_share:.1%} el más grande). "
+              f"Desconfiar más de lo normal de estos tópicos al nombrarlos (03_topics_enrich.py).")
     df["topic"] = topics
 
     # Resumen por tópico (antes se calculaba y se descartaba). pct_neg acá es
