@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1LQM1V95FR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1LQM1V95FR');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de reseñas de la app de Board Game Stats</title>
+<meta name="description" content="Análisis de 198 reseñas de Board Game Stats en App Store y Google Play — sentiment analysis y topic modeling.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Análisis de reseñas de la app de Board Game Stats">
+<meta property="og:description" content="Análisis de 198 reseñas de Board Game Stats en App Store y Google Play — sentiment analysis y topic modeling.">
+<meta property="og:image" content="https://nachomondino1.github.io/review_analysis/site/og-image.png">
+<meta property="og:url" content="https://nachomondino1.github.io/review_analysis/site/board-game-stats.html">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Análisis de reseñas de la app de Board Game Stats">
+<meta name="twitter:description" content="Análisis de 198 reseñas de Board Game Stats en App Store y Google Play — sentiment analysis y topic modeling.">
+<meta name="twitter:image" content="https://nachomondino1.github.io/review_analysis/site/og-image.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 font-size=%2290%22><text y=%22.9em%22>%F0%9F%93%8A</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="css/components/base.css">
+<link rel="stylesheet" href="css/pages/empresa.css">
+</head>
+<body>
+<header class="page-head">
+  <h1><a class="page-head-home" href="../index.html">Análisis de reseñas</a></h1>
+  <nav class="page-nav">
+    <details class="nav-dropdown">
+      <summary>Empresas</summary>
+      <div class="nav-dropdown-panel"><div class="nav-dropdown-group"><div class="nav-dropdown-group-title">Fintech</div><a href="belo.html">Belo</a><a href="lemon-cash.html">Lemon Cash</a><a href="ripio.html">ripio</a></div><div class="nav-dropdown-group"><div class="nav-dropdown-group-title">Brokers</div><a href="balanz.html">Balanz</a><a href="iol-inversiones.html">IOL Inversiones</a></div><div class="nav-dropdown-group"><div class="nav-dropdown-group-title">Juegos de mesa</div><a href="my-board-game-collection.html">My Board Game Collection</a></div><div class="nav-dropdown-group"><div class="nav-dropdown-group-title">Otros</div><a href="board-game-stats.html">Board Game Stats</a></div></div>
+    </details>
+    <a class="page-nav-link" href="../contacto.html">Contacto</a>
+  </nav>
+</header>
+<div class="container">
+
+  <div class="head-row">
+    <div class="head-name">Board Game Stats</div>
+    <div class="head-meta">GOOGLE PLAY + APP STORE · 2026-10-29</div>
+  </div>
+
+  <div class="grid-stats">
+    <div class="stat-cell">
+      <p class="stat-cell-label">Rating oficial</p>
+      <div class="stat-cell-value">4.79★</div>
+      <div class="stat-cell-sub">2.978 reseñas</div>
+    </div>
+    <div class="stat-cell">
+      <p class="stat-cell-label">Con texto analizado</p>
+      <div class="stat-cell-value">198</div>
+      <div class="stat-cell-sub">de 2.978 reseñas</div>
+    </div>
+    <div class="stat-cell">
+      <p class="stat-cell-label">% negativas (con texto)</p>
+      <div class="stat-cell-value bad">15.7%</div>
+    </div>
+    
+  </div>
+
+  <p class="section-label">¿Qué dicen todas las reseñas de la tienda?</p>
+  
+    <div class="scope-rows">
+      <div class="scope-row">
+        <span class="scope-row-label">Solo estrellas</span>
+        <div class="bar-track"><div class="bar-fill bar-fill--muted" style="width:93.4%"></div></div>
+        <span class="scope-row-num">2.780 reseñas · 93.4%</span>
+      </div>
+      <div class="scope-row">
+        <span class="scope-row-label">Con texto</span>
+        <div class="bar-track"><div class="bar-fill" style="width:6.6%"></div></div>
+        <span class="scope-row-num">198 reseñas · 6.6% · 4.52★ promedio</span>
+      </div>
+    </div>
+    
+    
+  
+
+  <p class="part-scope">A partir de acá, el análisis usa <strong>únicamente las 198 reseñas con texto</strong> — es la única porción que se puede leer.</p>
+
+  <div class="subsection"><p class="section-label">¿Cómo vienen últimamente?</p>
+    <div class="trend-tile">
+      <div class="trend-tile-main">
+        <div class="recency-label">Negativas, últimos 3 meses (6 reseñas)</div>
+        <div class="recency-value">16.7%</div>
+        <div class="trend-banner trend-flat">Estable respecto del histórico (15.7%)</div>
+      </div>
+      
+    <div class="sparkline-chart">
+      <div class="sparkline-caption"><span>% negativas por mes</span><span class="sparkline-legend"><span class="sparkline-legend-dot" style="background:var(--muted)"></span>últimos 07/26–10/26<span class="sparkline-legend-dash"></span>promedio histórico</span></div>
+      <div class="sparkline-row">
+        <div class="sparkline-yaxis"><span>100.0%</span><span>0.0%</span></div>
+        <svg class="sparkline" viewBox="0 0 260 48" preserveAspectRatio="none" role="img" aria-label="% de reseñas negativas por mes, de 08/25 a 10/26; promedio histórico 15.7%">
+          <line x1="6" y1="36.3" x2="254" y2="36.3" stroke="var(--muted-soft)" stroke-width="1" stroke-dasharray="3,3" />
+          <path d="M6.0,42.0 L28.5,24.0 L51.1,42.0 L73.6,42.0 L96.2,42.0 L118.7,24.0 L141.3,6.0 L163.8,42.0 L186.4,24.0 L208.9,42.0 L231.5,24.0 L254.0,42.0" fill="none" stroke="var(--muted-soft)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+          <circle cx="186.4" cy="24.0" r="3" fill="var(--muted)" stroke="var(--surface)" stroke-width="2" /><circle cx="208.9" cy="42.0" r="3" fill="var(--muted)" stroke="var(--surface)" stroke-width="2" /><circle cx="231.5" cy="24.0" r="3" fill="var(--muted)" stroke="var(--surface)" stroke-width="2" /><circle cx="254.0" cy="42.0" r="4" fill="var(--muted)" stroke="var(--surface)" stroke-width="2" />
+        </svg>
+      </div>
+      <div class="sparkline-xaxis"><span>08/25</span><span>10/26</span></div>
+    </div>
+    
+    </div>
+    </div>
+
+  
+
+    <!-- Temporalmente oculta a pedido del usuario mientras se prueba el panel de
+         ejemplos por categoría (debajo del bubble chart) — el código que arma
+         findings_html sigue intacto, solo no se renderiza acá.
+    <div class="subsection">
+      <h3>¿Cuáles son los problemas más urgentes?</h3>
+      <div class="findings-grid">
+        <p class="empty">No se detectaron hallazgos negativos relevantes.</p>
+      </div>
+    </div>
+    -->
+
+    <div class="subsection">
+      <p class="section-label">¿Qué dice cada tópico en detalle?</p>
+      <details class="detail-table">
+        <summary>Ver los 1 tópicos detectados</summary>
+        <div class="table-scroll">
+          <table class="sortable">
+            <thead><tr>
+              <th data-sort="text">Tópico</th>
+              <th class="num" data-sort="num">N</th>
+              <th class="num" data-sort="num">Rating</th>
+              <th class="num" data-sort="num">% negativas</th>
+              <th class="num" data-sort="num">Confianza</th>
+              <th data-sort="text">Severidad</th>
+            </tr></thead>
+            <tbody><tr><td>-1_de_que_la_aplicación</td><td class='num'>198</td><td class='num'>4.52</td><td class='num'>15.7%</td><td class='num'>-</td><td>-</td></tr></tbody>
+          </table>
+        </div>
+        <p class="table-hint">Click en un encabezado para ordenar por esa columna.</p>
+      </details>
+    </div>
+
+  <footer>
+    Análisis generado automáticamente a partir de reseñas públicas de App Store y Google Play.
+  </footer>
+</div>
+<script>
+(function () {
+  var catRows = document.querySelectorAll(".cat-bars > .cat-row");
+  catRows.forEach(function (row) {
+    row.addEventListener("toggle", function () {
+      if (!row.open) return;
+      catRows.forEach(function (other) { if (other !== row) other.open = false; });
+    });
+  });
+  document.querySelectorAll("table.sortable").forEach(function (table) {
+    var tbody = table.tBodies[0];
+    var headers = table.tHead.rows[0].cells;
+    Array.prototype.forEach.call(headers, function (th, colIndex) {
+      if (!th.hasAttribute("data-sort")) return;
+      th.addEventListener("click", function () {
+        var type = th.getAttribute("data-sort");
+        var asc = th.getAttribute("data-dir") !== "asc";
+        Array.prototype.forEach.call(headers, function (h) {
+          h.removeAttribute("data-dir");
+          h.classList.remove("sorted-asc", "sorted-desc");
+        });
+        th.setAttribute("data-dir", asc ? "asc" : "desc");
+        th.classList.add(asc ? "sorted-asc" : "sorted-desc");
+
+        var rows = Array.prototype.slice.call(tbody.rows);
+        rows.sort(function (a, b) {
+          var av = a.cells[colIndex].textContent.trim();
+          var bv = b.cells[colIndex].textContent.trim();
+          if (type === "num") {
+            av = parseFloat(av.replace(/[^0-9.-]/g, "")) || 0;
+            bv = parseFloat(bv.replace(/[^0-9.-]/g, "")) || 0;
+            return asc ? av - bv : bv - av;
+          }
+          return asc ? av.localeCompare(bv, "es") : bv.localeCompare(av, "es");
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

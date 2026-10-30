@@ -6,3 +6,6 @@ pysentimiento==0.7.3
 bertopic==0.17.4
 sentence-transformers==6.1.0
 scipy==1.18.1
+langdetect==1.0.9
+sentencepiece==0.2.2
+sacremoses==0.2.0

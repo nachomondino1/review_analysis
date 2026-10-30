@@ -520,3 +520,59 @@ que cubrir las dos — acá, además de "no demasiados tópicos" hacía falta
 decide algo no controlable por el caller (cuánto fusionar), preferir un
 objetivo explícito y verificable (reducir a N exacto) sobre confiar en
 que el heurístico generalice a corpus distintos.
+
+---
+
+### 2026-10-29 — Reseñas en inglés y corpus chico: dos problemas distintos, el segundo seguía sin resolverse
+
+**Qué pasó:** al relevar Board Game Stats (app global, reseñas mayormente en
+inglés), el topic modeling dio 100% outliers y `sentiment_mismatch` alto
+(19.7%). La hipótesis inicial fue idioma: `pysentimiento` y las keywords de
+categorización están afinados para español (igual que el resto de las
+empresas del repo, todas de mercado argentino).
+
+**Qué resolvimos (MVP):** se agregó `03_data_preparation/translate_reviews.py`,
+un paso opcional entre `clean_reviews.py` y el modelado que detecta idioma
+por reseña (`langdetect`) y traduce las que están en inglés a español con un
+modelo local de Hugging Face (`Helsinki-NLP/opus-mt-en-es` vía
+`AutoModelForSeq2SeqLM` + `generate()` — el `pipeline("translation", ...)` de
+conveniencia fue removido en `transformers` 5.x, los modelos seq2seq tipo
+MarianMT siguen andando llamándolos directo). Elegido sobre la API no
+oficial de Google Translate: gratis, local, sin rate-limit, mismo approach
+que ya usamos para `pysentimiento`/`sentence-transformers`.
+
+**Lo que NO se resolvió:** después de traducir, el topic modeling **siguió
+dando 100% outliers** sobre las mismas 198 reseñas. El idioma no era la única
+causa — Board Game Stats tiene un corpus chico (198 reseñas limpias, como
+beelup con 74), y el mecanismo de reintento de `min_topic_size` (ver entrada
+anterior, validado solo con corpus de miles de reseñas) no está calibrado
+para volúmenes así de bajos: al doblar `min_topic_size` en el segundo intento
+(19 → 38 sobre 198 docs), todo terminó en outlier — y el chequeo de calidad
+lo dejó pasar porque `top_share` se calcula como 0 cuando no hay ningún
+tópico no-outlier, lo cual **pasa trivialmente** la condición "ningún tópico
+demasiado grande" (`top_share <= MAX_TOPIC_SHARE`) en vez de ser tratado como
+el peor caso posible. Mismo bug latente probablemente afectó a beelup.
+
+**Decisión:** por ahora, estas empresas se publican sin categorías/tópicos
+(solo rating oficial y % de negativas), igual que beelup — no forzar un
+hallazgo que el modelo no puede respaldar con el volumen disponible.
+
+**Plan a futuro (no implementado):**
+1. Corregir el bug del `top_share` trivial en el caso 100%-outlier (debería
+   contar como fallo, no como éxito) en `04_modeling/topics/01_analyze_sentiment_topics.py`.
+2. Definir (y documentar) un piso de volumen mínimo de reseñas con texto
+   bajo el cual directamente no se intenta topic modeling, en vez de
+   reintentar con parámetros que nunca fueron validados para ese rango.
+3. Reemplazar el MVP de traducir + reusar `pysentimiento` por un modelo de
+   sentimiento nativo en inglés (ej. un modelo de HuggingFace entrenado en
+   inglés equivalente a `pysentimiento`), para empresas con reseñas
+   mayormente en otro idioma — evita el costo/ruido de traducir y una
+   posible pérdida de matiz en la traducción automática.
+
+**Lección generalizable:** cuando un resultado sorprendente tiene una
+hipótesis obvia (acá, idioma), conviene separar esa causa de otras que
+pueden estar actuando en simultáneo (acá, volumen) en vez de asumir que
+arreglar la primera explica todo el síntoma — y un chequeo de calidad que
+usa una métrica derivada (`top_share` sobre un subconjunto) necesita un
+caso base explícito para cuando ese subconjunto está vacío, porque "0 sobre
+0 denominador" rara vez significa "todo bien".
