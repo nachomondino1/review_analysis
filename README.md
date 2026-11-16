@@ -197,6 +197,18 @@ cp .env.example .env   # y completar HF_TOKEN
    python 03_data_preparation/clean_reviews.py --name spotify
    ```
 
+5c. (Opcional, MVP) Si la app tiene reseñas en inglés (apps globales, no solo
+   mercado argentino): traducirlas a español antes de modelar, porque
+   `pysentimiento` y las keywords de categorización están afinados para
+   español — sin esto, el topic modeling puede dar 100% outliers (ver
+   APRENDIZAJES.md, 2026-10-29). Detecta idioma por reseña y traduce las que
+   están en inglés con un modelo local (`Helsinki-NLP/opus-mt-en-es`, sin
+   API externa); el resto de las fases no cambian:
+
+   ```bash
+   python 03_data_preparation/translate_reviews.py --name spotify
+   ```
+
 6. Correr el análisis (mismo `--name`):
 
    ```bash

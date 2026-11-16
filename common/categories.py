@@ -52,6 +52,21 @@ CATEGORIES_BY_DOMAIN = {
         "Ruido": "Reseñas sin contenido interpretable para el negocio: calificación condicionada a algo puntual "
                  "sin desarrollarlo, texto demasiado corto o con palabras sueltas sin sentido claro.",
     },
+    "sportstech": {
+        "Experiencia de app (wrapper web)": "La app no ofrece funcionalidad nativa real: redirige al sitio web "
+                                             "en vez de tener una experiencia propia, percepción de \"app de "
+                                             "mentira\" o \"solo un link\".",
+        "Reproducción de video": "Video/streaming que no carga, tarda, se traba, falla la descarga o no se "
+                                  "puede compartir el contenido.",
+        "Pagos": "Costo del servicio/suscripción, percepción de precio caro o injusto, cobros por contenido "
+                 "puntual.",
+        "Estabilidad": "Crashes, freezes, lentitud general, errores técnicos no específicos de video.",
+        "General": "Opinión (positiva o negativa) sobre la app en su conjunto, sin apuntar a una función "
+                   "específica: satisfacción o lealtad general, \"buena app\"/\"mala app\" sin más detalle. "
+                   "Si el comentario sí señala una función puntual, va en esa categoría aunque sea breve, no acá.",
+        "Ruido": "Reseñas sin contenido interpretable para el negocio: calificación condicionada a algo puntual "
+                 "sin desarrollarlo, texto demasiado corto o con palabras sueltas sin sentido claro.",
+    },
 }
 
 DEFAULT_DOMAIN = "fintech"
