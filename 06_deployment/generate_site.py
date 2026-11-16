@@ -649,6 +649,7 @@ TEMPLATE = """<!doctype html>
   gtag('js', new Date());
   gtag('config', 'G-1LQM1V95FR');
 </script>
+<script data-goatcounter="https://reviews-analysis.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas de la app de {empresa}</title>
@@ -901,6 +902,7 @@ INDEX_TEMPLATE = """<!doctype html>
   gtag('js', new Date());
   gtag('config', 'G-1LQM1V95FR');
 </script>
+<script data-goatcounter="https://reviews-analysis.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Análisis de reseñas — empresas</title>
@@ -1233,6 +1235,7 @@ CONTACT_TEMPLATE = """<!doctype html>
   gtag('js', new Date());
   gtag('config', 'G-1LQM1V95FR');
 </script>
+<script data-goatcounter="https://reviews-analysis.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contacto — Análisis de reseñas</title>
